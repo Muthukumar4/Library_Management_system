@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Dashboard | Library</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+
+.body-shell{
+  min-height:100vh;
+  background:linear-gradient(135deg, #667eea, #764ba2);
+}
+.app-layout{
+  display:block;
+}
+.sidebar{
+  width:260px;
+  background:linear-gradient(180deg, #4f46e5, #6366f1);
+  color:#fff;
+  padding:20px 25px;
+  position:fixed;
+  top:0;
+  left:0;
+  bottom:0;
+  overflow-y:auto;
+  z-index:5;
+  border-radius:0 20px 20px 0;
+  box-shadow:0 20px 40px rgba(15,23,42,0.35);
+}
+.sidebar-profile{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:16px 0 18px;
+  border-bottom:1px solid rgba(255,255,255,0.15);
+  margin-bottom:20px;
+}
+.sidebar-profile .avatar{
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#2a3eb1,#1e3c72);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:600;
+  font-size:20px;
+  box-shadow:0 6px 16px rgba(16,30,58,0.4);
+}
+.sidebar-profile .profile-info p{
+  margin:0;
+  font-weight:600;
+}
+.sidebar-profile .profile-info span{
+  font-size:12px;
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  color:#9bb1ff;
+}
+.status-badge{
+  font-size:11px;
+  padding:4px 8px;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  font-weight:600;
+}
+.status-due{background:#fbc02d;color:#4a2c00;}
+.status-overdue{background:#d32f2f;color:#fff;}
+.status-returned{background:#2e7d32;color:#dff0dc;}
+
+.sidebar h2{text-align:center;margin-bottom:30px;}
+
+.menu{list-style:none;}
+.menu li{
+  padding:12px 15px;
+  margin-bottom:8px;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:14px;
+  transition:background 0.25s ease;
+}
+
+.menu li:hover,.menu li.active{
+  background:rgba(255,255,255,0.25);
+}
+
+.menu li .menu-icon{font-size:18px;}
+
+.main{
+  margin-left:260px;
+  padding:30px;
+  position:relative;
+  height:100vh;
+  overflow-y:auto;
+  background:transparent;
+}
+
+.main::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:url('college.png') center/600px no-repeat;
+  opacity:0.05;
+  z-index:0;
+}
+.main>*{position:relative;z-index:1;}
+
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:25px;
+  position:sticky;
+  top:0;
+  background:rgba(244,246,251,0.97);
+  backdrop-filter:blur(10px);
+  padding-top:4px;
+  padding-bottom:4px;
+  z-index:20;
+  border-bottom:1px solid rgba(227,232,255,0.6);
+}
+.header-actions{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.header .notify-group{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  position:relative;
+}
+.bell-button{
+  position:relative;
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  border:none;
+  background:#f2f5ff;
+  cursor:pointer;
+  box-shadow:0 15px 26px rgba(17,34,73,0.25);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+}
+.bell-button .badge-dot{
+  position:absolute;
+  right:4px;
+  bottom:4px;
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  background:#ff3b30;
+  border:2px solid #fff;
+  color:#fff;
+  font-size:11px;
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+ .bell-message{
+  position:absolute;
+  top:62px;
+  right:0;
+  background:#fff;
+  border-radius:14px;
+  padding:14px 18px;
+  box-shadow:0 20px 40px rgba(15,29,72,0.2);
+  min-width:210px;
+  opacity:0;
+  visibility:hidden;
+  transform:translateY(10px);
+  transition:opacity 0.25s ease, transform 0.25s ease;
+  z-index:50;
+}
+.bell-message.show{
+  opacity:1;
+  visibility:visible;
+  transform:translateY(0);
+}
+.bell-message strong{
+  display:block;
+  font-size:15px;
+  margin-bottom:4px;
+}
+.bell-message p{
+  margin:0;
+  font-size:12px;
+  color:#5a6189;
+}
+.notification-badge .badge-text .title{
+  font-size:14px;
+}
+.notification-badge .badge-text .subtitle{
+  font-size:11px;
+  color:#6574a4;
+  font-weight:500;
+}
+.header h2{color:#1e3c72;}
+.logout{
+  padding:10px 18px;
+  background:linear-gradient(90deg, #4f46e5, #6366f1);
+  color:#fff;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+button{
+  font-family:'Poppins',sans-serif;
+  border:none;
+}
+
+.section{
+  display:none;
+  background:rgba(255,255,255,0.2);
+  padding:25px;
+  border-radius:15px;
+  border:1px solid rgba(255,255,255,0.4);
+  box-shadow:0 15px 30px rgba(15,23,42,0.2);
+  backdrop-filter:blur(10px);
+  transition:transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.section:hover{
+  transform:translateY(-6px);
+  box-shadow:0 30px 45px rgba(15,23,42,0.25);
+}
+
+.section.active{display:block;}
+.content{
+  animation:fadeIn 0.3s ease-in;
+}
+.content:not(.active){
+  animation:none;
+}
+.section h3{color:#1e3c72;margin-bottom:15px;}
+
+@keyframes fadeIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+
+.profile{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:20px;
+  margin-bottom:20px;
+}
+.profile div{
+  background:rgba(255,255,255,0.25);
+  padding:20px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,0.5);
+  box-shadow:0 18px 36px rgba(15,23,42,0.15);
+  backdrop-filter:blur(10px);
+}
+.profile h4{color:#1e3c72;}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:20px;
+}
+.stat{
+  background:#ffffff;
+  padding:20px;
+  border-radius:12px;
+  border-top:4px solid var(--accent-color,#2a3eb1);
+  --accent-color:#2a3eb1;
+  box-shadow:0 10px 20px rgba(18,34,73,0.08);
+  transition:transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.stat h4{font-size:22px;color:var(--accent-color,#1e3c72);}
+.stat p{
+  margin-top:10px;
+  color:#6172a1;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.stat-icon{font-size:18px;line-height:1;}
+.stat:hover{
+  transform:translateY(-6px);
+  box-shadow:0 20px 36px rgba(18,34,73,0.15);
+  border-color:rgba(0,0,0,0.2);
+}
+
+.quick-search-bar{
+  background:rgba(255,255,255,0.25);
+  border-radius:15px;
+  padding:20px;
+  margin:20px 0;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:18px;
+  border:1px solid rgba(255,255,255,0.5);
+  box-shadow:0 18px 36px rgba(15,23,42,0.2);
+  backdrop-filter:blur(12px);
+}
+.quick-search-bar h4{margin:6px 0 0;color:#1e3c72;}
+.quick-search-field{
+  flex:1;
+  max-width:480px;
+  display:flex;
+  align-items:center;
+  background:#f6f8ff;
+  border-radius:10px;
+  padding:10px 14px;
+  border:1px solid #dfe6ff;
+}
+.quick-search-field input{
+  flex:1;
+  border:none;
+  background:transparent;
+  font-size:14px;
+  outline:none;
+}
+.search-icon{font-size:16px;margin-right:12px;}
+.eyebrow{
+  font-size:12px;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:#7a86c6;
+  margin:0;
+}
+.insights-grid{
+  margin-top:10px;
+  display:grid;
+  grid-template-columns:2fr 1fr;
+  gap:20px;
+}
+.chart-card, .issue-return-card{
+  background:rgba(255,255,255,0.2);
+  border-radius:16px;
+  padding:20px 24px;
+  box-shadow:0 20px 40px rgba(17,34,73,0.2);
+  border:1px solid rgba(255,255,255,0.5);
+  backdrop-filter:blur(12px);
+  transition:transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.chart-card:hover, .issue-return-card:hover{
+  transform:translateY(-6px);
+  box-shadow:0 28px 48px rgba(17,34,73,0.3);
+}
+.chart-card__header{
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  align-items:flex-start;
+}
+.chart-card__header h4{margin:4px 0 0;color:#1e3c72;}
+.chart-tag{
+  font-size:12px;
+  padding:6px 12px;
+  border-radius:999px;
+  background:#f1f4ff;
+  color:#2a3eb1;
+}
+.reading-chart{
+  margin-top:12px;
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  min-height:200px;
+  align-items:flex-end;
+}
+.reading-chart__bar{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  flex:1;
+  gap:8px;
+}
+.reading-chart__bar .bar-value{
+  font-size:14px;
+  color:#1e3c72;
+}
+.reading-chart__bar .bar-visual{
+  width:54px;
+  height:var(--bar-height,40%);
+  border-radius:12px;
+  background:linear-gradient(180deg, #5c7cfa, #2a3eb1);
+  transition:height 0.4s ease;
+}
+.reading-chart__bar .bar-label{
+  font-size:12px;
+  color:#58608b;
+}
+.issue-return-stats{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:12px;
+  margin-bottom:12px;
+}
+.issue-return-stats div{
+  background:#f5f6ff;
+  border-radius:12px;
+  padding:12px;
+  text-align:center;
+  border:1px solid #e3e8ff;
+}
+.issue-return-stats span{
+  display:block;
+  font-size:13px;
+  color:#6d749a;
+}
+.issue-return-stats strong{
+  display:block;
+  font-size:20px;
+  color:#1e3c72;
+}
+.recent-books-card{
+  background:rgba(255,255,255,0.2);
+  border-radius:16px;
+  padding:20px 24px;
+  margin-top:20px;
+  box-shadow:0 20px 36px rgba(12,28,72,0.2);
+  border:1px solid rgba(255,255,255,0.45);
+  backdrop-filter:blur(12px);
+  transition:transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.recent-books-card:hover{
+  transform:translateY(-6px);
+  box-shadow:0 26px 48px rgba(12,28,72,0.25);
+}
+.recent-books-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+}
+.recent-books-header h4{margin:4px 0 0;color:#1e3c72;}
+.recent-books-card table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:16px;
+}
+.recent-books-card thead th{
+  text-transform:uppercase;
+  letter-spacing:0.2em;
+  font-size:11px;
+  color:#5b6490;
+  padding-bottom:8px;
+}
+.recent-books-card td{
+  padding:10px 6px;
+  font-size:14px;
+  color:#1d2551;
+}
+.recent-books-card tbody tr:not(:last-child){
+  border-bottom:1px solid #e4e6ff;
+}
+.status-issued{background:#dfe6ff;color:#1e3c72;}
+.section-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:14px;
+  margin-bottom:16px;
+}
+.muted{
+  font-size:13px;
+  color:#6574a4;
+}
+.stat.accent-blue{--accent-color:#2a3eb1;}
+.stat.accent-red{--accent-color:#d32f2f;}
+.stat.accent-orange{--accent-color:#f57c00;}
+.stat.accent-green{--accent-color:#2e7d32;}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+th,td{
+  padding:12px;
+  font-size:14px;
+}
+th{
+  background:#e3e8ff;
+  color:#1e3c72;
+}
+tr:nth-child(even){background:#f6f8ff;}
+
+#fines .fine-table-wrap{
+  margin-top:18px;
+  background:#fff;
+  border-radius:18px;
+  border:1px solid #cbd5ff;
+  padding:18px;
+  box-shadow:0 18px 36px rgba(15,32,86,0.08);
+}
+#fines .fines-table{
+  width:100%;
+  border-collapse:collapse;
+  background:transparent;
+}
+#fines .fines-table th{
+  background:#e4ecff;
+  color:#1f2f6d;
+  font-weight:600;
+  padding:12px 16px;
+  border:1px solid #e9edff;
+}
+#fines .fines-table th:last-child{
+  border-right:1px solid #e9edff;
+}
+#fines .fines-table td{
+  padding:14px 16px;
+  border:1px solid #f0f3ff;
+  color:#1c2351;
+}
+#fines .fines-table tbody tr:hover{
+  background:#f5f5ff;
+}
+
+.search{
+  margin-bottom:15px;
+}
+.search input{
+  width:100%;
+  padding:12px;
+  border-radius:8px;
+  border:1px solid #cfd6ff;
+}
+
+.chatbot{
+  position:fixed;
+  bottom:28px;
+  right:28px;
+  z-index:60;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:10px;
+}
+
+.chatbot-toggle{
+  background:#fff;
+  border:none;
+  border-radius:999px;
+  padding:10px 16px;
+  box-shadow:0 20px 38px rgba(17,34,73,0.25);
+  display:flex;
+  align-items:center;
+  gap:8px;
+  cursor:pointer;
+  font-weight:600;
+  color:#1e1f3a;
+}
+
+.chatbot-panel{
+  width:320px;
+  max-width:calc(100vw - 36px);
+  background:#fff;
+  border-radius:18px;
+  box-shadow:0 18px 40px rgba(17,34,73,0.2);
+  overflow:hidden;
+  transform:translateY(20px);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 0.3s ease, transform 0.3s ease;
+}
+
+.chatbot-panel.visible{
+  opacity:1;
+  transform:translateY(0);
+  pointer-events:auto;
+}
+
+.chatbot-header{
+  padding:16px;
+  border-bottom:1px solid rgba(148,163,184,0.3);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+}
+
+.chatbot-header strong{
+  font-size:16px;
+  color:#1e1f3a;
+}
+
+.chatbot-header p{
+  margin:4px 0 0;
+  font-size:12px;
+  color:#58608b;
+}
+
+.chatbot-close{
+  background:none;
+  border:none;
+  font-size:18px;
+  cursor:pointer;
+  color:#58608b;
+}
+
+.chatbot-messages{
+  max-height:260px;
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  overflow-y:auto;
+}
+
+.chatbot-message{
+  padding:10px 14px;
+  border-radius:14px;
+  font-size:13px;
+  line-height:1.4;
+  white-space:pre-line;
+}
+
+.chatbot-message.bot{
+  background:#eef2ff;
+  color:#1e1f3a;
+  align-self:flex-start;
+}
+
+.chatbot-message.user{
+  background:#1e3c72;
+  color:#fff;
+  align-self:flex-end;
+}
+
+.chatbot-form{
+  display:flex;
+  border-top:1px solid rgba(148,163,184,0.3);
+  background:#f8fafc;
+  padding:12px;
+  gap:10px;
+}
+
+.chatbot-form input{
+  flex:1;
+  border:none;
+  border-radius:999px;
+  padding:10px 16px;
+  outline:none;
+  border:1px solid rgba(148,163,184,0.4);
+  font-size:14px;
+}
+
+.chatbot-form button{
+  border:none;
+  border-radius:999px;
+  padding:10px 16px;
+  background:linear-gradient(135deg, #4f46e5, #6366f1);
+  color:#fff;
+  cursor:pointer;
+  font-weight:600;
+  box-shadow:0 8px 16px rgba(79,70,229,0.3);
+}
+
+@media (max-width: 1024px){
+  body{
+    display:block;
+  }
+  .sidebar{
+    width:100%;
+    padding:16px;
+  }
+  .sidebar h2{
+    margin-bottom:14px;
+  }
+  .menu{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+  }
+  .menu li{
+    margin-bottom:0;
+    text-align:center;
+  }
+  .main{
+    padding:18px;
+  }
+  .profile{
+    grid-template-columns:repeat(2,1fr);
+  }
+  .stats{
+    grid-template-columns:repeat(2,1fr);
+  }
+  .quick-search-bar{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+  .quick-search-field{
+    width:100%;
+    max-width:none;
+  }
+  .insights-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+@media (max-width: 680px){
+  .menu{
+    grid-template-columns:1fr;
+  }
+  .main{
+    padding:12px;
+  }
+  .header{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:10px;
+  }
+  .logout{
+    width:100%;
+  }
+  .section{
+    padding:14px;
+    overflow-x:auto;
+  }
+  .profile{
+    grid-template-columns:1fr;
+    gap:10px;
+  }
+  .stats{
+    grid-template-columns:1fr;
+    gap:10px;
+  }
+  th,td{
+    padding:10px;
+    font-size:13px;
+    white-space:nowrap;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+  <h2>Student Panel</h2>
+  <div class="sidebar-profile">
+    <div class="avatar">SB</div>
+    <div class="profile-info">
+      <p id="sidebarStudentName">Student Name</p>
+      <span>Active Student</span>
+    </div>
+  </div>
+  <ul class="menu">
+    <li class="active" onclick="showSection('dashboard',this)"><span class="menu-icon">&#127968;</span>Dashboard</li>
+    <li onclick="showSection('issued',this)"><span class="menu-icon">&#128218;</span>Issued Books</li>
+    <li onclick="showSection('returned',this)"><span class="menu-icon">&#128216;</span>Returned Books</li>
+    <li onclick="showSection('fines',this)"><span class="menu-icon">&#128176;</span>Pending Fines</li>
+    <li onclick="showSection('search',this)"><span class="menu-icon">&#128270;</span>Search Books</li>
+  </ul>
+</div>
+
+<div class="main">
+
+    <div class="header">
+    <h2>Student Dashboard</h2>
+    <div class="header-actions">
+      <div class="notify-group">
+        <button type="button" class="bell-button" id="bellButton" onclick="toggleBellMessage()" aria-label="View overdue notifications">
+          <span>🔔</span>
+          <span class="badge-dot" id="overdueDot">0</span>
+        </button>
+        <div class="bell-message" id="bellMessage">
+          <strong id="bellTitle">No overdue books</strong>
+          <p id="bellSubtitle">All clear</p>
+        </div>
+      </div>
+      <button class="logout" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <div id="dashboard" class="section content active">
+    <div class="profile">
+      <div><h4>Name</h4><p id="studentName">-</p></div>
+      <div><h4>Register No</h4><p id="studentRollNumber">-</p></div>
+      <div><h4>Department</h4><p id="studentDepartment">-</p></div>
+    </div>
+
+    <div class="quick-search-bar">
+      <div>
+        <p class="eyebrow">Quick catalog search</p>
+        <h4>Find a book without leaving the dashboard</h4>
+      </div>
+      <div class="quick-search-field">
+        <span class="search-icon">&#128269;</span>
+        <input type="text" id="quickSearchInput" placeholder="Search by title, author, or category" />
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat accent-blue"><h4 id="booksIssuedCount">0</h4><p><span class="stat-icon">&#128218;</span>Books Issued</p></div>
+      <div class="stat accent-red"><h4 id="overdueCount">0</h4><p><span class="stat-icon">&#9200;</span>Overdue</p></div>
+      <div class="stat accent-orange"><h4 id="pendingFineAmount">Rs 0</h4><p><span class="stat-icon">&#128176;</span>Pending Fine</p></div>
+      <div class="stat accent-green"><h4 id="totalReadsCount">0</h4><p><span class="stat-icon">&#128214;</span>Total Reads</p></div>
+    </div>
+
+    <div class="insights-grid">
+      <div class="chart-card">
+        <div class="chart-card__header">
+          <div>
+            <p class="eyebrow">Reading activity</p>
+            <h4>Books read per month</h4>
+          </div>
+          <span class="chart-tag">Last 6 months</span>
+        </div>
+        <div id="readingActivityChart" class="reading-chart"></div>
+      </div>
+      <div class="issue-return-card">
+        <div class="chart-card__header" style="margin-bottom:16px;">
+          <div>
+            <p class="eyebrow">Issue vs Return</p>
+            <h4>Your circulation pulse</h4>
+          </div>
+        </div>
+        <div class="issue-return-stats">
+          <div>
+            <span>Issued</span>
+            <strong id="issueCountBadge">0</strong>
+          </div>
+          <div>
+            <span>Returned</span>
+            <strong id="returnCountBadge">0</strong>
+          </div>
+          <div>
+            <span>Return rate</span>
+            <strong id="returnRateBadge">0%</strong>
+          </div>
+        </div>
+        <p class="muted">Based on the issues/returns tracked today.</p>
+      </div>
+    </div>
+
+    <div class="recent-books-card">
+      <div class="recent-books-header">
+        <div>
+          <p class="eyebrow">Recent Books</p>
+          <h4>Recently issued books</h4>
+        </div>
+        <span class="status-badge status-returned">Status</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Book Title</th>
+            <th>Issue Date</th>
+            <th>Due Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="recentBooksBody">
+          <tr><td colspan="4">No recent books available yet.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="issued" class="section content">
+    <h3>Issued Books</h3>
+    <table>
+      <thead>
+        <tr><th>Book</th><th>Author</th><th>Issue</th><th>Due</th><th>Status</th></tr>
+      </thead>
+      <tbody id="issuedBooksBody">
+        <tr><td colspan="4">No issued books found.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div id="returned" class="section content">
+    <h3>Returned Books</h3>
+    <table>
+      <thead>
+        <tr><th>Book</th><th>Author</th><th>Issue</th><th>Returned</th><th>Status</th></tr>
+      </thead>
+      <tbody id="returnedBooksBody">
+        <tr><td colspan="5">No returned books found.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div id="fines" class="section content">
+    <div class="section-header">
+      <h3>Pending Fines</h3>
+    </div>
+    <div class="fine-table-wrap">
+      <table class="fines-table">
+        <thead>
+          <tr><th>Book</th><th>Days Late</th><th>Fine</th></tr>
+        </thead>
+        <tbody id="fineTableBody">
+          <tr><td colspan="3">No pending fines.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+<div id="search" class="section content">
+  <h3>Search Books</h3>
+
+    <div class="search">
+      <input type="text" id="searchInput" placeholder="Search by book name / author / category">
+    </div>
+
+    <table id="bookTable">
+      <thead>
+        <tr><th>Book ID</th><th>Title</th><th>Author</th><th>Publisher</th><th>Category</th><th>Rack</th><th>Shelf</th><th>Total Copies</th><th>Available</th></tr>
+      </thead>
+      <tbody id="bookTableBody">
+        <tr><td colspan="9">Loading books...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<div class="chatbot" aria-live="polite">
+  <button class="chatbot-toggle" type="button" aria-label="Open library bot">
+    <span class="chatbot-icon">🤖</span>
+    <span class="chatbot-label">Need a book?</span>
+  </button>
+  <div class="chatbot-panel" aria-hidden="true">
+    <div class="chatbot-header">
+      <div>
+        <strong>Library Assistant</strong>
+        <p>Ask about books, upcoming returns, or study suggestions.</p>
+      </div>
+      <button class="chatbot-close" type="button" aria-label="Close chat">✕</button>
+    </div>
+    <div class="chatbot-messages" role="log" aria-live="polite"></div>
+    <form class="chatbot-form">
+      <input type="text" placeholder="Try: recommend data science books" required>
+      <button type="submit">Send</button>
+    </form>
+  </div>
+</div>
+
+<script>
+const BASE_URL = "http://localhost:8080";
+
+function showSection(id,el){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.menu li').forEach(m=>m.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function logout(){
+  sessionStorage.removeItem("lmsStudent");
+  sessionStorage.removeItem("lmsAuthHeader");
+  sessionStorage.removeItem("lmsRole");
+  sessionStorage.removeItem("lmsUsername");
+  window.location.href="index.html";
+}
+
+function parseStudentSession() {
+  const role = sessionStorage.getItem("lmsRole");
+  const rawStudent = sessionStorage.getItem("lmsStudent");
+  if (role !== "student" || !rawStudent) {
+    window.location.href = "index.html";
+    return null;
+  }
+
+  try {
+    return JSON.parse(rawStudent);
+  } catch (err) {
+    window.location.href = "index.html";
+    return null;
+  }
+}
+
+function parseDateOnly(value) {
+  if (!value) return null;
+  const date = new Date(`${value}T00:00:00`);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function dayDiff(startDate, endDate) {
+  const msPerDay = 24 * 60 * 60 * 1000;
+  return Math.floor((endDate - startDate) / msPerDay);
+}
+
+function setText(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = value;
+}
+
+function renderStudentProfile(student) {
+  const displayName = student.name || "-";
+  setText("studentName", displayName);
+  setText("sidebarStudentName", displayName);
+  setText("studentRollNumber", student.rollNumber || student.studrollNumber || "-");
+  setText("studentDepartment", student.department || "-");
+  const avatar = document.querySelector(".sidebar-profile .avatar");
+  if (avatar) {
+    const initials = (displayName || "SB").split(" ").map(part => part[0]).filter(Boolean).join("").slice(0,2).toUpperCase() || "SB";
+    avatar.textContent = initials;
+  }
+}
+
+function getIssueDueStatus(issue) {
+  const dueDate = parseDateOnly(issue.dueDate);
+  if (!dueDate) {
+    return { label:"Due date not set", className:"status-issued" };
+  }
+  const remaining = dayDiff(new Date(), dueDate);
+  if (remaining < 0) {
+    return { label:`Overdue by ${Math.abs(remaining)} day${Math.abs(remaining) === 1 ? "" : "s"}`, className:"status-overdue" };
+  }
+  if (remaining === 0) {
+    return { label:"Due today", className:"status-due" };
+  }
+  return { label:`Due in ${remaining} day${remaining === 1 ? "" : "s"}`, className:"status-due" };
+}
+
+function renderIssuedBooks(issues, booksById) {
+  const tbody = document.getElementById("issuedBooksBody");
+  if (!tbody) return;
+
+  if (!issues.length) {
+    tbody.innerHTML = `<tr><td colspan="5">No issued books found.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = issues.map(issue => {
+    const bookId = String(issue.bookId ?? issue.id ?? "").trim();
+    const book = booksById.get(bookId) || {};
+    const status = getIssueDueStatus(issue);
+    return `
+      <tr>
+        <td>${book.title || issue.bookName || "-"}</td>
+        <td>${book.author || issue.author || "-"}</td>
+        <td>${issue.issueDate || "-"}</td>
+        <td>${issue.dueDate || "-"}</td>
+        <td><span class="status-badge ${status.className}">${status.label}</span></td>
+      </tr>
+    `;
+  }).join("");
+}
+
+function getLateDays(issue) {
+  const dueDate = parseDateOnly(issue.dueDate);
+  if (!dueDate) return 0;
+  return Math.max(0, dayDiff(dueDate, new Date()));
+}
+
+function computeFineData(issue) {
+  const lateDays = getLateDays(issue);
+  const explicitFine = Number(issue.fineAmount ?? 0) || 0;
+  const fineAmount = explicitFine > 0 ? explicitFine : lateDays * 2;
+  return { lateDays, fineAmount };
+}
+
+function renderFineRows(issues, booksById) {
+  const tbody = document.getElementById("fineTableBody");
+  if (!tbody) return;
+
+  if (!issues.length) {
+    tbody.innerHTML = `<tr><td colspan="3">No pending fines.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = issues.map(issue => {
+    const bookId = String(issue.bookId ?? issue.id ?? "").trim();
+    const book = booksById.get(bookId) || {};
+    const { lateDays, fineAmount } = computeFineData(issue);
+
+    return `
+      <tr>
+        <td>${book.title || issue.bookName || "-"}</td>
+        <td>${lateDays}</td>
+        <td>Rs ${fineAmount}</td>
+      </tr>
+    `;
+  }).join("");
+}
+
+function renderReturnedBooks(issues, booksById) {
+  const tbody = document.getElementById("returnedBooksBody");
+  if (!tbody) return;
+
+  if (!issues.length) {
+    tbody.innerHTML = `<tr><td colspan="5">No returned books found.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = issues.map(issue => {
+    const bookId = String(issue.bookId ?? issue.id ?? "").trim();
+    const book = booksById.get(bookId) || {};
+    const isLateReturn = Number(issue.lateDays ?? 0) > 0 || String(issue.paymentStatus ?? "").trim().toUpperCase() === "PAID";
+    const statusLabel = isLateReturn ? "Fine Paid" : "Returned";
+
+    return `
+      <tr>
+        <td>${book.title || issue.bookName || "-"}</td>
+        <td>${book.author || issue.author || "-"}</td>
+        <td>${issue.issueDate || "-"}</td>
+        <td>${issue.returnDate || "-"}</td>
+        <td>${statusLabel}</td>
+      </tr>
+    `;
+  }).join("");
+}
+
+function getIssueStatus(issue) {
+  const dueDate = parseDateOnly(issue.dueDate);
+  const returnDate = parseDateOnly(issue.returnDate);
+  if (returnDate) {
+    return { label:"Returned", className:"status-returned" };
+  }
+  if (dueDate) {
+    const daysUntilDue = dayDiff(new Date(), dueDate);
+    if (daysUntilDue < 0) {
+      return { label:"Overdue", className:"status-overdue" };
+    }
+    if (daysUntilDue <= 3) {
+      return { label:"Due Soon", className:"status-due" };
+    }
+  }
+  return { label:"Issued", className:"status-issued" };
+}
+
+function renderRecentBooks(issues, booksById) {
+  const tbody = document.getElementById("recentBooksBody");
+  if (!tbody) return;
+  const allIssues = Array.isArray(issues) ? issues.slice() : [];
+  const sorted = allIssues.sort((a, b) => {
+    const aDate = parseDateOnly(a.issueDate || a.returnDate || a.dueDate) || 0;
+    const bDate = parseDateOnly(b.issueDate || b.returnDate || b.dueDate) || 0;
+    return bDate - aDate;
+  }).slice(0, 5);
+
+  if (!sorted.length) {
+    tbody.innerHTML = `<tr><td colspan="4">No recent books available yet.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = sorted.map(issue => {
+    const bookId = String(issue.bookId ?? issue.id ?? "").trim();
+    const book = booksById.get(bookId) || {};
+    const status = getIssueStatus(issue);
+    return `
+      <tr>
+        <td>${book.title || issue.bookName || "-"}</td>
+        <td>${issue.issueDate || "-"}</td>
+        <td>${issue.dueDate || "-"}</td>
+        <td><span class="status-badge ${status.className}">${status.label}</span></td>
+      </tr>
+    `;
+  }).join("");
+}
+
+function getAvailableCopies(book) {
+  if (book?.Availablecopies != null) return book.Availablecopies;
+  if (book?.available != null) return book.available;
+  if (book?.copiesAvailable != null) return book.copiesAvailable;
+  if (book?.issuedCopies != null && book?.Totalcopies != null) {
+    return Number(book.Totalcopies) - Number(book.issuedCopies);
+  }
+  return book?.Totalcopies != null ? book.Totalcopies : "-";
+}
+
+function renderLibraryBooks(books) {
+  const tbody = document.getElementById("bookTableBody");
+  if (!tbody) return;
+
+  if (!Array.isArray(books) || !books.length) {
+    tbody.innerHTML = `<tr><td colspan="9">No books available in library.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = books.map(book => `
+    <tr>
+      <td>${book.bookId ?? book.id ?? "-"}</td>
+      <td>${book.title || "-"}</td>
+      <td>${book.author || "-"}</td>
+      <td>${book.publisher || "-"}</td>
+      <td>${book.category || "-"}</td>
+      <td>${book.rackNumber || "-"}</td>
+      <td>${book.shelfNumber || "-"}</td>
+      <td>${book.Totalcopies ?? "-"}</td>
+      <td>${getAvailableCopies(book)}</td>
+    </tr>
+  `).join("");
+}
+
+function filterBookTable(query) {
+  const normalized = String(query ?? "").trim().toLowerCase();
+  document.querySelectorAll("#bookTable tbody tr").forEach(row => {
+    row.style.display = normalized && !row.innerText.toLowerCase().includes(normalized) ? "none" : "";
+  });
+}
+
+function renderReadingActivityChart(returnedIssues) {
+  const container = document.getElementById("readingActivityChart");
+  if (!container) return;
+  const now = new Date();
+  const buckets = [];
+  for (let i = 5; i >= 0; i--) {
+    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const key = `${date.getFullYear()}-${date.getMonth()}`;
+    buckets.push({
+      key,
+      label: date.toLocaleString("en-US", { month: "short" }),
+      count: 0
+    });
+  }
+  (Array.isArray(returnedIssues) ? returnedIssues : []).forEach(issue => {
+    const refDate = parseDateOnly(issue.returnDate || issue.issueDate);
+    if (!refDate) return;
+    const key = `${refDate.getFullYear()}-${refDate.getMonth()}`;
+    const bucket = buckets.find(b => b.key === key);
+    if (bucket) bucket.count += 1;
+  });
+  const maxCount = Math.max(1, ...buckets.map(b => b.count));
+  container.innerHTML = buckets.map(bucket => {
+    const height = bucket.count ? Math.max(12, Math.round((bucket.count / maxCount) * 100)) : 8;
+    return `
+      <div class="reading-chart__bar" style="--bar-height:${height}%">
+        <span class="bar-value">${bucket.count}</span>
+        <span class="bar-visual" aria-hidden="true"></span>
+        <span class="bar-label">${bucket.label}</span>
+      </div>
+    `;
+  }).join("");
+}
+
+function updateIssueReturnStats(activeCount, returnedCount) {
+  setText("issueCountBadge", String(activeCount));
+  setText("returnCountBadge", String(returnedCount));
+  const total = activeCount + returnedCount;
+  const rate = total ? Math.round((returnedCount / total) * 100) : 0;
+  setText("returnRateBadge", `${rate}%`);
+}
+
+function getDueSoonCount(issues) {
+  const now = new Date();
+  return (Array.isArray(issues) ? issues : []).reduce((count, issue) => {
+    const dueDate = parseDateOnly(issue.dueDate);
+    if (!dueDate) return count;
+    const remaining = dayDiff(now, dueDate);
+    return remaining >= 0 && remaining <= 3 ? count + 1 : count;
+  }, 0);
+}
+
+function updateNotificationBar(overdueCount, dueSoonCount) {
+  const overdueDot = document.getElementById("overdueDot");
+  if (overdueDot) {
+    overdueDot.textContent = overdueCount || "0";
+  }
+  const bellTitle = document.getElementById("bellTitle");
+  const bellSubtitle = document.getElementById("bellSubtitle");
+  if (bellTitle) {
+    if (overdueCount) {
+      bellTitle.textContent = `${overdueCount} overdue book${overdueCount === 1 ? "" : "s"}`;
+      bellSubtitle.textContent = "Overdue reminder";
+    } else if (dueSoonCount) {
+      bellTitle.textContent = `${dueSoonCount} due soon`;
+      bellSubtitle.textContent = "Return within 3 days";
+    } else {
+      bellTitle.textContent = "No overdue books";
+      bellSubtitle.textContent = "All clear";
+    }
+  }
+  if (overdueCount || dueSoonCount) {
+    showBellMessage(true);
+  }
+}
+
+function toggleBellMessage() {
+  const message = document.getElementById("bellMessage");
+  if (message) {
+    message.classList.toggle("show");
+  }
+}
+
+function showBellMessage(autoHide = false) {
+  const message = document.getElementById("bellMessage");
+  if (!message) return;
+  message.classList.add("show");
+  if (autoHide) {
+    setTimeout(() => message.classList.remove("show"), 4500);
+  }
+}
+
+async function loadLibraryBooks() {
+  const tbody = document.getElementById("bookTableBody");
+  if (tbody) {
+    tbody.innerHTML = `<tr><td colspan="9">Loading books...</td></tr>`;
+  }
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/books/all`);
+    const books = res.ok ? await res.json() : [];
+    renderLibraryBooks(Array.isArray(books) ? books : []);
+  } catch (err) {
+    if (tbody) {
+      tbody.innerHTML = `<tr><td colspan="9">Failed to load library books.</td></tr>`;
+    }
+  }
+}
+
+async function loadStudentDashboard(student) {
+  const rollNumber = String(student.rollNumber ?? student.studrollNumber ?? "").trim();
+  if (!rollNumber) return;
+
+  try {
+    const [issuesRes, booksRes] = await Promise.all([
+      fetch(`${BASE_URL}/api/issue/all`),
+      fetch(`${BASE_URL}/api/books/all`)
+    ]);
+
+    const issues = issuesRes.ok ? await issuesRes.json() : [];
+    const books = booksRes.ok ? await booksRes.json() : [];
+    const booksById = new Map(
+      (Array.isArray(books) ? books : []).map(book => [String(book.bookId ?? book.id ?? "").trim(), book])
+    );
+
+    const allStudentIssues = (Array.isArray(issues) ? issues : []).filter(issue => {
+      const memberId = String(issue.memberId ?? issue.studrollNumber ?? issue.rollNumber ?? "").trim().toLowerCase();
+      return memberId === rollNumber.toLowerCase();
+    });
+
+    const studentIssues = allStudentIssues.filter(issue => {
+      const status = String(issue.status ?? "").trim().toUpperCase();
+      return status !== "RETURNED" && !issue.returnDate;
+    });
+
+    const returnedIssues = allStudentIssues.filter(issue => {
+      const status = String(issue.status ?? "").trim().toUpperCase();
+      return status === "RETURNED" || Boolean(issue.returnDate);
+    });
+
+    const overdueIssues = studentIssues.filter(issue => {
+      const lateDays = getLateDays(issue);
+      return lateDays > 0;
+    });
+
+    const fineIssues = allStudentIssues.filter(issue => {
+      const { lateDays, fineAmount } = computeFineData(issue);
+      const paymentStatus = String(issue.paymentStatus ?? "").trim().toUpperCase();
+      const notPaid = paymentStatus !== "PAID";
+      const hasUnpaidFine = fineAmount > 0 && notPaid;
+      return (lateDays > 0 && notPaid) || hasUnpaidFine;
+    });
+
+    const pendingFine = fineIssues.reduce((total, issue) => {
+      return total + computeFineData(issue).fineAmount;
+    }, 0);
+    const dueSoonCount = getDueSoonCount(studentIssues);
+
+    setText("booksIssuedCount", String(studentIssues.length));
+    setText("overdueCount", String(overdueIssues.length));
+    setText("pendingFineAmount", `Rs ${pendingFine}`);
+    setText("totalReadsCount", String(allStudentIssues.length));
+
+    renderIssuedBooks(studentIssues, booksById);
+    renderFineRows(fineIssues, booksById);
+    renderReturnedBooks(returnedIssues, booksById);
+    renderRecentBooks(allStudentIssues, booksById);
+    renderReadingActivityChart(returnedIssues);
+    updateIssueReturnStats(studentIssues.length, returnedIssues.length);
+    updateNotificationBar(overdueIssues.length, dueSoonCount);
+  } catch (err) {
+    const issuedBooksBody = document.getElementById("issuedBooksBody");
+    const returnedBooksBody = document.getElementById("returnedBooksBody");
+    const fineTableBody = document.getElementById("fineTableBody");
+    if (issuedBooksBody) {
+      issuedBooksBody.innerHTML = `<tr><td colspan="4">Failed to load issued books.</td></tr>`;
+    }
+    if (returnedBooksBody) {
+      returnedBooksBody.innerHTML = `<tr><td colspan="5">Failed to load returned books.</td></tr>`;
+    }
+    if (fineTableBody) {
+      fineTableBody.innerHTML = `<tr><td colspan="3">Failed to load fines.</td></tr>`;
+    }
+  }
+}
+
+const bookFilterInputs = [document.getElementById("searchInput"), document.getElementById("quickSearchInput")].filter(Boolean);
+bookFilterInputs.forEach(input => {
+  input.addEventListener("keyup", event => {
+    const value = event.target.value;
+    filterBookTable(value);
+    bookFilterInputs.forEach(other => {
+      if (other !== input) other.value = value;
+    });
+  });
+});
+
+const loggedInStudent = parseStudentSession();
+if (loggedInStudent) {
+  renderStudentProfile(loggedInStudent);
+  loadStudentDashboard(loggedInStudent);
+  loadLibraryBooks();
+}
+
+const studentBotCatalog = [
+  {title:"Full-Stack Engineering", author:"Anitha Raj", category:"Technology", focus:"Modern JavaScript, Node.js, and cloud-ready systems."},
+  {title:"Design Thinking for Students", author:"K. Menon", category:"Creativity", focus:"Project-based research and user insights."},
+  {title:"Practical Data Science", author:"M. Fernandez", category:"Data", focus:"Python, SQL, and real-world datasets."},
+  {title:"Career Paths in AI", author:"Vikram Patel", category:"AI", focus:"Machine learning fundamentals and ethical design."},
+  {title:"Effective Research Writing", author:"S. Iyer", category:"Academic", focus:"Thesis structure and clarity."}
+];
+
+const chatbotToggle = document.querySelector(".chatbot-toggle");
+const chatbotPanel = document.querySelector(".chatbot-panel");
+const chatbotClose = document.querySelector(".chatbot-close");
+const chatbotMessages = document.querySelector(".chatbot-messages");
+const chatbotForm = document.querySelector(".chatbot-form");
+
+function addBotMessage(text, type="bot") {
+  const bubble = document.createElement("div");
+  bubble.className = `chatbot-message ${type}`;
+  bubble.textContent = text;
+  chatbotMessages.appendChild(bubble);
+  chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+}
+
+function findBookMatches(query) {
+  const clean = query.toLowerCase();
+  return studentBotCatalog.filter(book =>
+    book.title.toLowerCase().includes(clean) ||
+    book.author.toLowerCase().includes(clean) ||
+    book.category.toLowerCase().includes(clean)
+  );
+}
+
+function recommendBooks(query) {
+  if (query.toLowerCase().includes("career")) {
+    return studentBotCatalog.filter(book => book.focus.toLowerCase().includes("career"));
+  }
+  if (query.toLowerCase().includes("study") || query.toLowerCase().includes("plan")) {
+    return studentBotCatalog.filter(book => book.category !== "AI");
+  }
+  return studentBotCatalog;
+}
+
+function createBotResponse(text) {
+  const matches = findBookMatches(text);
+  if (matches.length) {
+    return matches.map(book => `${book.title} by ${book.author} (${book.category}) — ${book.focus}`).join("\n");
+  }
+  if (text.toLowerCase().includes("suggest") || text.toLowerCase().includes("recommend")) {
+    const recs = recommendBooks(text).slice(0, 3);
+    return recs.map(book => `${book.title} — ${book.focus}`).join("\n");
+  }
+  return "I can help with book picks, study strategies, or quick catalog searches. Try asking for a topic or author.";
+}
+
+if (chatbotToggle) {
+  chatbotToggle.addEventListener("click", () => {
+    if (!chatbotPanel) return;
+    const visible = chatbotPanel.getAttribute("aria-hidden") === "false";
+    chatbotPanel.setAttribute("aria-hidden", visible ? "true" : "false");
+    chatbotPanel.classList.toggle("visible", !visible);
+    if (!visible && chatbotMessages) {
+      setTimeout(() => chatbotMessages.scrollTo(0, chatbotMessages.scrollHeight), 100);
+    }
+  });
+}
+
+if (chatbotClose && chatbotPanel) {
+  chatbotClose.addEventListener("click", () => {
+    chatbotPanel.setAttribute("aria-hidden", "true");
+    chatbotPanel.classList.remove("visible");
+  });
+}
+
+if (chatbotForm) {
+  chatbotForm.addEventListener("submit", event => {
+    event.preventDefault();
+    const input = chatbotForm.querySelector("input");
+    const message = input.value.trim();
+    if (!message) return;
+    addBotMessage(message, "user");
+    input.value = "";
+    setTimeout(() => {
+      const reply = createBotResponse(message);
+      addBotMessage(reply, "bot");
+    }, 500);
+  });
+}
+
+if (chatbotMessages) {
+  addBotMessage("Hi! Ask me to recommend books, plan a study session, or check return reminders.", "bot");
+}
+</script>
+
+</body>
+</html>

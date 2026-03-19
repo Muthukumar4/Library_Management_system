@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Library Management System | Login</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Left : College Image -->
+  <div class="left">
+    <div class="left-content">
+      <div class="hero-badge">📚 Welcome to Smart Library</div>
+      <h1>College Library</h1>
+      <p class="hero-subline">Secure role based library management system</p>
+      <div class="hero-tagline">"Read. Learn. Grow."</div>
+    </div>
+  </div>
+
+  <!-- Right : Login -->
+  <div class="right login-card">
+    <h2>Welcome Back 👋</h2>
+    <p class="subheading">Login to your Library Account</p>
+
+    <div class="role-buttons" role="tablist">
+      <button class="role-btn active" data-role="student" type="button">Student</button>
+      <button class="role-btn" data-role="staff" type="button">Staff</button>
+      <button class="role-btn" data-role="admin" type="button">Admin</button>
+    </div>
+
+    <input type="hidden" id="role" value="student">
+
+    <div class="input-group">
+      <label id="usernameLabel">Username</label>
+      <div class="input-with-icon">
+        <span class="input-icon" aria-hidden="true">👤</span>
+        <input type="text" id="username" placeholder="Enter username">
+      </div>
+    </div>
+
+    <div class="input-group password-group">
+      <label>Password</label>
+      <div class="input-with-icon password-wrapper">
+        <span class="input-icon" aria-hidden="true">🔒</span>
+        <input type="password" id="password" placeholder="Enter password">
+        <button type="button" class="toggle-password" aria-label="Toggle password visibility">Show</button>
+      </div>
+      <p class="caps-warning" id="capsWarning" aria-live="polite"></p>
+    </div>
+
+    <div class="login-meta">
+      <label class="remember-me">
+        <input type="checkbox" id="rememberMe">
+        Remember me
+      </label>
+      <a class="forgot-link" href="#">Forgot password?</a>
+    </div>
+
+    <p class="error-message" id="loginError" aria-live="polite"></p>
+
+    <button class="login-btn" type="button" onclick="login()">
+      <span class="loader" aria-hidden="true"></span>
+      <span class="btn-text">Login</span>
+    </button>
+
+   
+
+</div>
+
+ <script>
+const BASE_URL = "http://localhost:8080";
+const loginError = document.getElementById("loginError");
+const passwordInput = document.getElementById("password");
+const togglePasswordBtn = document.querySelector(".toggle-password");
+const roleButtons = document.querySelectorAll(".role-btn");
+const loginButton = document.querySelector(".login-btn");
+const rememberMeCheckbox = document.getElementById("rememberMe");
+const usernameInput = document.getElementById("username");
+const capsWarning = document.getElementById("capsWarning");
+
+function setRole(role){
+  const roleInput = document.getElementById("role");
+  if (roleInput) roleInput.value = role;
+
+  roleButtons.forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.role === role);
+  });
+
+  const usernameLabel = document.getElementById("usernameLabel");
+  const usernameInput = document.getElementById("username");
+
+  if (!usernameLabel || !usernameInput) return;
+
+  if (role === "student") {
+    usernameLabel.textContent = "Roll Number";
+    usernameInput.placeholder = "Enter roll number";
+    return;
+  }
+
+  usernameLabel.textContent = role === "staff" ? "Staff Username" : "Username";
+  usernameInput.placeholder = role === "staff" ? "Enter staff username" : "Enter username";
+}
+
+function showError(message){
+  if (!loginError) return;
+  loginError.textContent = message;
+  loginError.classList.add("visible");
+}
+
+function clearError(){
+  if (!loginError) return;
+  loginError.textContent = "";
+  loginError.classList.remove("visible");
+}
+
+function setLoading(active){
+  if (!loginButton) return;
+  loginButton.disabled = active;
+  loginButton.classList.toggle("loading", active);
+  const btnText = loginButton.querySelector(".btn-text");
+  if (btnText) btnText.textContent = active ? "Logging in..." : "Login";
+}
+
+function getAuthHeader(username, password) {
+  return "Basic " + btoa(`${username}:${password}`);
+}
+
+function updateCapsWarning(active){
+  if (!capsWarning) return;
+  capsWarning.textContent = active ? "Caps Lock is ON" : "";
+  capsWarning.classList.toggle("visible", active);
+}
+
+async function validateBasicAuth(role, username, password) {
+  const endpointByRole = {
+    admin: `${BASE_URL}/api/books/all`,
+    staff: `${BASE_URL}/api/staff/all`,
+    student: `${BASE_URL}/api/students/getall`
+  };
+  const endpoint = endpointByRole[role];
+  if (!endpoint) return false;
+
+  const res = await fetch(endpoint, {
+    method: "GET",
+    headers: {
+      "Authorization": getAuthHeader(username, password)
+    }
+  });
+  return res.ok;
+}
+
+async function loginStudentWithApi(rollNumber, password) {
+  const candidateUrls = [
+    `${BASE_URL}/api/students/student/login`,
+    `${BASE_URL}/student/login`
+  ];
+
+  let lastError = null;
+  for (const url of candidateUrls) {
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          rollNumber,
+          password
+        })
+      });
+
+      if (res.ok) {
+        const text = (await res.text()).trim();
+        return {
+          ok: true,
+          message: text
+        };
+      }
+
+      if (res.status === 401 || res.status === 403) {
+        return {
+          ok: false,
+          message: "Invalid student roll number or password"
+        };
+      }
+
+      lastError = new Error(`Student login failed with status ${res.status}`);
+    } catch (err) {
+      lastError = err;
+    }
+  }
+
+  throw lastError || new Error("Student login API unavailable");
+}
+
+async function fetchStudentProfile(rollNumber) {
+  const res = await fetch(`${BASE_URL}/api/students/getall`);
+  if (!res.ok) throw new Error("Failed to load student details");
+
+  const students = await res.json();
+  if (!Array.isArray(students)) return null;
+
+  return students.find(student =>
+    String(student.rollNumber ?? student.studrollNumber ?? "").trim().toLowerCase() === rollNumber.toLowerCase()
+  ) || null;
+}
+
+async function login(){
+  clearError();
+  setLoading(true);
+
+  const role = document.getElementById("role").value;
+  const user = usernameInput?.value.trim() ?? "";
+  const pass = passwordInput?.value ?? "";
+  const rememberMe = rememberMeCheckbox?.checked;
+
+  if (!role || !user || !pass) {
+    showError("Select role and enter username/password");
+    setLoading(false);
+    return;
+  }
+
+  try {
+    sessionStorage.removeItem("lmsStudent");
+
+    if (role === "student") {
+      const loginResult = await loginStudentWithApi(user, pass);
+      if (!loginResult.ok) {
+        showError(loginResult.message || "Invalid student roll number or password");
+        setLoading(false);
+        return;
+      }
+      const student = await fetchStudentProfile(user) || { rollNumber: user };
+      sessionStorage.setItem("lmsStudent", JSON.stringify(student));
+    } else {
+      const ok = await validateBasicAuth(role, user, pass);
+      if (!ok) {
+        showError("Invalid credentials");
+        setLoading(false);
+        return;
+      }
+    }
+
+    localStorage.setItem("rememberedRole", role);
+    if (rememberMe && user) {
+      localStorage.setItem("rememberedUser", user);
+    } else {
+      localStorage.removeItem("rememberedUser");
+    }
+
+    sessionStorage.setItem("lmsAuthHeader", getAuthHeader(user, pass));
+    sessionStorage.setItem("lmsRole", role);
+    sessionStorage.setItem("lmsUsername", user);
+  } catch (err) {
+    showError("Login failed. Check backend connection.");
+    setLoading(false);
+    return;
+  }
+
+  setLoading(false);
+  clearError();
+
+  if(role === "admin"){
+    window.location.href = "admin.html";
+  }
+  else if(role === "staff"){
+    window.location.href = "staff.html";
+  }
+  else if(role === "student"){
+    window.location.href = "student.html";
+  }
+  else{
+    showError("Invalid credentials");
+  }
+}
+
+const savedRole = localStorage.getItem("rememberedRole") || "student";
+const savedUser = localStorage.getItem("rememberedUser");
+
+if (savedUser && usernameInput) {
+  usernameInput.value = savedUser;
+}
+
+if (rememberMeCheckbox) {
+  rememberMeCheckbox.checked = Boolean(savedUser);
+}
+
+roleButtons.forEach(btn => {
+  btn.addEventListener("click", () => setRole(btn.dataset.role));
+});
+
+const enterFields = [usernameInput, passwordInput];
+enterFields.forEach(field => {
+  if (!field) return;
+  field.addEventListener("keydown", event => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      login();
+    }
+  });
+});
+
+const handleCaps = event => {
+  if (!event.getModifierState) return;
+  const isCaps = event.getModifierState("CapsLock");
+  updateCapsWarning(isCaps);
+};
+
+if (passwordInput) {
+  ["keydown","keyup"].forEach(evt => passwordInput.addEventListener(evt, handleCaps));
+  passwordInput.addEventListener("blur", () => updateCapsWarning(false));
+}
+
+if (togglePasswordBtn && passwordInput) {
+  togglePasswordBtn.addEventListener("click", () => {
+    const showing = passwordInput.type === "text";
+    passwordInput.type = showing ? "password" : "text";
+    togglePasswordBtn.textContent = showing ? "Show" : "Hide";
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,7856 @@
+<!DOCTYPE html>
+
+
+
+<html lang="en">
+
+
+
+<head>
+
+
+
+<meta charset="UTF-8">
+
+
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<title>Admin Dashboard | Library Management</title>
+
+
+
+
+
+
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+
+
+
+
+
+<style>
+
+
+
+:root {
+
+  --bg-page: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+
+  --bg-surface: rgba(255, 255, 255, 0.2);
+
+
+  --bg-soft: rgba(255, 255, 255, 0.4);
+
+
+  --text-primary: #f8fbff;
+
+
+  --text-muted: #cbd5f5;
+
+
+  --primary-600: #4f46e5;
+
+
+  --primary-700: #3730a3;
+
+
+  --primary-100: rgba(255, 255, 255, 0.5);
+
+
+  --accent-emerald: #059669;
+
+
+  --accent-rose: #e11d48;
+
+
+  --border-soft: rgba(255, 255, 255, 0.6);
+
+
+  --shadow-soft: 0 20px 45px rgba(15, 23, 42, 0.25);
+
+}
+
+
+
+
+
+
+
+
+*{
+
+
+
+  margin:0;
+
+
+
+  padding:0;
+
+
+
+  box-sizing:border-box;
+
+
+
+  font-family:'Poppins',sans-serif;
+
+
+
+}
+
+
+
+
+
+
+
+body{
+
+
+
+  height:100vh;
+
+
+
+  display:flex;
+
+
+
+  background: var(--bg-page);
+
+
+
+  overflow:hidden;
+
+
+
+  color: var(--text-primary);
+
+
+
+}
+
+
+
+
+
+
+
+/* Sidebar */
+
+
+
+.sidebar{
+  width:260px;
+  height:100vh;
+  background:linear-gradient(180deg, #4f46e5, #6366f1);
+  color:#fff;
+  padding:20px 25px;
+  overflow-y:auto;
+  flex-shrink:0;
+  border-radius:0 20px 20px 0;
+  box-shadow:0 25px 45px rgba(15,23,42,0.35);
+}
+
+
+
+
+
+
+
+
+.sidebar h2{
+
+
+
+  text-align:center;
+
+
+
+  margin-bottom:30px;
+
+
+
+}
+
+
+
+
+
+
+
+.menu{
+
+
+
+  list-style:none;
+
+
+
+}
+
+
+
+
+
+
+
+.menu li{
+  padding:12px 15px;
+  margin-bottom:8px;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:14px;
+  transition:background 0.25s ease, color 0.25s ease;
+}
+
+
+
+
+
+
+
+
+
+
+\.menu li:hover,
+.menu li.active{
+  background:rgba(255,255,255,0.25);
+  color:#fff;
+}
+
+
+
+
+
+
+
+
+
+
+/* Main */
+
+
+
+.main{
+
+
+
+  flex:1;
+
+
+
+  padding:30px;
+
+
+
+  position:relative;
+
+
+
+  height:100vh;
+
+
+
+  overflow-y:auto;
+
+
+
+}
+
+
+
+
+
+
+
+/* 🔹 Logo watermark */
+
+
+
+.main::before{
+
+
+
+  content:'';
+
+
+
+  position:absolute;
+
+
+
+  inset:0;
+
+
+
+ background:url('dait_logo.png') center/420px no-repeat;
+
+
+
+  opacity:0.06;
+
+
+
+  z-index:0;
+
+
+
+}
+
+
+
+
+
+
+
+.main > *{
+
+
+
+  position:relative;
+
+
+
+  z-index:1;
+
+
+
+}
+
+
+
+
+
+
+
+/* Header */
+
+
+
+.header{
+
+
+
+  display:flex;
+
+
+
+  justify-content:space-between;
+
+
+
+  align-items:center;
+
+
+
+  margin-bottom:25px;
+
+
+
+}
+
+
+
+
+
+
+
+.header h2{
+
+
+
+  color:#1e3c72;
+
+
+
+}
+
+
+
+
+
+
+
+.logout{
+  padding:10px 18px;
+  background:linear-gradient(90deg, #4f46e5, #6366f1);
+  color:#fff;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+}
+.logout:hover{
+  box-shadow:0 16px 30px rgba(79,70,229,0.4);
+}
+button{
+  font-family:'Poppins',sans-serif;
+  border:none;
+}
+
+
+
+
+
+
+
+
+/* Sections */
+
+
+
+.section{
+  display:none;
+  background:var(--bg-surface);
+  padding:25px;
+  border-radius:15px;
+  border:1px solid rgba(255,255,255,0.4);
+  box-shadow:var(--shadow-soft);
+  backdrop-filter:blur(10px);
+  transition:transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+
+
+
+
+
+
+
+.section.active{
+
+
+
+  display:block;
+
+
+
+}
+
+
+
+
+
+
+
+.section h3{
+
+
+
+  color:#1e3c72;
+
+
+
+  margin-bottom:15px;
+
+
+
+}
+
+
+
+
+
+
+
+/* Cards */
+
+
+
+.stats{
+
+
+
+  display:grid;
+
+
+
+  grid-template-columns:repeat(4,1fr);
+
+
+
+  gap:20px;
+
+
+
+}
+
+
+
+
+
+
+
+.stat{
+  background:var(--bg-surface);
+  padding:20px;
+  border-radius:15px;
+  border:1px solid rgba(255,255,255,0.4);
+  box-shadow:var(--shadow-soft);
+  color:#1e1f3a;
+  transition:transform 0.3s ease, box-shadow 0.3s ease;
+}
+.stat:hover{
+  transform:translateY(-6px);
+  box-shadow:0 25px 40px rgba(15,23,42,0.35);
+}
+
+
+
+
+
+
+
+
+.stat h4{
+
+
+
+  font-size:22px;
+
+
+
+  color:#1e3c72;
+
+
+
+}
+
+
+
+
+
+
+
+/* Search */
+
+
+
+.search{
+
+
+
+  margin-bottom:15px;
+
+
+
+}
+
+
+
+
+
+
+
+.search input{
+
+
+
+  width:100%;
+
+
+
+  padding:10px;
+
+
+
+  border-radius:8px;
+
+
+
+  border:1px solid var(--border-soft);
+
+
+
+}
+
+
+
+
+
+
+
+/* Table */
+
+
+
+table{
+
+
+
+  width:100%;
+
+
+
+  border-collapse:collapse;
+
+
+
+}
+
+
+
+
+
+
+
+th,td{
+
+
+
+  padding:12px;
+
+
+
+  font-size:14px;
+
+
+
+}
+
+
+
+
+
+
+
+th{
+
+
+
+  background:#e3e8ff;
+
+
+
+  color:#1e3c72;
+
+
+
+}
+
+
+
+
+
+
+
+tr:nth-child(even){
+
+
+
+  background:#f6f8ff;
+
+
+
+}
+
+
+
+
+
+
+
+/* Forms */
+
+
+
+.form{
+
+
+
+  display:grid;
+
+
+
+  grid-template-columns:repeat(2,1fr);
+
+
+
+  gap:15px;
+
+
+
+}
+
+
+
+
+
+
+
+.form input, .form select{
+
+
+
+  padding:12px;
+
+
+
+  border-radius:8px;
+
+
+
+  border:1px solid var(--border-soft);
+
+
+
+}
+
+
+
+
+
+
+
+.form button{
+
+
+
+  grid-column:span 2;
+
+
+
+  padding:12px;
+
+
+
+  background: var(--primary-700);
+
+
+
+  color:white;
+
+
+
+  border:none;
+
+
+
+  border-radius:10px;
+
+
+
+  cursor:pointer;
+
+
+
+}
+
+
+
+
+
+
+
+.hidden{
+
+
+
+  display:none !important;
+
+
+
+}
+
+
+
+
+
+
+
+.add-user-forms{
+
+
+
+  margin-top:20px;
+
+
+
+  display:flex;
+
+
+
+  flex-direction:column;
+
+
+
+  gap:10px;
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+.form-container {
+
+
+
+  width: 700px;
+
+
+
+  padding: 30px;
+
+
+
+}
+
+
+
+
+
+
+
+.student-form {
+
+
+
+  display: grid;
+
+
+
+  grid-template-columns: 1fr 1fr; /* 2 columns */
+
+
+
+  gap: 20px;
+
+
+
+}
+
+
+
+
+
+
+
+.student-form input,
+
+
+
+.student-form select {
+
+
+
+  padding: 12px;
+
+
+
+  border-radius: 10px;
+
+
+
+  border: 1px solid #c7d2fe;
+
+
+
+  font-size: 14px;
+
+
+
+}
+
+
+
+
+
+
+
+/* Make these full width */
+
+
+
+.student-form input[type="password"],
+
+
+
+.student-form input[type="email"],
+
+
+
+.student-form input[placeholder="Phone Number"],
+
+
+
+.student-form button {
+
+
+
+  grid-column: span 2;
+
+
+
+}
+
+
+
+
+
+
+
+.student-form button {
+
+
+
+  background: #2f3cff;
+
+
+
+  color: white;
+
+
+
+  border: none;
+
+
+
+  padding: 12px;
+
+
+
+  border-radius: 10px;
+
+
+
+  font-size: 15px;
+
+
+
+  cursor: pointer;
+
+
+
+}
+
+
+
+
+
+
+
+.form-group {
+
+
+
+  display: flex;
+
+
+
+  flex-direction: column;
+
+
+
+}
+
+
+
+
+
+
+
+.form-group label {
+
+
+
+  font-size: 13px;
+
+
+
+  font-weight: 500;
+
+
+
+  margin-bottom: 6px;
+
+
+
+  color: #1e3c72;
+
+
+
+}
+
+
+
+
+
+
+
+/* Cards (used in Staffs/Books sections) */
+
+
+
+.card {
+
+
+
+  background: #fff;
+
+
+
+  padding: 20px;
+
+
+
+  border-radius: 12px;
+
+
+
+  margin-bottom: 25px;
+
+
+
+  max-width: 760px;
+
+
+
+  margin-left: auto;
+
+
+
+  margin-right: auto;
+
+
+
+}
+
+
+
+
+
+
+
+/* Add Books grid */
+
+
+
+.formbook {
+
+
+
+  display: grid;
+
+
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+
+
+  gap: 15px;
+
+
+
+}
+
+
+
+
+
+
+
+.formbook input {
+
+
+
+  padding: 12px;
+
+
+
+  border-radius: 8px;
+
+
+
+  border: 1px solid var(--border-soft);
+
+
+
+}
+
+
+
+
+
+
+
+.formbook button {
+
+
+
+  grid-column: span 2;
+
+
+
+  padding: 12px;
+
+
+
+  background: var(--primary-700);
+
+
+
+  color: white;
+
+
+
+  border: none;
+
+
+
+  border-radius: 10px;
+
+
+
+  cursor: pointer;
+
+
+
+}
+
+
+
+
+
+
+
+.table-container {
+
+
+
+  margin-top: 15px;
+
+
+
+  overflow-x: auto;
+
+
+
+}
+
+
+
+
+
+
+
+.header-actions {
+
+
+
+  display: flex;
+
+
+
+  align-items: center;
+
+
+
+  gap: 10px;
+
+
+
+}
+
+
+
+
+
+
+
+.hamburger-btn {
+
+
+
+  display: none;
+
+
+
+  border: 1px solid var(--border-soft);
+
+
+
+  background: #fff;
+
+
+
+  color: #1e3a8a;
+
+
+
+  border-radius: 10px;
+
+
+
+  padding: 8px 10px;
+
+
+
+  cursor: pointer;
+
+
+
+  font-size: 18px;
+
+
+
+  line-height: 1;
+
+
+
+}
+
+
+
+
+
+
+
+.icon-btn {
+
+
+
+  border: 1px solid var(--border-soft);
+
+
+
+  background: #fff;
+
+
+
+  color: #1e3a8a;
+
+
+
+  border-radius: 10px;
+
+
+
+  padding: 8px 10px;
+
+
+
+  cursor: pointer;
+
+
+
+  font-weight: 600;
+
+
+
+}
+
+
+
+
+
+
+
+.bell-wrap {
+
+
+
+  position: relative;
+
+
+
+}
+
+
+
+
+
+
+
+.notify-dot {
+
+
+
+  position: absolute;
+
+
+
+  top: -6px;
+
+
+
+  right: -6px;
+
+
+
+  min-width: 18px;
+
+
+
+  height: 18px;
+
+
+
+  border-radius: 999px;
+
+
+
+  background: #ef4444;
+
+
+
+  color: #fff;
+
+
+
+  font-size: 11px;
+
+
+
+  display: inline-flex;
+
+
+
+  align-items: center;
+
+
+
+  justify-content: center;
+
+
+
+  padding: 0 4px;
+
+
+
+}
+
+
+
+
+
+
+
+.notifications-panel {
+
+
+
+  position: fixed;
+
+
+
+  top: 88px;
+
+
+
+  right: 24px;
+
+
+
+  width: 330px;
+
+
+
+  max-height: 65vh;
+
+
+
+  overflow-y: auto;
+
+
+
+  background: #fff;
+
+
+
+  border: 1px solid #dbeafe;
+
+
+
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.2);
+
+
+
+  border-radius: 12px;
+
+
+
+  z-index: 90;
+
+
+
+  display: none;
+
+
+
+}
+
+
+
+
+
+
+
+.notifications-panel.show {
+
+
+
+  display: block;
+
+
+
+}
+
+
+
+
+
+
+
+.notifications-head {
+
+
+
+  padding: 10px 12px;
+
+
+
+  border-bottom: 1px solid #e2e8f0;
+
+
+
+  display: flex;
+
+
+
+  justify-content: space-between;
+
+
+
+  align-items: center;
+
+
+
+}
+
+
+
+
+
+
+
+.notifications-head button {
+
+
+
+  border: none;
+
+
+
+  background: none;
+
+
+
+  color: #2563eb;
+
+
+
+  cursor: pointer;
+
+
+
+}
+
+
+
+
+
+
+
+.notification-list {
+
+
+
+  list-style: none;
+
+
+
+  padding: 8px;
+
+
+
+}
+
+
+
+
+
+
+
+.notification-list li {
+
+
+
+  border: 1px solid #e2e8f0;
+
+
+
+  border-radius: 10px;
+
+
+
+  padding: 8px 10px;
+
+
+
+  margin-bottom: 8px;
+
+
+
+  background: #f8fafc;
+
+
+
+  font-size: 13px;
+
+
+
+}
+
+
+
+
+
+
+
+.notification-time {
+
+
+
+  display: block;
+
+
+
+  margin-top: 4px;
+
+
+
+  color: #64748b;
+
+
+
+  font-size: 11px;
+
+
+
+}
+
+
+
+
+
+
+
+.issue-panel {
+
+
+
+  max-width: 700px;
+
+
+
+  margin: 0 auto;
+
+
+
+  position: relative;
+
+
+
+}
+
+
+
+
+
+
+
+.issue-search-row {
+
+
+
+  display: grid;
+
+
+
+  grid-template-columns: 1fr auto;
+
+
+
+  gap: 10px;
+
+
+
+  margin-bottom: 12px;
+
+
+
+}
+
+
+
+
+
+
+
+.issue-search-row input,
+
+
+
+.issue-date-row input,
+
+
+
+.issue-date-row textarea {
+
+
+
+  width: 100%;
+
+
+
+  padding: 11px;
+
+
+
+  border-radius: 8px;
+
+
+
+  border: 1px solid #cfd6ff;
+
+
+
+}
+
+
+
+
+
+
+
+.issue-date-row textarea {
+
+
+
+  min-height: 70px;
+
+
+
+  resize: vertical;
+
+
+
+}
+
+
+
+
+
+
+
+.issue-search-row button {
+
+
+
+  border: none;
+
+
+
+  border-radius: 8px;
+
+
+
+  background: #2a3eb1;
+
+
+
+  color: #fff;
+
+
+
+  padding: 0 14px;
+
+
+
+  cursor: pointer;
+
+
+
+}
+
+
+
+
+
+
+
+.issue-detail-card {
+
+
+
+  background: #f6f8ff;
+
+
+
+  border: 1px solid #d7ddff;
+
+
+
+  border-radius: 10px;
+
+
+
+  padding: 12px 14px;
+
+
+
+  margin-bottom: 12px;
+
+
+
+}
+
+
+
+
+
+
+
+.issue-detail-card h4 {
+
+
+
+  color: #1e3c72;
+
+
+
+  margin-bottom: 8px;
+
+
+
+  padding-bottom: 6px;
+
+
+
+  border-bottom: 1px solid #d7ddff;
+
+
+
+}
+
+
+
+
+
+
+
+.issue-detail-card p {
+
+
+
+  margin-bottom: 5px;
+
+
+
+  color: #334155;
+
+
+
+}
+
+
+
+
+
+
+
+.issue-detail-card.hidden {
+
+
+
+  display: none;
+
+
+
+}
+
+
+
+
+
+
+
+.issue-date-row {
+
+
+
+  display: grid;
+
+
+
+  grid-template-columns: 120px 1fr;
+
+
+
+  gap: 12px;
+
+
+
+  align-items: center;
+
+
+
+  margin-bottom: 10px;
+
+
+
+}
+
+
+
+
+
+
+
+.issue-status {
+
+
+
+  min-height: 18px;
+
+
+
+  margin-top: 6px;
+
+
+
+  font-size: 13px;
+
+
+
+  color: #b91c1c;
+
+
+
+}
+
+
+
+
+
+
+
+.issue-submit {
+
+
+
+  width: 100%;
+
+
+
+  margin-top: 12px;
+
+
+
+  border: none;
+
+
+
+  border-radius: 10px;
+
+
+
+  background: #16a34a;
+
+
+
+  color: #fff;
+
+
+
+  padding: 12px;
+
+
+
+  font-weight: 600;
+
+
+
+  font-size: 15px;
+
+
+
+  cursor: pointer;
+
+
+
+}
+
+
+
+
+
+
+
+.issue-submit:hover {
+
+
+
+  background: #15803d;
+
+
+
+}
+
+
+
+
+
+
+
+.issue-toast {
+
+
+
+  display: none;
+
+
+
+  position: absolute;
+
+
+
+  top: -6px;
+
+
+
+  left: 0;
+
+
+
+  right: 0;
+
+
+
+  margin: 0 auto;
+
+
+
+  width: fit-content;
+
+
+
+  max-width: 100%;
+
+
+
+  border-radius: 10px;
+
+
+
+  padding: 10px 12px;
+
+
+
+  background: #fef2f2;
+
+
+
+  border: 1px solid #fca5a5;
+
+
+
+  color: #991b1b;
+
+
+
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+
+
+
+  z-index: 6;
+
+
+
+  animation: issueToastSlideIn 0.45s ease;
+
+
+
+}
+
+
+
+
+
+
+
+.issue-toast.show {
+
+
+
+  display: flex;
+
+
+
+  align-items: center;
+
+
+
+  gap: 8px;
+
+
+
+}
+
+
+
+
+
+
+
+.issue-toast .emoji {
+
+
+
+  font-size: 20px;
+
+
+
+  line-height: 1;
+
+
+
+}
+
+
+
+
+
+
+
+@keyframes issueToastSlideIn {
+
+
+
+  0% {
+
+
+
+    opacity: 0;
+
+
+
+    transform: translateX(-70px);
+
+
+
+  }
+
+
+
+  100% {
+
+
+
+    opacity: 1;
+
+
+
+    transform: translateX(0);
+
+
+
+  }
+
+
+
+}
+
+
+
+
+
+
+
+.return-selection-info {
+
+
+
+  margin: 8px 0 4px;
+
+
+
+  font-size: 13px;
+
+
+
+  color: #334155;
+
+
+
+}
+
+
+
+
+
+
+
+.return-table th,
+
+
+
+.return-table td {
+
+
+
+  text-align: left;
+
+
+
+}
+
+
+
+
+
+
+
+.return-table input[type="checkbox"] {
+
+
+
+  width: 16px;
+
+
+
+  height: 16px;
+
+
+
+}
+
+
+
+
+
+
+
+.fine-detail-card {
+
+
+
+  margin-top: 16px;
+
+
+
+  background: #f8fafc;
+
+
+
+  border: 1px solid #dbeafe;
+
+
+
+  border-radius: 12px;
+
+
+
+  padding: 16px;
+
+
+
+}
+
+
+
+
+
+
+
+.fine-detail-card.hidden {
+
+
+
+  display: none;
+
+
+
+}
+
+
+
+
+
+
+
+.fine-detail-card h4 {
+
+
+
+  color: #1e3c72;
+
+
+
+  margin-bottom: 10px;
+
+
+
+  border-bottom: 1px solid #dbeafe;
+
+
+
+  padding-bottom: 8px;
+
+
+
+}
+
+
+
+
+
+
+
+.fine-detail-card p {
+
+
+
+  margin-bottom: 8px;
+
+
+
+  color: #334155;
+
+
+
+}
+
+
+
+
+
+
+
+.fine-detail-actions {
+
+
+
+  margin-top: 12px;
+
+
+
+  display: flex;
+
+
+
+  gap: 10px;
+
+
+
+}
+
+
+
+
+
+
+
+.fine-detail-actions button {
+
+
+
+  border: none;
+
+
+
+  border-radius: 8px;
+
+
+
+  padding: 9px 14px;
+
+
+
+  cursor: pointer;
+
+
+
+}
+
+
+
+
+
+
+
+.fine-back-btn {
+
+
+
+  background: #e2e8f0;
+
+
+
+  color: #1f2937;
+
+
+
+}
+
+
+
+
+
+
+
+.fine-pay-btn {
+
+
+
+  background: #16a34a;
+
+
+
+  color: #fff;
+
+
+
+}
+
+
+
+
+
+
+
+.fine-method-row {
+
+
+
+  margin-top: 8px;
+
+
+
+  display: grid;
+
+
+
+  grid-template-columns: 140px 1fr;
+
+
+
+  gap: 10px;
+
+
+
+  align-items: center;
+
+
+
+}
+
+
+
+
+
+
+
+.fine-method-row select {
+
+
+
+  padding: 9px;
+
+
+
+  border-radius: 8px;
+
+
+
+  border: 1px solid #cbd5e1;
+
+
+
+}
+
+
+
+
+
+
+
+.return-toast {
+
+
+
+  display: none;
+
+
+
+  position: absolute;
+
+
+
+  top: -6px;
+
+
+
+  left: 0;
+
+
+
+  right: 0;
+
+
+
+  margin: 0 auto;
+
+
+
+  width: fit-content;
+
+
+
+  max-width: 100%;
+
+
+
+  border-radius: 10px;
+
+
+
+  padding: 12px 14px;
+
+
+
+  border: 1px solid transparent;
+
+
+
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+
+
+
+  z-index: 6;
+
+
+
+  animation: returnToastSlideIn 0.45s ease;
+
+
+
+}
+
+
+
+
+
+
+
+.return-toast.show {
+
+
+
+  display: block;
+
+
+
+}
+
+
+
+
+
+
+
+.return-toast.good {
+
+
+
+  background: #ecfdf3;
+
+
+
+  border-color: #86efac;
+
+
+
+  color: #166534;
+
+
+
+}
+
+
+
+
+
+
+
+.return-toast.late {
+
+
+
+  background: #fef2f2;
+
+
+
+  border-color: #fca5a5;
+
+
+
+  color: #991b1b;
+
+
+
+}
+
+
+
+
+
+
+
+.return-toast h4 {
+
+
+
+  margin-bottom: 4px;
+
+
+
+}
+
+
+
+
+
+
+
+.return-toast p {
+
+
+
+  margin: 0;
+
+
+
+}
+
+
+
+
+
+
+
+@keyframes returnToastSlideIn {
+
+
+
+  0% {
+
+
+
+    opacity: 0;
+
+
+
+    transform: translateX(-70px);
+
+
+
+  }
+
+
+
+  100% {
+
+
+
+    opacity: 1;
+
+
+
+    transform: translateX(0);
+
+
+
+  }
+
+
+
+}
+
+
+
+
+
+
+
+/* Dashboard Refresh */
+
+
+
+body {
+
+
+
+  background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 48%, #e0f2fe 100%);
+
+
+
+}
+
+
+
+
+
+
+
+.sidebar {
+
+
+
+  background: linear-gradient(180deg, #1e3a8a 0%, #1d4ed8 45%, #0f172a 100%);
+
+
+
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+
+
+
+}
+
+
+
+
+
+
+
+.sidebar h2 {
+
+
+
+  font-size: 30px;
+
+
+
+  letter-spacing: 0.2px;
+
+
+
+}
+
+
+
+
+
+
+
+.menu li {
+
+
+
+  border: 1px solid transparent;
+
+
+
+  transition: all 0.25s ease;
+
+
+
+}
+
+
+
+
+
+
+
+.menu li:hover {
+
+
+
+  border-color: rgba(255, 255, 255, 0.2);
+
+
+
+  transform: translateX(4px);
+
+
+
+}
+
+
+
+
+
+
+
+.menu li.active {
+
+
+
+  background: linear-gradient(90deg, rgba(56, 189, 248, 0.22), rgba(59, 130, 246, 0.3));
+
+
+
+  border-color: rgba(255, 255, 255, 0.24);
+
+
+
+}
+
+
+
+
+
+
+
+.menu li.logout-item {
+
+
+
+  margin-top: 14px;
+
+
+
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+
+
+
+  color: #fff;
+
+
+
+  border-color: rgba(255, 255, 255, 0.16);
+
+
+
+  box-shadow: 0 10px 18px rgba(220, 38, 38, 0.35);
+
+
+
+  font-weight: 600;
+
+
+
+  position: relative;
+
+
+
+  overflow: hidden;
+
+
+
+}
+
+
+
+
+
+
+
+.menu li.logout-item::after {
+
+
+
+  content: "";
+
+
+
+  position: absolute;
+
+
+
+  top: 0;
+
+
+
+  left: -120%;
+
+
+
+  width: 60%;
+
+
+
+  height: 100%;
+
+
+
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+
+
+
+  animation: logoutShine 2.4s ease-in-out infinite;
+
+
+
+}
+
+
+
+
+
+
+
+.menu li.logout-item:hover {
+
+
+
+  transform: translateY(-1px) scale(1.01);
+
+
+
+  border-color: rgba(255, 255, 255, 0.28);
+
+
+
+}
+
+
+
+
+
+
+
+@keyframes logoutShine {
+
+
+
+  0% { left: -120%; }
+
+
+
+  65% { left: 130%; }
+
+
+
+  100% { left: 130%; }
+
+
+
+}
+
+
+
+
+
+
+
+.header {
+
+
+
+  background: rgba(255, 255, 255, 0.75);
+
+
+
+  border: 1px solid #dbeafe;
+
+
+
+  padding: 14px 16px;
+
+
+
+  border-radius: 12px;
+
+
+
+  backdrop-filter: blur(4px);
+
+
+
+}
+
+
+
+
+
+
+
+.section {
+
+
+
+  border: 1px solid #dbeafe;
+
+
+
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+
+
+
+  animation: sectionFade 0.28s ease;
+
+
+
+}
+
+
+
+
+
+
+
+@keyframes sectionFade {
+
+
+
+  from { opacity: 0; transform: translateY(6px); }
+
+
+
+  to { opacity: 1; transform: translateY(0); }
+
+
+
+}
+
+
+
+
+
+
+
+.modern-stats .stat {
+
+
+
+  position: relative;
+
+
+
+  overflow: hidden;
+
+
+
+  border: 1px solid #e2e8f0;
+
+
+
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05);
+
+
+
+}
+
+
+
+
+
+
+
+.modern-stats .stat-books { background: linear-gradient(135deg, #fff7ed, #ffedd5); }
+
+
+
+.modern-stats .stat-students { background: linear-gradient(135deg, #ecfeff, #cffafe); }
+
+
+
+.modern-stats .stat-staff { background: linear-gradient(135deg, #f5f3ff, #ede9fe); }
+
+
+
+.modern-stats .stat-fines { background: linear-gradient(135deg, #fff1f2, #ffe4e6); }
+
+
+
+
+
+
+
+.stat-icon {
+
+
+
+  display: inline-block;
+
+
+
+  margin-bottom: 6px;
+
+
+
+  font-size: 21px;
+
+
+
+}
+
+
+
+
+
+
+
+.dashboard-grid {
+
+
+
+  margin-top: 18px;
+
+
+
+  display: grid;
+
+
+
+  grid-template-columns: 1.5fr 1fr;
+
+
+
+  gap: 16px;
+
+
+
+}
+
+
+
+
+
+
+
+.dashboard-card {
+
+
+
+  background: var(--bg-surface);
+
+
+
+  border: 1px solid var(--border-soft);
+
+
+
+  border-radius: 14px;
+
+
+
+  padding: 16px;
+
+
+
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+
+
+
+}
+
+
+
+
+
+
+
+.dashboard-card h4 {
+
+
+
+  color: #1e3a8a;
+
+
+
+  margin-bottom: 12px;
+
+
+
+}
+
+
+
+
+
+
+
+.dashboard-card-head {
+
+
+
+  display: flex;
+
+
+
+  justify-content: space-between;
+
+
+
+  align-items: center;
+
+
+
+  margin-bottom: 8px;
+
+
+
+}
+
+
+
+
+
+
+
+.link-btn {
+
+
+
+  border: none;
+
+
+
+  background: none;
+
+
+
+  color: #2563eb;
+
+
+
+  cursor: pointer;
+
+
+
+  font-weight: 600;
+
+
+
+}
+
+
+
+
+
+
+
+.metric-row {
+
+
+
+  display: flex;
+
+
+
+  justify-content: space-between;
+
+
+
+  margin-bottom: 6px;
+
+
+
+  color: #334155;
+
+
+
+  font-size: 14px;
+
+
+
+}
+
+
+
+
+
+
+
+.metric-track {
+
+
+
+  height: 10px;
+
+
+
+  border-radius: 999px;
+
+
+
+  background: #e2e8f0;
+
+
+
+  margin-bottom: 12px;
+
+
+
+  overflow: hidden;
+
+
+
+}
+
+
+
+
+
+
+
+.metric-fill {
+
+
+
+  height: 100%;
+
+
+
+  width: 0;
+
+
+
+  transition: width 0.5s ease;
+
+
+
+}
+
+
+
+
+
+
+
+.metric-fill.issued {
+
+
+
+  background: linear-gradient(90deg, #2563eb, #38bdf8);
+
+
+
+}
+
+
+
+
+
+
+
+.metric-fill.available {
+
+
+
+  background: linear-gradient(90deg, #10b981, #4ade80);
+
+
+
+}
+
+
+
+
+
+
+
+.mini-table th,
+
+
+
+.mini-table td {
+
+
+
+  padding: 8px;
+
+
+
+  font-size: 13px;
+
+
+
+}
+
+
+
+
+
+
+
+.quick-actions {
+
+
+
+  margin-top: 16px;
+
+
+
+}
+
+
+
+
+
+
+
+.quick-actions h4 {
+
+
+
+  color: #1e3a8a;
+
+
+
+  margin-bottom: 10px;
+
+
+
+}
+
+
+
+
+
+
+
+.quick-action-grid {
+
+
+
+  display: flex;
+
+
+
+  gap: 12px;
+
+
+
+  flex-wrap: wrap;
+
+
+
+}
+
+
+
+
+
+
+
+.quick-action-btn {
+
+
+
+  min-width: 180px;
+
+
+
+  text-align: left;
+
+
+
+  border: none;
+
+
+
+  border-radius: 12px;
+
+
+
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+
+
+
+  color: #fff;
+
+
+
+  padding: 12px 14px;
+
+
+
+  cursor: pointer;
+
+
+
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+
+
+}
+
+
+
+
+
+
+
+.quick-action-btn span {
+
+
+
+  display: block;
+
+
+
+  font-size: 12px;
+
+
+
+  opacity: 0.9;
+
+
+
+  margin-top: 2px;
+
+
+
+}
+
+
+
+
+
+
+
+.quick-action-btn:hover {
+
+
+
+  transform: translateY(-2px);
+
+
+
+  box-shadow: 0 12px 20px rgba(29, 78, 216, 0.25);
+
+
+
+}
+
+
+
+
+
+
+
+.quick-action-btn.green {
+
+
+
+  background: linear-gradient(135deg, #059669, #047857);
+
+
+
+}
+
+
+
+
+
+
+
+.quick-action-btn.orange {
+
+
+
+  background: linear-gradient(135deg, #ea580c, #c2410c);
+
+
+
+}
+
+
+
+
+
+
+
+.timeline-list {
+
+
+
+  list-style: none;
+
+
+
+  display: grid;
+
+
+
+  gap: 10px;
+
+
+
+}
+
+
+
+
+
+
+
+.timeline-item {
+
+
+
+  border: 1px solid #e2e8f0;
+
+
+
+  border-left: 4px solid var(--primary-600);
+
+
+
+  background: #f8fbff;
+
+
+
+  border-radius: 10px;
+
+
+
+  padding: 10px 12px;
+
+
+
+}
+
+
+
+
+
+
+
+.timeline-item.returned {
+
+
+
+  border-left-color: #16a34a;
+
+
+
+}
+
+
+
+
+
+
+
+.timeline-item.fine {
+
+
+
+  border-left-color: #dc2626;
+
+
+
+}
+
+
+
+
+
+
+
+.timeline-item .time {
+
+
+
+  font-size: 12px;
+
+
+
+  color: var(--text-muted);
+
+
+
+  margin-top: 3px;
+
+
+
+}
+
+
+
+
+
+
+
+.empty-state {
+
+
+
+  margin: 10px 0;
+
+
+
+  border: 1px dashed #cbd5e1;
+
+
+
+  border-radius: 12px;
+
+
+
+  padding: 20px 14px;
+
+
+
+  text-align: center;
+
+
+
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+
+
+
+}
+
+
+
+
+
+
+
+.empty-state .icon {
+
+
+
+  font-size: 26px;
+
+
+
+  margin-bottom: 8px;
+
+
+
+}
+
+
+
+
+
+
+
+.empty-state .title {
+
+
+
+  font-weight: 600;
+
+
+
+  color: #1e3a8a;
+
+
+
+}
+
+
+
+
+
+
+
+.empty-state .hint {
+
+
+
+  margin-top: 4px;
+
+
+
+  color: #64748b;
+
+
+
+  font-size: 13px;
+
+
+
+}
+
+
+
+
+
+
+
+.empty-state .cta {
+
+
+
+  margin-top: 10px;
+
+
+
+  border: none;
+
+
+
+  border-radius: 9px;
+
+
+
+  padding: 8px 12px;
+
+
+
+  color: #fff;
+
+
+
+  background: linear-gradient(90deg, #2563eb, #1d4ed8);
+
+
+
+  cursor: pointer;
+
+
+
+}
+
+
+
+
+
+
+
+.global-loader {
+
+
+
+  position: fixed;
+
+
+
+  inset: 0;
+
+
+
+  background: rgba(15, 23, 42, 0.35);
+
+
+
+  display: none;
+
+
+
+  align-items: center;
+
+
+
+  justify-content: center;
+
+
+
+  z-index: 9999;
+
+
+
+}
+
+
+
+
+
+
+
+.global-loader.show {
+
+
+
+  display: flex;
+
+
+
+}
+
+
+
+
+
+
+
+.loader-card {
+
+
+
+  background: #fff;
+
+
+
+  border-radius: 12px;
+
+
+
+  padding: 14px 18px;
+
+
+
+  border: 1px solid #dbeafe;
+
+
+
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.2);
+
+
+
+  display: flex;
+
+
+
+  align-items: center;
+
+
+
+  gap: 10px;
+
+
+
+}
+
+
+
+
+
+
+
+.loader-spinner {
+
+
+
+  width: 22px;
+
+
+
+  height: 22px;
+
+
+
+  border-radius: 50%;
+
+
+
+  border: 3px solid #dbeafe;
+
+
+
+  border-top-color: #2563eb;
+
+
+
+  animation: spin 0.9s linear infinite;
+
+
+
+}
+
+
+
+
+
+
+
+@keyframes spin {
+
+
+
+  to { transform: rotate(360deg); }
+
+
+
+}
+
+
+
+
+
+
+
+.status-badge {
+
+
+
+  display: inline-flex;
+
+
+
+  align-items: center;
+
+
+
+  gap: 6px;
+
+
+
+  border-radius: 999px;
+
+
+
+  padding: 3px 10px;
+
+
+
+  font-size: 12px;
+
+
+
+  font-weight: 600;
+
+
+
+}
+
+
+
+
+
+
+
+.status-badge.returned {
+
+
+
+  color: #166534;
+
+
+
+  background: #dcfce7;
+
+
+
+}
+
+
+
+
+
+
+
+.status-badge.overdue {
+
+
+
+  color: #991b1b;
+
+
+
+  background: #fee2e2;
+
+
+
+}
+
+
+
+
+
+
+
+.status-badge.pending {
+
+
+
+  color: #92400e;
+
+
+
+  background: #fef3c7;
+
+
+
+}
+
+
+
+
+
+
+
+.status-badge.paid {
+
+
+
+  color: #1d4ed8;
+
+
+
+  background: #dbeafe;
+
+
+
+}
+
+
+
+
+
+
+
+.status-badge.ontime {
+
+
+
+  color: #065f46;
+
+
+
+  background: #ccfbf1;
+
+
+
+}
+
+
+
+
+
+
+
+.table-toolbar {
+
+
+
+  display: flex;
+
+
+
+  flex-wrap: wrap;
+
+
+
+  gap: 10px;
+
+
+
+  margin-bottom: 10px;
+
+
+
+}
+
+
+
+
+
+
+
+.hide-year .member-year-col {
+
+
+
+  display: none;
+
+
+
+}
+
+
+
+
+
+
+
+.member-row[data-member-type="EMPLOYEE"] .member-year-col,
+
+
+
+.member-row[data-member-type="EMPLOYEE"] .member-dept-col {
+
+
+
+  display: none;
+
+
+
+}
+
+
+
+
+
+
+
+.member-tabs {
+
+
+
+  display: inline-flex;
+
+
+
+  gap: 8px;
+
+
+
+  margin-bottom: 12px;
+
+
+
+  padding: 4px;
+
+
+
+  border-radius: 10px;
+
+
+
+  background: #e2e8f0;
+
+
+
+}
+
+
+
+
+
+
+
+.member-tab {
+
+
+
+  border: none;
+
+
+
+  border-radius: 8px;
+
+
+
+  padding: 8px 12px;
+
+
+
+  font-size: 13px;
+
+
+
+  font-weight: 600;
+
+
+
+  color: #1e3a8a;
+
+
+
+  background: transparent;
+
+
+
+  cursor: pointer;
+
+
+
+}
+
+
+
+
+
+
+
+.member-tab.active {
+
+
+
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+
+
+
+  color: #fff;
+
+
+
+  box-shadow: 0 6px 12px rgba(37, 99, 235, 0.3);
+
+
+
+}
+
+
+
+
+
+
+
+.user-type-switch {
+
+
+
+  display: inline-flex;
+
+
+
+  gap: 8px;
+
+
+
+  margin-bottom: 12px;
+
+
+
+}
+
+
+
+
+
+
+
+.user-type-btn {
+
+
+
+  border: none;
+
+
+
+  border-radius: 10px;
+
+
+
+  padding: 8px 16px;
+
+
+
+  font-size: 13px;
+
+
+
+  font-weight: 600;
+
+
+
+  color: #1e3a8a;
+
+
+
+  background: #e2e8f0;
+
+
+
+  cursor: pointer;
+
+
+
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+
+
+
+}
+
+
+
+
+
+
+
+.user-type-btn.active {
+
+
+
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+
+
+
+  color: #fff;
+
+
+
+  box-shadow: 0 8px 16px rgba(37, 99, 235, 0.35);
+
+
+
+}
+
+
+
+
+
+
+
+.table-toolbar input,
+
+
+
+.table-toolbar select {
+
+
+
+  padding: 9px 10px;
+
+
+
+  border-radius: 8px;
+
+
+
+  border: 1px solid #bfdbfe;
+
+
+
+  background: #f8fafc;
+
+
+
+}
+
+
+
+
+
+
+
+body.dark-mode {
+
+
+
+  background: linear-gradient(135deg, #0f172a 0%, #111827 50%, #1e293b 100%);
+
+
+
+}
+
+
+
+
+
+
+
+body.dark-mode .header,
+
+
+
+body.dark-mode .section,
+
+
+
+body.dark-mode .dashboard-card,
+
+
+
+body.dark-mode .table-shell,
+
+
+
+body.dark-mode .form-shell,
+
+
+
+body.dark-mode .notifications-panel,
+
+
+
+body.dark-mode .loader-card {
+
+
+
+  background: #0b1220;
+
+
+
+  color: #e5e7eb;
+
+
+
+  border-color: #334155;
+
+
+
+}
+
+
+
+
+
+
+
+body.dark-mode .header h2,
+
+
+
+body.dark-mode .section h3,
+
+
+
+body.dark-mode .dashboard-card h4,
+
+
+
+body.dark-mode .section-subtitle,
+
+
+
+body.dark-mode th,
+
+
+
+body.dark-mode td,
+
+
+
+body.dark-mode p,
+
+
+
+body.dark-mode label {
+
+
+
+  color: #e5e7eb;
+
+
+
+}
+
+
+
+
+
+
+
+body.dark-mode input,
+
+
+
+body.dark-mode select,
+
+
+
+body.dark-mode textarea {
+
+
+
+  background: #111827;
+
+
+
+  color: #e5e7eb;
+
+
+
+  border-color: #334155 !important;
+
+
+
+}
+
+
+
+
+
+
+
+body.dark-mode tr:nth-child(even) {
+
+
+
+  background: #0f172a;
+
+
+
+}
+
+
+
+
+
+
+
+body.dark-mode .icon-btn {
+
+
+
+  background: #111827;
+
+
+
+  color: #e5e7eb;
+
+
+
+  border-color: #334155;
+
+
+
+}
+
+
+
+
+
+
+
+body.dark-mode .timeline-item {
+
+
+
+  background: #0f172a;
+
+
+
+  border-color: #334155;
+
+
+
+}
+
+
+
+
+
+
+
+body.dark-mode .empty-state {
+
+
+
+  background: #0f172a;
+
+
+
+  border-color: #334155;
+
+
+
+}
+
+
+
+
+
+
+
+body.dark-mode .empty-state .title {
+
+
+
+  color: #93c5fd;
+
+
+
+}
+
+
+
+
+
+
+
+.section-head {
+
+
+
+  display: flex;
+
+
+
+  align-items: center;
+
+
+
+  justify-content: space-between;
+
+
+
+  gap: 10px;
+
+
+
+  margin-bottom: 12px;
+
+
+
+}
+
+
+
+
+
+
+
+.section-kicker {
+
+
+
+  display: inline-block;
+
+
+
+  padding: 4px 9px;
+
+
+
+  border-radius: 999px;
+
+
+
+  font-size: 12px;
+
+
+
+  font-weight: 600;
+
+
+
+  letter-spacing: 0.2px;
+
+
+
+  color: #1e40af;
+
+
+
+  background: #dbeafe;
+
+
+
+}
+
+
+
+
+
+
+
+.section-subtitle {
+
+
+
+  color: #64748b;
+
+
+
+  font-size: 13px;
+
+
+
+  margin-bottom: 14px;
+
+
+
+}
+
+
+
+
+
+
+
+.form-shell {
+
+
+
+  border: 1px solid #dbeafe;
+
+
+
+  border-radius: 12px;
+
+
+
+  padding: 14px;
+
+
+
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+
+
+
+}
+
+
+
+
+
+
+
+.table-shell {
+
+
+
+  border: 1px solid #dbeafe;
+
+
+
+  border-radius: 12px;
+
+
+
+  padding: 10px;
+
+
+
+  background: #fff;
+
+
+
+}
+
+
+
+
+
+
+
+.search input {
+
+
+
+  border: 1px solid #bfdbfe;
+
+
+
+  background: #f8fafc;
+
+
+
+}
+
+
+
+
+
+
+
+table thead th {
+
+
+
+  position: sticky;
+
+
+
+  top: 0;
+
+
+
+  z-index: 2;
+
+
+
+}
+
+
+
+
+
+
+
+table tbody tr {
+
+
+
+  transition: background 0.2s ease;
+
+
+
+}
+
+
+
+
+
+
+
+table tbody tr:hover {
+
+
+
+  background: #eef6ff !important;
+
+
+
+}
+
+
+
+
+
+
+
+@media (max-width: 1100px) {
+
+
+
+  .hamburger-btn {
+
+
+
+    display: inline-flex;
+
+
+
+    align-items: center;
+
+
+
+    justify-content: center;
+
+
+
+    margin-right: 8px;
+
+
+
+    vertical-align: middle;
+
+
+
+  }
+
+
+
+  .sidebar {
+
+
+
+    position: fixed;
+
+
+
+    top: 0;
+
+
+
+    left: 0;
+
+
+
+    bottom: 0;
+
+
+
+    z-index: 120;
+
+
+
+    width: 260px;
+
+
+
+    box-shadow: 0 16px 32px rgba(15, 23, 42, 0.35);
+
+
+
+    transform: translateX(-105%);
+
+
+
+  }
+
+
+
+  body.sidebar-open .sidebar {
+
+
+
+    transform: translateX(0);
+
+
+
+  }
+
+
+
+  .main {
+
+
+
+    height: auto;
+
+
+
+    min-height: 100vh;
+
+
+
+  }
+
+
+
+  .header h2 {
+
+
+
+    display: flex;
+
+
+
+    align-items: center;
+
+
+
+  }
+
+
+
+  .stats {
+
+
+
+    grid-template-columns: repeat(2, 1fr);
+
+
+
+  }
+
+
+
+  .dashboard-grid {
+
+
+
+    grid-template-columns: 1fr;
+
+
+
+  }
+
+
+
+}
+
+
+
+
+
+
+
+@media (max-width: 720px) {
+
+
+
+  body {
+
+
+
+    overflow: auto;
+
+
+
+    height: auto;
+
+
+
+    display: block;
+
+
+
+  }
+
+
+
+  .sidebar {
+
+
+
+    width: 84%;
+
+
+
+    max-width: 300px;
+
+
+
+    padding: 12px;
+
+
+
+  }
+
+
+
+  .menu {
+
+
+
+    display: block;
+
+
+
+  }
+
+
+
+  .menu li {
+
+
+
+    margin-bottom: 6px;
+
+
+
+    font-size: 14px;
+
+
+
+    text-align: left;
+
+
+
+  }
+
+
+
+  .main {
+
+
+
+    height: auto;
+
+
+
+    overflow: visible;
+
+
+
+    padding: 16px;
+
+
+
+  }
+
+
+
+  .header {
+
+
+
+    flex-wrap: wrap;
+
+
+
+    gap: 10px;
+
+
+
+  }
+
+
+
+  .header h2 {
+
+
+
+    width: 100%;
+
+
+
+  }
+
+
+
+  .header-actions {
+
+
+
+    width: auto;
+
+
+
+    justify-content: flex-end;
+
+
+
+  }
+
+
+
+  .stats {
+
+
+
+    grid-template-columns: 1fr;
+
+
+
+  }
+
+
+
+  .quick-action-grid {
+
+
+
+    display: grid;
+
+
+
+    grid-template-columns: 1fr;
+
+
+
+  }
+
+
+
+  .quick-action-btn {
+
+
+
+    width: 100%;
+
+
+
+  }
+
+
+
+  .notifications-panel {
+
+
+
+    right: 8px;
+
+
+
+    left: 8px;
+
+
+
+    width: auto;
+
+
+
+    top: 110px;
+
+
+
+  }
+
+
+
+}
+
+
+
+
+
+
+
+.sidebar-backdrop {
+
+
+
+  position: fixed;
+
+
+
+  inset: 0;
+
+
+
+  background: rgba(15, 23, 42, 0.32);
+
+
+
+  z-index: 110;
+
+
+
+  display: none;
+
+
+
+}
+
+
+
+
+
+
+
+body.sidebar-open .sidebar-backdrop {
+
+
+
+  display: block;
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#users .user-type-switch {
+  display: inline-flex;
+  gap: 4px;
+  margin-bottom: 12px;
+  background: #e6e9ff;
+  border-radius: 999px;
+  padding: 4px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+#users .user-type-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 8px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #5b63a7;
+  background: transparent;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  min-width: 100px;
+}
+
+#users .user-type-btn.active {
+  background: linear-gradient(180deg, #3b6bff, #1d4ed8);
+  color: #fff;
+  box-shadow: 0 12px 24px rgba(30, 64, 175, 0.35);
+}
+
+
+
+</style>
+
+</head>
+
+
+
+
+
+
+
+<body>
+
+
+
+  <script src="admin.js"></script>
+
+
+
+  <div id="globalLoader" class="global-loader">
+
+
+
+    <div class="loader-card">
+
+
+
+      <div class="loader-spinner"></div>
+
+
+
+      <span id="globalLoaderText">Please wait...</span>
+
+
+
+    </div>
+
+
+
+  </div>
+
+
+
+
+
+
+
+  <script src="https://unpkg.com/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<!-- Sidebar -->
+
+
+
+<div class="sidebar">
+
+
+
+  <h2>Admin Panel</h2>
+
+
+
+  <ul class="menu">
+
+
+
+    <li class="active" onclick="showSection('dashboard',this)">Dashboard</li>
+
+
+
+    <li onclick="showSection('addUser',this)">Add User</li>
+
+
+
+    <li onclick="showSection('users',this)">View Users</li>
+
+
+
+    <li onclick="showSection('books',this)">Add Books</li>
+
+
+
+    <li onclick="showSection('allBooks',this)">All Books</li>
+
+
+
+    <li onclick="showSection('issueBook',this)">Issue Book</li>
+
+
+
+    <li onclick="showSection('returnBook',this)">Return Book</li>
+
+
+
+    <li onclick="showSection('pendingBooks',this)">Issued Books</li>
+
+
+
+    <li onclick="showSection('returnedBooks',this)">Returned Books</li>
+
+
+
+    <li onclick="showSection('pendingFines',this)">Pending Fines</li>
+
+
+
+    <li class="logout-item" onclick="logout()">Logout</li>
+
+
+
+  </ul>
+
+
+
+</div>
+
+
+
+
+
+
+
+<!-- Main -->
+
+
+
+<div class="main">
+
+
+
+  <div class="sidebar-backdrop" onclick="toggleSidebar(false)"></div>
+
+
+
+
+
+
+
+  <div class="header">
+
+
+
+    <h2><button class="hamburger-btn" type="button" onclick="toggleSidebar()" aria-label="Toggle sidebar">☰</button>Admin Dashboard</h2>
+
+
+
+    <div class="header-actions">
+
+
+
+      <div class="bell-wrap">
+
+
+
+        <button class="icon-btn" type="button" onclick="toggleNotifications()">🔔</button>
+
+
+
+        <span id="notifyCount" class="notify-dot">0</span>
+
+
+
+      </div>
+
+
+
+      <button class="logout" onclick="openSectionById('dashboard')">Back</button>
+
+
+
+    </div>
+
+
+
+  </div>
+
+
+
+  <div id="notificationsPanel" class="notifications-panel">
+
+
+
+    <div class="notifications-head">
+
+
+
+      <strong>Notifications</strong>
+
+
+
+      <button type="button" onclick="clearNotifications()">Clear</button>
+
+
+
+    </div>
+
+
+
+    <ul id="notificationList" class="notification-list">
+
+
+
+      <li>No notifications yet.</li>
+
+
+
+    </ul>
+
+
+
+  </div>
+
+
+
+
+
+
+
+  <!-- Dashboard -->
+
+
+
+  <div id="dashboard" class="section active">
+
+
+
+    <div class="stats modern-stats">
+
+
+
+      <div class="stat stat-books">
+
+
+
+        <span class="stat-icon">📚</span>
+
+
+
+        <h4 id="totalBooks">0</h4>
+
+
+
+        <p>Total Books</p>
+
+
+
+      </div>
+
+
+
+      <div class="stat stat-students">
+
+
+
+        <span class="stat-icon">🧑‍🎓</span>
+
+
+
+        <h4 id="totalStudents">0</h4>
+
+
+
+        <p>Students</p>
+
+
+
+      </div>
+
+
+
+      <div class="stat stat-staff">
+
+
+
+        <span class="stat-icon">🧑‍💼</span>
+
+
+
+        <h4 id="totalStaff">0</h4>
+
+
+
+        <p>Staff</p>
+
+
+
+      </div>
+
+
+
+      <div class="stat stat-fines">
+
+
+
+        <span class="stat-icon">⚠️</span>
+
+
+
+        <h4 id="pendingFinesCount">0</h4>
+
+
+
+        <p>Pending Fines</p>
+
+
+
+      </div>
+
+
+
+    </div>
+
+
+
+
+
+
+
+    <div class="dashboard-grid">
+
+
+
+      <div class="dashboard-card">
+
+
+
+        <h4>Books Snapshot</h4>
+
+
+
+        <div class="metric-row">
+
+
+
+          <span>Issued</span>
+
+
+
+          <span id="dashIssuedValue">0</span>
+
+
+
+        </div>
+
+
+
+        <div class="metric-track"><div id="dashIssuedBar" class="metric-fill issued"></div></div>
+
+
+
+
+
+
+
+        <div class="metric-row">
+
+
+
+          <span>Available</span>
+
+
+
+          <span id="dashAvailableValue">0</span>
+
+
+
+        </div>
+
+
+
+        <div class="metric-track"><div id="dashAvailableBar" class="metric-fill available"></div></div>
+
+
+
+      </div>
+
+
+
+
+
+
+
+      <div class="dashboard-card">
+
+
+
+        <div class="dashboard-card-head">
+
+
+
+          <h4>Recent Borrowers</h4>
+
+
+
+          <button type="button" class="link-btn" onclick="openSectionById('pendingBooks')">View All</button>
+
+
+
+        </div>
+
+
+
+        <div class="table-container table-shell">
+
+
+
+          <table class="mini-table">
+
+
+
+            <thead>
+
+
+
+              <tr>
+
+
+
+                <th>Member ID</th>
+
+
+
+                <th>Name</th>
+
+
+
+                <th>Book Title</th>
+
+
+
+                <th>Issue Date</th>
+
+
+
+              </tr>
+
+
+
+            </thead>
+
+
+
+            <tbody id="recentBorrowersBody">
+
+
+
+              <tr><td colspan="4">Loading...</td></tr>
+
+
+
+            </tbody>
+
+
+
+          </table>
+
+
+
+        </div>
+
+
+
+      </div>
+
+
+
+    </div>
+
+
+
+
+
+
+
+    <div class="dashboard-grid">
+
+
+
+      <div class="dashboard-card">
+
+
+
+        <div class="dashboard-card-head">
+
+
+
+          <h4>Activity Timeline</h4>
+
+
+
+          <button type="button" class="link-btn" onclick="loadDashboardOverview()">Refresh</button>
+
+
+
+        </div>
+
+
+
+        <ul id="activityTimeline" class="timeline-list">
+
+
+
+          <li class="timeline-item">Loading timeline...</li>
+
+
+
+        </ul>
+
+
+
+      </div>
+
+
+
+      <div class="dashboard-card">
+
+
+
+        <h4>Quick Actions</h4>
+
+
+
+        <div class="quick-action-grid">
+
+
+
+        <button class="quick-action-btn" type="button" onclick="openSectionById('addUser')">Add User<span>Student or staff enrollment</span></button>
+
+
+
+          <button class="quick-action-btn" type="button" onclick="openSectionById('books')">Add Book<span>Register book in catalog</span></button>
+
+
+
+          <button class="quick-action-btn green" type="button" onclick="openSectionById('issueBook')">Issue Book<span>Assign a book to student</span></button>
+
+
+
+          <button class="quick-action-btn green" type="button" onclick="openSectionById('returnBook')">Return Book<span>Process one or many returns</span></button>
+
+
+
+          <button class="quick-action-btn orange" type="button" onclick="openSectionById('pendingFines')">Collect Fine<span>Track and update fine payment</span></button>
+
+
+
+          <button class="quick-action-btn" type="button" onclick="openSectionById('allBooks')">View Inventory<span>Check copy availability fast</span></button>
+
+
+
+        </div>
+
+
+
+      </div>
+
+
+
+    </div>
+
+
+
+
+
+
+
+    <div class="quick-actions">
+
+
+
+      <h4>Shortcuts</h4>
+
+
+
+      <div class="quick-action-grid">
+
+
+
+        <button class="quick-action-btn" type="button" onclick="openSectionById('issueBook')">Issue New Book<span>Fast issue workflow</span></button>
+
+
+
+        <button class="quick-action-btn green" type="button" onclick="openSectionById('returnBook')">Return Book<span>Mark returns and status</span></button>
+
+
+
+        <button class="quick-action-btn orange" type="button" onclick="openSectionById('pendingFines')">Manage Fines<span>Open pending fine records</span></button>
+
+
+
+      </div>
+
+
+
+    </div>
+
+
+
+  </div>
+
+
+
+
+
+
+
+  <!-- Add User -->
+
+
+
+  <div id="addUser" class="section">
+
+
+
+    <div class="section-head"><h3>Add User</h3><span class="section-kicker">Roster</span></div>
+
+
+
+    <p class="section-subtitle">Choose a user type and fill the matching form to register them in the LMS.</p>
+
+
+
+    <div class="member-tabs" data-tab-group="addUser">
+
+
+
+      <button type="button" class="member-tab active" data-member-type="STUDENTS" onclick="setAddUserTab('STUDENTS')">Student</button>
+
+
+
+      <button type="button" class="member-tab" data-member-type="EMPLOYEES" onclick="setAddUserTab('EMPLOYEES')">Staff</button>
+
+
+
+    </div>
+
+
+
+    <div class="add-user-forms">
+
+
+
+      <div id="addUserStudentForm" class="form form-shell">
+
+
+
+        <input id="sName" placeholder="Student Name">
+
+
+
+        <input id="sReg" placeholder="Register Number">
+
+
+
+        <div class="form-group">
+
+
+
+          <label>Department</label>
+
+
+
+          <select id="sDept" name="department" required>
+
+
+
+            <option value="">-- Select Department --</option>
+
+
+
+            <option value="CSE">Computer Science (CSE)</option>
+
+
+
+            <option value="ECE">Electronics (ECE)</option>
+
+
+
+            <option value="EEE">Electrical (EEE)</option>
+
+
+
+            <option value="Mechanical">Mechanical</option>
+
+
+
+            <option value="Civil">Civil</option>
+
+
+
+            <option value="Ai&DS">Artificial Intelligence & Data Science</option>
+
+
+
+            <option value="AIML">AI & Machine Learning</option>
+
+
+
+          </select>
+
+
+
+        </div>
+
+
+
+        <div class="form-group">
+
+
+
+          <label>Year</label>
+
+
+
+          <select id="sYear" name="year" required>
+
+
+
+            <option value="">-- Select Year --</option>
+
+
+
+            <option value="1st">1st Year</option>
+
+
+
+            <option value="2nd">2nd Year</option>
+
+
+
+            <option value="3rd">3rd Year</option>
+
+
+
+            <option value="4th">4th Year</option>
+
+
+
+          </select>
+
+
+
+        </div>
+
+
+
+        <input id="sPass" type="password" placeholder="Password" required>
+
+
+
+        <input id="sPhone" type="tel" placeholder="Phone Number" pattern="\\d{9}" maxlength="9" minlength="9" title="Enter a 9-digit phone number">
+
+
+
+        <input id="sEmail" placeholder="Email">
+
+
+
+        <button onclick="addStudent()">Add Student</button>
+
+
+
+      </div>
+
+
+
+      <div id="addUserStaffForm" class="form form-shell hidden">
+
+
+
+        <input type="text" id="staffName" placeholder="Staff Name" required>
+
+
+
+        <input type="text" id="staffCode" placeholder="Staff Code" required>
+
+
+
+        <div class="form-group">
+
+
+
+          <label>Department</label>
+
+
+
+          <select id="staffDept" name="department" required>
+
+
+
+            <option value="">-- Select Department --</option>
+
+
+
+            <option value="CSE">Computer Science (CSE)</option>
+
+
+
+            <option value="ECE">Electronics (ECE)</option>
+
+
+
+            <option value="EEE">Electrical (EEE)</option>
+
+
+
+            <option value="Mechanical">Mechanical</option>
+
+
+
+            <option value="Civil">Civil</option>
+
+
+
+            <option value="Ai&DS">AI & DS</option>
+
+
+
+            <option value="AIML">AI & ML</option>
+
+
+
+          </select>
+
+
+
+        </div>
+
+
+
+        <div class="form-group">
+
+
+
+          <label>Staff Type</label>
+
+
+
+          <select id="staffType" required>
+
+
+
+            <option value="">Select Type</option>
+
+
+
+            <option value="Teaching">Teaching</option>
+
+
+
+            <option value="Non_Teaching">Non Teaching</option>
+
+
+
+          </select>
+
+
+
+        </div>
+
+
+
+        <input type="email" id="staffEmail" placeholder="Email">
+
+
+
+        <input type="text" id="staffPhone" placeholder="Phone">
+
+
+
+        <input type="password" id="staffPassword" placeholder="Password" required>
+
+
+
+        <button onclick="addStaff()">Add Staff</button>
+
+
+
+      </div>
+
+
+
+    </div>
+
+
+
+  </div>
+
+
+
+
+
+
+
+  <!-- Users Directory -->
+
+
+
+  <div id="users" class="section">
+
+
+
+    <div class="section-head">
+
+
+
+      <h3>User Directory</h3>
+
+
+
+      <span class="section-kicker">Combined list</span>
+
+
+
+    </div>
+
+
+
+    <p class="section-subtitle">Toggle between students and staff to explore records with a unified search.</p>
+
+
+
+    <div class="user-type-switch">
+
+
+
+      <button type="button" class="user-type-btn active" data-type="students" onclick="setUserView('students')">Students</button>
+
+
+
+      <button type="button" class="user-type-btn" data-type="staffs" onclick="setUserView('staffs')">Staff</button>
+
+
+
+    </div>
+
+
+
+    <div class="search">
+
+
+
+      <input type="text" onkeyup="filterTable(this,'usersTable')" placeholder="Search users...">
+
+
+
+    </div>
+
+
+
+    <div class="table-container table-shell">
+
+
+
+      <table id="usersTable" border="1" style="width:100%; margin-top:10px;">
+
+
+
+        <thead>
+
+
+
+          <tr>
+
+
+
+            <th id="usersHeaderPrimary">Reg No</th>
+
+
+
+            <th>Name</th>
+
+
+
+            <th class="member-dept-col">Department</th>
+
+
+
+            <th id="usersHeaderSecondary">Year</th>
+
+
+
+            <th>Email</th>
+
+
+
+            <th>Phone</th>
+
+
+
+          </tr>
+
+
+
+        </thead>
+
+
+
+        <tbody id="usersTableBody">
+
+
+
+          <tr><td colspan="6">Select a view to load users.</td></tr>
+
+
+
+        </tbody>
+
+
+
+      </table>
+
+
+
+    </div>
+
+
+
+  </div>
+
+
+
+
+
+
+
+    
+
+
+
+  <!-- All Students -->
+
+
+
+  <div id="students" class="section">
+
+
+
+    <div class="section-head"><h3 onclick="openStudents(this)">All Students</h3><span class="section-kicker">Directory</span></div>
+
+
+
+    <p class="section-subtitle">Search and review student records quickly.</p>
+
+
+
+    <div class="search">
+
+
+
+      <input type="text" onkeyup="filterTable(this,'studentTable')" placeholder="Search student...">
+
+
+
+    
+
+
+
+
+
+
+
+     </div>
+
+
+
+     <div class="table-container table-shell">
+
+
+
+      <table id="studentTable" border="1" style="width:100%; margin-top:10px;">
+
+
+
+        <thead>
+
+
+
+          <tr> 
+
+
+
+            <th>Reg No</th>
+
+
+
+            <th>Name</th>
+
+
+
+            <th class="member-dept-col">Department</th>
+
+
+
+            <th>Year</th>
+
+
+
+            <th>Email</th>
+
+
+
+            <th>Phone</th>
+
+
+
+          </tr>
+
+
+
+        </thead>
+
+
+
+        <tbody id="studenttable"> 
+
+
+
+
+
+
+
+        </tbody>
+
+
+
+  </table>
+
+
+
+     </div>
+
+
+
+  </div> 
+
+
+
+
+
+  <!-- All Staffs -->
+
+
+
+  <div id="staffs" class="section">
+
+
+
+    <div class="section-head"><h3>All Staffs</h3><span class="section-kicker">Directory</span></div>
+
+
+
+    <p class="section-subtitle">View all staff data including department and role type.</p>
+
+
+
+    <div class="search">
+
+
+
+      <input type="text" onkeyup="filterTable(this,'staffTable')" placeholder="Search staff...">
+
+
+
+    </div>
+
+
+
+    <div class="table-container table-shell">
+
+
+
+      <table id="staffTable" border="1" style="width:100%; margin-top:10px;">
+
+
+
+        <thead>
+
+
+
+          <tr> 
+
+
+
+            <th>Staff Code</th>
+
+
+
+            <th>Name</th>
+
+
+
+            <th class="member-dept-col">Department</th>
+
+
+
+            <th>Staff Type</th>
+
+
+
+            <th>Email</th>
+
+
+
+            <th>Phone</th>
+
+
+
+          </tr>
+
+
+
+        </thead>
+
+
+
+        <tbody id="staffTableBody">
+
+
+
+        </tbody>
+
+
+
+      </table>
+
+
+
+    </div>
+
+
+
+  </div>
+
+
+
+
+
+
+
+  <!-- Add Books -->
+
+
+
+  <div id="books" class="section">
+
+
+
+  <div class="section-head"><h3>Add Book</h3><span class="section-kicker">Catalog</span></div>
+
+
+
+  <p class="section-subtitle">Add title metadata and map the book to rack and shelf locations.</p>
+
+
+
+
+
+
+
+  <div class="form form-shell">
+
+
+
+    <input type="text" id="bookId" placeholder="Book ID" required>
+
+
+
+    <input type="text" id="bookTitle" placeholder="Book Title" required>
+
+
+
+    <input type="text" id="bookAuthor" placeholder="Author">
+
+
+
+    <input type="text" id="bookPublisher" placeholder="Publisher">
+
+
+
+    
+
+
+
+    <div class="form-group">
+
+
+
+    <label >Category</label>
+
+
+
+<select id="bookCategory" required>
+
+
+
+  <option value="" disabled selected>-- Select Category --</option>
+
+
+
+  <option value="PROGRAMMING">Programming</option>
+
+
+
+  <option value="DATABASE">Database</option>
+
+
+
+  <option value="NETWORKING">Networking</option>
+
+
+
+  <option value="AI">Artificial Intelligence</option>
+
+
+
+  <option value="ML">Machine Learning</option>
+
+
+
+  <option value="DATA_SCIENCE">Data Science</option>
+
+
+
+  <option value="ELECTRONICS">Electronics</option>
+
+
+
+  <option value="MECHANICAL">Mechanical</option>
+
+
+
+  <option value="CIVIL">Civil</option>
+
+
+
+  <option value="MATHS">Mathematics</option>
+
+
+
+</select>
+
+
+
+</div>
+
+
+
+    
+
+
+
+<div class="form-group">
+
+
+
+    <label >Rack Number</label>
+
+
+
+    <select id="rackNumber" required>
+
+
+
+  <option value="" disabled selected>-- Select Rack --</option>
+
+
+
+  <option value="RACK_1">Rack 1</option>
+
+
+
+  <option value="RACK_2">Rack 2</option>
+
+
+
+  <option value="RACK_3">Rack 3</option>
+
+
+
+  <option value="RACK_4">Rack 4</option>
+
+
+
+</select>
+
+
+
+</div>
+
+
+
+<div class="form-group">
+
+
+
+<label >Shelf Number</label>
+
+
+
+<select id="shelfNumber" required>
+
+
+
+  <option value="" disabled selected>-- Select Shelf --</option>
+
+
+
+  <option value="SHELF_1">Shelf 1</option>
+
+
+
+  <option value="SHELF_2">Shelf 2</option>
+
+
+
+  <option value="SHELF_3">Shelf 3</option>
+
+
+
+  <option value="SHELF_4">Shelf 4</option>
+
+
+
+</select>
+
+
+
+</div>
+
+
+
+
+
+
+
+    <input type="number" id="totalCopies" placeholder="Total Copies" min="1">
+
+
+
+
+
+
+
+    <button onclick="addBook()">Add Book</button>
+
+
+
+  </div>
+
+
+
+</div>
+
+
+
+
+
+
+
+  <!-- All Books -->
+
+
+
+  <div id="allBooks" class="section">
+
+
+
+    <div class="section-head"><h3>All Books</h3><span class="section-kicker">Inventory</span></div>
+
+
+
+    <p class="section-subtitle">Monitor title availability and copy movement in real time.</p>
+
+
+
+    <div class="search">
+
+
+
+      <input type="text" onkeyup="filterTable(this,'bookTable')" placeholder="Search book...">
+
+
+
+    </div>
+
+
+
+    <div class="table-container table-shell">
+
+
+
+      <table id="bookTable" border="1" style="width:100%; margin-top:10px;">
+
+
+
+        <thead>
+
+
+
+          <tr>
+
+
+
+            <th>Book ID</th>
+
+
+
+            <th>Title</th>
+
+
+
+            <th>Author</th>
+
+
+
+            <th>Publisher</th>
+
+
+
+            <th>Category</th>
+
+
+
+            <th>Rack</th>
+
+
+
+            <th>Shelf</th>
+
+
+
+            <th>Total Copies</th>
+
+
+
+            <th>Available</th>
+
+
+
+          </tr>
+
+
+
+        </thead>
+
+
+
+        <tbody id="bookTableBody">
+
+
+
+        </tbody>
+
+
+
+      </table>
+
+
+
+    </div>
+
+
+
+  </div>
+
+
+
+
+
+
+
+  <!-- Issue Book -->
+
+
+
+  <div id="issueBook" class="section">
+
+
+
+    <div class="section-head"><h3>Issue Book</h3><span class="section-kicker">Circulation</span></div>
+
+
+
+    <p class="section-subtitle">Verify student and book details, then issue with return date.</p>
+
+
+
+    <div class="member-tabs" data-tab-group="issueBook">
+
+
+
+      <button type="button" class="member-tab active" data-member-type="STUDENTS" onclick="setMemberTab('issueBook','STUDENTS')">Students</button>
+
+
+
+      <button type="button" class="member-tab" data-member-type="EMPLOYEES" onclick="setMemberTab('issueBook','EMPLOYEES')">Employees</button>
+
+
+
+    </div>
+
+
+
+    <div class="issue-panel">
+
+
+
+      <div class="issue-search-row">
+
+
+
+        <input type="text" id="issueRollNo" placeholder="Student Roll Number" required>
+
+
+
+        <button type="button" onclick="fetchIssueStudent()">Fetch Member</button>
+
+
+
+      </div>
+
+
+
+
+
+
+
+      <div id="issueStudentCard" class="issue-detail-card hidden">
+
+
+
+        <h4>Member Details</h4>
+
+
+
+        <p id="issueStudentIdText">Member ID:</p>
+
+
+
+        <p id="issueStudentNameText">Name:</p>
+
+
+
+        <p id="issueStudentContactText">Contact:</p>
+
+
+
+      </div>
+
+
+
+
+
+
+
+      <div class="issue-search-row">
+
+
+
+        <input type="text" id="issueBookId" placeholder="Book ID" required>
+
+
+
+        <button type="button" onclick="fetchIssueBook()">Fetch Book</button>
+
+
+
+      </div>
+
+
+
+
+
+
+
+      <div id="issueBookCard" class="issue-detail-card hidden">
+
+
+
+        <h4>Book Details</h4>
+
+
+
+        <p id="issueBookIdText">Book ID:</p>
+
+
+
+        <p id="issueBookTitleText">Title:</p>
+
+
+
+        <p id="issueBookAuthorText">Author:</p>
+
+
+
+      </div>
+
+
+
+
+
+
+
+      <div class="issue-date-row">
+
+
+
+        <label for="issueDate">Issue Date</label>
+
+
+
+        <input type="date" id="issueDate" required>
+
+
+
+      </div>
+
+
+
+
+
+
+
+      <div class="issue-date-row">
+
+
+
+        <label for="dueDate">Return Date</label>
+
+
+
+        <input type="date" id="dueDate" required>
+
+
+
+      </div>
+
+
+
+
+
+
+
+      <div id="issueStatus" class="issue-status"></div>
+
+
+
+      <div id="issueToast" class="issue-toast">
+
+
+
+        <span class="emoji">😞</span>
+
+
+
+        <span id="issueToastText"></span>
+
+
+
+      </div>
+
+
+
+      <button class="issue-submit" type="button" onclick="issueBook()">Issue Book</button>
+
+
+
+    </div>
+
+
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+  <!-- Return Book -->
+
+
+
+  <div id="returnBook" class="section">
+
+
+
+    <div class="section-head"><h3>Return Book</h3><span class="section-kicker">Circulation</span></div>
+
+
+
+    <p class="section-subtitle">Select one or more issued titles and complete return processing.</p>
+
+
+
+    <div class="member-tabs" data-tab-group="returnBook">
+
+
+
+      <button type="button" class="member-tab active" data-member-type="STUDENTS" onclick="setMemberTab('returnBook','STUDENTS')">Students</button>
+
+
+
+      <button type="button" class="member-tab" data-member-type="EMPLOYEES" onclick="setMemberTab('returnBook','EMPLOYEES')">Employees</button>
+
+
+
+    </div>
+
+
+
+    <div class="issue-panel">
+
+
+
+      <div class="issue-search-row">
+
+
+
+        <input type="text" id="returnRollNo" placeholder="Student Roll Number" required>
+
+
+
+        <button type="button" onclick="fetchReturnStudentBooks()">Fetch Issued Books</button>
+
+
+
+      </div>
+
+
+
+
+
+
+
+      <div id="returnStudentCard" class="issue-detail-card hidden">
+
+
+
+        <h4>Return Details</h4>
+
+
+
+        <p id="returnStudentIdText">Member ID:</p>
+
+
+
+        <p id="returnStudentNameText">Name:</p>
+
+
+
+        <p id="returnStudentYearDeptText">Year / Department:</p>
+
+
+
+      </div>
+
+
+
+
+
+
+
+      <div class="issue-detail-card">
+
+
+
+        <h4>Book Info</h4>
+
+
+
+        <div class="table-container table-shell">
+
+
+
+          <table class="return-table" border="1" style="width:100%; margin-top:6px;">
+
+
+
+            <thead>
+
+
+
+              <tr>
+
+
+
+                <th><input type="checkbox" id="returnSelectAll" onchange="toggleSelectAllReturnIssues(this.checked)"></th>
+
+
+
+                <th>Book ID</th>
+
+
+
+                <th>Title</th>
+
+
+
+                <th>Author</th>
+
+
+
+                <th>Due Date</th>
+
+
+
+              </tr>
+
+
+
+            </thead>
+
+
+
+            <tbody id="returnIssueTableBody">
+
+
+
+              <tr><td colspan="5">Search a member to view issued books.</td></tr>
+
+
+
+            </tbody>
+
+
+
+          </table>
+
+
+
+        </div>
+
+
+
+      </div>
+
+
+
+
+
+
+
+      <div id="returnSelectionInfo" class="return-selection-info"></div>
+
+
+
+
+
+
+
+      <div class="issue-date-row">
+
+
+
+        <label for="actualReturnDate">Return Date</label>
+
+
+
+        <input type="date" id="actualReturnDate" required onchange="recalculateReturnFineAndNotes()">
+
+
+
+      </div>
+
+
+
+
+
+
+
+      <div class="issue-date-row">
+
+
+
+        <label for="returnNotes">Additional Notes</label>
+
+
+
+        <textarea id="returnNotes" placeholder="Auto-calculated from late days" readonly></textarea>
+
+
+
+      </div>
+
+
+
+
+
+
+
+      <div class="issue-date-row">
+
+
+
+        <label for="returnFineAmount">Fine Amount</label>
+
+
+
+        <input type="number" id="returnFineAmount" min="0" step="1" value="0" readonly>
+
+
+
+      </div>
+
+
+
+
+
+
+
+      <div id="returnStatus" class="issue-status"></div>
+
+
+
+      <div id="returnToast" class="return-toast">
+
+
+
+        <h4 id="returnToastTitle"></h4>
+
+
+
+        <p id="returnToastText"></p>
+
+
+
+      </div>
+
+
+
+      <button class="issue-submit" type="button" onclick="returnSelectedBooks()">Return Selected Books</button>
+
+
+
+    </div>
+
+
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+  <!-- Issued Books -->
+
+
+
+  <div id="pendingBooks" class="section">
+
+
+
+    <div class="section-head"><h3>Issued Books</h3><span class="section-kicker">Live</span></div>
+
+
+
+    <p class="section-subtitle">Shows all currently issued books that are not yet returned.</p>
+
+
+
+    <div class="member-tabs" data-tab-group="pendingBooks">
+
+
+
+      <button type="button" class="member-tab active" data-member-type="STUDENTS" onclick="setMemberTab('pendingBooks','STUDENTS')">Students</button>
+
+
+
+      <button type="button" class="member-tab" data-member-type="EMPLOYEES" onclick="setMemberTab('pendingBooks','EMPLOYEES')">Employees</button>
+
+
+
+    </div>
+
+
+
+    <div class="table-toolbar">
+
+
+
+      <input type="text" id="issuedSearch" placeholder="Search by member, name, book..." onkeyup="filterIssuedBooksTable()">
+
+
+
+      <select id="issuedFilter" onchange="filterIssuedBooksTable()">
+
+
+
+        <option value="ALL">All</option>
+
+
+
+        <option value="ACTIVE">Active</option>
+
+
+
+        <option value="OVERDUE">Overdue</option>
+
+
+
+      </select>
+
+
+
+    </div>
+
+
+
+    <div class="table-container table-shell">
+
+
+
+      <table id="issuedBooksTable" border="1" style="width:100%; margin-top:10px;">
+
+
+
+        <thead>
+
+
+
+          <tr>
+
+
+
+            <th>Member Name</th>
+
+
+
+            <th>Member ID</th>
+
+
+
+            <th class="member-year-col">Year</th>
+
+
+
+            <th>Department</th>
+
+
+
+            <th>Book Name</th>
+
+
+
+            <th>Author</th>
+
+
+
+            <th>Category</th>
+
+
+
+            <th>Issue Date</th>
+
+
+
+            <th>Return Date</th>
+
+
+
+            <th>Status</th>
+
+
+
+          </tr>
+
+
+
+        </thead>
+
+
+
+        <tbody id="issuedBooksTableBody">
+
+
+
+          <tr><td colspan="10">Loading...</td></tr>
+
+
+
+        </tbody>
+
+
+
+      </table>
+
+
+
+    </div>
+
+
+
+  </div>
+
+
+
+
+
+
+
+  <!-- Returned Books -->
+
+
+
+  <div id="returnedBooks" class="section">
+
+
+
+    <div class="section-head"><h3>Returned Books</h3><span class="section-kicker">History</span></div>
+
+
+
+    <p class="section-subtitle">Displays on-time returns and late returns after fine payment.</p>
+
+
+
+    <div class="member-tabs" data-tab-group="returnedBooks">
+
+
+
+      <button type="button" class="member-tab active" data-member-type="STUDENTS" onclick="setMemberTab('returnedBooks','STUDENTS')">Students</button>
+
+
+
+      <button type="button" class="member-tab" data-member-type="EMPLOYEES" onclick="setMemberTab('returnedBooks','EMPLOYEES')">Employees</button>
+
+
+
+    </div>
+
+
+
+    <div class="table-toolbar">
+
+
+
+      <input type="text" id="returnedSearch" placeholder="Search returned records..." onkeyup="filterReturnedBooksTable()">
+
+
+
+      <select id="returnedFilter" onchange="filterReturnedBooksTable()">
+
+
+
+        <option value="ALL">All</option>
+
+
+
+        <option value="ON_TIME">On Time</option>
+
+
+
+        <option value="FINE_PAID">Fine Paid</option>
+
+
+
+      </select>
+
+
+
+    </div>
+
+
+
+    <div class="table-container table-shell">
+
+
+
+      <table id="returnedBooksTable" border="1" style="width:100%; margin-top:10px;">
+
+
+
+        <thead>
+
+
+
+          <tr>
+
+
+
+            <th>Member Name</th>
+
+
+
+            <th>Member ID</th>
+
+
+
+            <th class="member-year-col">Year</th>
+
+
+
+            <th>Department</th>
+
+
+
+            <th>Book Name</th>
+
+
+
+            <th>Author</th>
+
+
+
+            <th>Category</th>
+
+
+
+            <th>Issue Date</th>
+
+
+
+            <th>Return Date</th>
+
+
+
+            <th>Late Days</th>
+
+
+
+            <th>Payment Status</th>
+
+
+
+            <th>Payment Method</th>
+
+
+
+          </tr>
+
+
+
+        </thead>
+
+
+
+        <tbody id="returnedBooksTableBody">
+
+
+
+          <tr><td colspan="12">Loading...</td></tr>
+
+
+
+        </tbody>
+
+
+
+      </table>
+
+
+
+    </div>
+
+
+
+  </div>
+
+
+
+
+
+
+
+  <!-- Pending Fines -->
+
+
+
+  <div id="pendingFines" class="section">
+
+
+
+    <div class="section-head"><h3>Pending Fines</h3><span class="section-kicker">Payments</span></div>
+
+
+
+    <p class="section-subtitle">Open each record to review overdue details and collect payments.</p>
+
+
+
+    <div class="table-toolbar">
+
+
+
+      <input type="text" id="pendingFineSearch" placeholder="Search fine records..." onkeyup="filterPendingFinesTable()">
+
+
+
+      <select id="pendingFineFilter" onchange="filterPendingFinesTable()">
+
+
+
+        <option value="ALL">All</option>
+
+
+
+        <option value="PENDING">Pending</option>
+
+
+
+        <option value="PAID">Paid</option>
+
+
+
+      </select>
+
+
+
+    </div>
+
+
+
+    <div class="table-container table-shell">
+
+
+
+      <table id="pendingFinesTable" border="1" style="width:100%; margin-top:10px;">
+
+
+
+        <thead>
+
+
+
+          <tr>
+
+
+
+            <th>Member ID</th>
+
+
+
+            <th>Name</th>
+
+
+
+            <th>Book Title</th>
+
+
+
+            <th>Overdue Days</th>
+
+
+
+            <th>Fine Amount</th>
+
+
+
+            <th>Payment Status</th>
+
+
+
+            <th>Action</th>
+
+
+
+          </tr>
+
+
+
+        </thead>
+
+
+
+        <tbody id="pendingFinesTableBody">
+
+
+
+          <tr><td colspan="7">Loading...</td></tr>
+
+
+
+        </tbody>
+
+
+
+      </table>
+
+
+
+    </div>
+
+
+
+    <div id="fineDetailCard" class="fine-detail-card hidden">
+
+
+
+      <h4>Overdue Information</h4>
+
+
+
+      <p id="fineDetailMember">Member ID:</p>
+
+
+
+      <p id="fineDetailName">Name:</p>
+
+
+
+      <p id="fineDetailBook">Book Title:</p>
+
+
+
+      <p id="fineDetailDays">Overdue Days:</p>
+
+
+
+      <p id="fineDetailAmount">Fine Amount:</p>
+
+
+
+      <p id="fineDetailStatus">Payment Status:</p>
+
+
+
+      <div class="fine-method-row">
+
+
+
+        <label for="detailFineMethod">Payment Method</label>
+
+
+
+        <select id="detailFineMethod">
+
+
+
+          <option value="CASH">Cash</option>
+
+
+
+          <option value="GPAY">GPay</option>
+
+
+
+        </select>
+
+
+
+      </div>
+
+
+
+      <div class="fine-detail-actions">
+
+
+
+        <button type="button" class="fine-back-btn" onclick="closeFineDetail()">Back</button>
+
+
+
+        <button type="button" id="detailPayFineBtn" class="fine-pay-btn" onclick="payFineFromDetail()">Pay Fine</button>
+
+
+
+      </div>
+
+
+
+    </div>
+
+
+
+    <div id="pendingFinesStatus" class="issue-status"></div>
+
+
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+
+
+</body>
+
+
+
+</html>
+
+
+
