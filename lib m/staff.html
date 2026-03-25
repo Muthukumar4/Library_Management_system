@@ -1,53 +1,1029 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Staff Dashboard | Library</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
-
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Staff Dashboard | Library Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+:root{
+  --bg:#eef4ff;
+  --panel:#ffffff;
+  --panel-soft:#f8fbff;
+  --border:#dbe7ff;
+  --text:#0f172a;
+  --muted:#64748b;
+  --primary:#2563eb;
+  --primary-strong:#1d4ed8;
+  --success:#15803d;
+  --warning:#d97706;
+  --danger:#dc2626;
+  --shadow:0 20px 45px rgba(15,23,42,0.12);
+}
+*{box-sizing:border-box}
 body{
-  font-family:Poppins;
-  background:linear-gradient(135deg,#134e5e,#71b280);
-  height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
+  margin:0;
+  font-family:'Poppins',sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(37,99,235,0.18), transparent 34%),
+    linear-gradient(145deg,#edf4ff,#f7fbff 48%,#eef8f2);
 }
-.card{
-  width:850px;
-  padding:30px;
-  border-radius:20px;
-  background:rgba(255,255,255,0.25);
-  backdrop-filter:blur(15px);
+.app{display:flex;min-height:100vh}
+.sidebar{
+  width:280px;
+  padding:28px 22px;
+  background:linear-gradient(180deg,#0f172a,#172554 55%,#1e3a8a);
   color:#fff;
+  display:flex;
+  flex-direction:column;
+  gap:24px;
+  position:sticky;
+  top:0;
+  height:100vh;
 }
-h2{text-align:center;margin-bottom:20px;}
-.grid{
+.brand-block{display:flex;flex-direction:column;gap:10px}
+.brand-title{font-size:24px;font-weight:700;letter-spacing:.03em}
+.brand-subtitle{font-size:13px;color:rgba(255,255,255,.72);line-height:1.6}
+.staff-card{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:14px;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:18px;
+  background:rgba(255,255,255,.08);
+}
+.staff-avatar{
+  width:48px;height:48px;border-radius:16px;
+  display:grid;place-items:center;
+  background:linear-gradient(135deg,#dbeafe,#93c5fd);
+  color:#1e3a8a;font-weight:700;
+}
+.staff-meta strong{display:block;font-size:15px}
+.staff-meta span{font-size:12px;color:rgba(255,255,255,.72)}
+.menu{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+.menu li{
+  padding:13px 14px;
+  border-radius:14px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  transition:.25s ease;
+  border:1px solid transparent;
+  color:#dbeafe;
+}
+.menu li.active,
+.menu li:hover{
+  background:rgba(255,255,255,.1);
+  border-color:rgba(255,255,255,.12);
+  transform:translateX(4px);
+}
+.logout-btn{
+  margin-top:auto;
+  border:none;
+  border-radius:14px;
+  padding:13px 16px;
+  background:rgba(255,255,255,.12);
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+}
+.main{flex:1;padding:28px}
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:16px;
+  margin-bottom:24px;
+}
+.title-stack h1{margin:0;font-size:30px}
+.title-stack p{margin:8px 0 0;color:var(--muted)}
+.topbar-actions{display:flex;gap:12px;align-items:center}
+.ghost-btn,
+.primary-btn{
+  border:none;
+  border-radius:14px;
+  padding:12px 18px;
+  font-weight:600;
+  cursor:pointer;
+}
+.ghost-btn{background:#fff;border:1px solid var(--border);color:var(--text)}
+.primary-btn{background:linear-gradient(135deg,var(--primary),#4f46e5);color:#fff}
+.metrics{
   display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:20px;
+  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+  gap:16px;
+  margin-bottom:24px;
 }
-.box{
+.metric-card{
+  background:var(--panel);
+  border:1px solid rgba(15,23,42,.06);
+  border-radius:22px;
+  box-shadow:var(--shadow);
   padding:20px;
-  background:rgba(255,255,255,0.3);
-  border-radius:15px;
+}
+.metric-label{display:block;font-size:13px;color:var(--muted)}
+.metric-value{display:block;margin-top:10px;font-size:30px;font-weight:700}
+.metric-note{display:block;margin-top:10px;font-size:12px;color:#475569}
+.content-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1.4fr) minmax(340px,.95fr);
+  gap:20px;
+  align-items:start;
+}
+.stack{display:flex;flex-direction:column;gap:20px}
+.panel{
+  background:var(--panel);
+  border:1px solid rgba(15,23,42,.07);
+  border-radius:24px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.panel-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  padding:22px 22px 0;
+}
+.panel-head h2{margin:0;font-size:21px}
+.panel-head p{margin:6px 0 0;color:var(--muted);font-size:13px}
+.panel-body{padding:22px}
+.section{display:none}
+.section.active{display:block}
+.table-shell{overflow:auto;border:1px solid var(--border);border-radius:18px;background:var(--panel-soft)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:14px 12px;text-align:left;border-bottom:1px solid #e5eefc;vertical-align:top}
+th{background:#eef4ff;color:#1e3a8a;font-weight:600;white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+.empty{
+  padding:28px 18px;
   text-align:center;
+  color:var(--muted);
+}
+.status-badge{
+  display:inline-flex;
+  align-items:center;
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:12px;
+  font-weight:700;
+}
+.status-active{background:#e0f2fe;color:#0c4a6e}
+.status-overdue{background:#fef3c7;color:#92400e}
+.status-returned{background:#dcfce7;color:#166534}
+.status-pending{background:#fee2e2;color:#991b1b}
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px;
+}
+.form-group{display:flex;flex-direction:column;gap:7px}
+.form-group label{font-size:13px;font-weight:600;color:#334155}
+.form-group input,
+.form-group select{
+  width:100%;
+  border:1px solid #cfe0ff;
+  border-radius:14px;
+  padding:13px 14px;
+  background:#fff;
+  color:var(--text);
+  font-size:14px;
+}
+.form-group input:focus,
+.form-group select:focus{
+  outline:none;
+  border-color:var(--primary);
+  box-shadow:0 0 0 4px rgba(37,99,235,.12);
+}
+.form-actions{
+  grid-column:1 / -1;
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.alert{
+  margin:0 0 14px;
+  padding:12px 14px;
+  border-radius:14px;
+  font-size:13px;
+  display:none;
+}
+.alert.show{display:block}
+.alert.error{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+.alert.success{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}
+.mini-list{display:flex;flex-direction:column;gap:12px}
+.mini-item{
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:14px;
+  background:linear-gradient(180deg,#fff,#f8fbff);
+}
+.mini-item strong{display:block}
+.mini-item span{display:block;margin-top:6px;font-size:13px;color:var(--muted)}
+.toolbar{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:14px;
+}
+.toolbar input{
+  flex:1 1 220px;
+  border:1px solid #cfe0ff;
+  border-radius:14px;
+  padding:12px 14px;
+  background:#fff;
+  color:var(--text);
+}
+.toolbar input::placeholder{color:#64748b}
+.helper-chip{
+  display:inline-flex;
+  align-items:center;
+  padding:7px 10px;
+  border-radius:999px;
+  background:#eef4ff;
+  color:#1d4ed8;
+  font-size:12px;
+  font-weight:700;
+}
+@media (max-width:1100px){
+  .app{flex-direction:column}
+  .sidebar{width:100%;height:auto;position:relative}
+  .content-grid{grid-template-columns:1fr}
+}
+@media (max-width:720px){
+  .main{padding:18px}
+  .topbar{flex-direction:column}
+  .form-grid{grid-template-columns:1fr}
+  .metrics{grid-template-columns:1fr 1fr}
 }
 </style>
 </head>
-
 <body>
-<div class="card">
-  <h2>Staff Dashboard</h2>
-  <div class="grid">
-    <div class="box">📘 Issue Book</div>
-    <div class="box">📕 Return Book</div>
-    <div class="box">👨‍🎓 Student Records</div>
-    <div class="box">⏰ Due Management</div>
-    <div class="box">📊 Reports</div>
-    <div class="box">🚪 Logout</div>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand-block">
+        <div class="brand-title">Library Staff</div>
+        <div class="brand-subtitle">Live circulation dashboard for staff operations, member support, and student-facing issue workflows.</div>
+      </div>
+      <div class="staff-card">
+        <div class="staff-avatar" id="staffAvatar">ST</div>
+        <div class="staff-meta">
+          <strong id="staffDisplayName">Staff User</strong>
+          <span id="staffDisplayMeta">Loading profile...</span>
+        </div>
+      </div>
+      <ul class="menu">
+        <li class="active" onclick="showSection('overview', this)">Overview</li>
+        <li onclick="showSection('issue-book', this)">Issue Book</li>
+        <li onclick="showSection('add-student', this)">Add Student</li>
+        <li onclick="showSection('issued', this)">Issued Books</li>
+        <li onclick="showSection('returned', this)">Returned Books</li>
+        <li onclick="showSection('students', this)">Students</li>
+        <li onclick="showSection('fines', this)">Pending Fines</li>
+      </ul>
+      <button class="logout-btn" type="button" onclick="logout()">Logout</button>
+    </aside>
+    <main class="main">
+      <div class="topbar">
+        <div class="title-stack">
+          <h1>Staff Dashboard</h1>
+          <p id="lastUpdatedText">Connected to the live library backend.</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="ghost-btn" type="button" onclick="refreshDashboard()">Refresh</button>
+          <button class="primary-btn" type="button" onclick="showSection('issue-book')">Operations</button>
+        </div>
+      </div>
+      <section id="overview" class="section active">
+        <div class="metrics">
+          <div class="metric-card"><span class="metric-label">Total Students</span><strong class="metric-value" id="metricStudents">0</strong><span class="metric-note">Active member records</span></div>
+          <div class="metric-card"><span class="metric-label">Active Issues</span><strong class="metric-value" id="metricActiveIssues">0</strong><span class="metric-note">Books currently out</span></div>
+          <div class="metric-card"><span class="metric-label">Returned Records</span><strong class="metric-value" id="metricReturned">0</strong><span class="metric-note">Completed circulation entries</span></div>
+          <div class="metric-card"><span class="metric-label">Pending Fines</span><strong class="metric-value" id="metricFines">0</strong><span class="metric-note">Overdue items needing action</span></div>
+          <div class="metric-card"><span class="metric-label">Books Catalogued</span><strong class="metric-value" id="metricBooks">0</strong><span class="metric-note">Live book records</span></div>
+        </div>
+        <div class="content-grid">
+          <div class="stack">
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <h2>Recent Active Issues</h2>
+                  <p>Live issued-book records currently not returned.</p>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div class="table-shell">
+                  <table>
+                    <thead>
+                      <tr><th>Student</th><th>Roll No</th><th>Book</th><th>Issue Date</th><th>Due Date</th><th>Status</th></tr>
+                    </thead>
+                    <tbody id="activeIssuesTable"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="stack">
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <h2>Fine Snapshot</h2>
+                  <p>Pending fine rows from the circulation backend.</p>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div class="mini-list" id="fineMiniList"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section id="issue-book" class="section">
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Issue Book</h2>
+              <p>Staff can issue books to students using the same backend flow as admin.</p>
+            </div>
+            <span class="helper-chip">Students only</span>
+          </div>
+          <div class="panel-body">
+            <div id="issueStatus" class="alert"></div>
+            <form class="form-grid" onsubmit="submitIssueBook(event)">
+              <div class="form-group">
+                <label for="issueRollNumber">Student Roll Number</label>
+                <input id="issueRollNumber" placeholder="Enter roll number" required>
+              </div>
+              <div class="form-group">
+                <label for="issueBookId">Book ID</label>
+                <input id="issueBookId" placeholder="Enter numeric book id" required>
+              </div>
+              <div class="form-group">
+                <label for="issueDate">Issue Date</label>
+                <input id="issueDate" type="date" required>
+              </div>
+              <div class="form-group">
+                <label for="dueDate">Due Date</label>
+                <input id="dueDate" type="date" required>
+              </div>
+              <div class="form-actions">
+                <button class="primary-btn" type="submit">Issue Book</button>
+                <button class="ghost-btn" type="button" onclick="resetIssueForm()">Clear</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+      <section id="add-student" class="section">
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Add Student</h2>
+              <p>Create student records directly from the staff dashboard.</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div id="studentStatus" class="alert"></div>
+            <form class="form-grid" onsubmit="submitStudent(event)">
+              <div class="form-group">
+                <label for="studentName">Student Name</label>
+                <input id="studentName" placeholder="Student name" required>
+              </div>
+              <div class="form-group">
+                <label for="studentRoll">Register Number</label>
+                <input id="studentRoll" placeholder="Register number" required>
+              </div>
+              <div class="form-group">
+                <label for="studentDepartment">Department</label>
+                <select id="studentDepartment" required>
+                  <option value="">-- Select Department --</option>
+                  <option value="CSE">Computer Science (CSE)</option>
+                  <option value="ECE">Electronics (ECE)</option>
+                  <option value="EEE">Electrical (EEE)</option>
+                  <option value="Mechanical">Mechanical</option>
+                  <option value="Civil">Civil</option>
+                  <option value="Ai&DS">Artificial Intelligence & Data Science</option>
+                  <option value="AIML">AI & Machine Learning</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="studentYear">Year</label>
+                <select id="studentYear" required>
+                  <option value="">-- Select Year --</option>
+                  <option value="1st">1st Year</option>
+                  <option value="2nd">2nd Year</option>
+                  <option value="3rd">3rd Year</option>
+                  <option value="4th">4th Year</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="studentPassword">Password</label>
+                <input id="studentPassword" type="password" placeholder="Password" required>
+              </div>
+              <div class="form-group">
+                <label for="studentPhone">Phone Number</label>
+                <input id="studentPhone" placeholder="10-digit phone number">
+              </div>
+              <div class="form-group" style="grid-column:1 / -1;">
+                <label for="studentEmail">Email</label>
+                <input id="studentEmail" type="email" placeholder="Email address">
+              </div>
+              <div class="form-actions">
+                <button class="primary-btn" type="submit">Add Student</button>
+                <button class="ghost-btn" type="button" onclick="document.getElementById('studentStatus').className='alert'; this.form.reset();">Reset</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+      <section id="issued" class="section">
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Issued Books</h2>
+              <p>All live issue records for students that are still active.</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="toolbar">
+              <input id="issuedSearch" placeholder="Search by roll no, student, or book title" oninput="renderIssuedTable()">
+            </div>
+            <div class="table-shell">
+              <table>
+                <thead>
+                  <tr><th>Student</th><th>Roll No</th><th>Department</th><th>Book</th><th>Issue Date</th><th>Due Date</th><th>Status</th></tr>
+                </thead>
+                <tbody id="issuedTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section id="returned" class="section">
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Returned Books</h2>
+              <p>Completed returns from the shared issue history.</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="toolbar">
+              <input id="returnedSearch" placeholder="Search returned entries" oninput="renderReturnedTable()">
+            </div>
+            <div class="table-shell">
+              <table>
+                <thead>
+                  <tr><th>Student</th><th>Roll No</th><th>Book</th><th>Issue Date</th><th>Return Date</th><th>Late Days</th><th>Status</th></tr>
+                </thead>
+                <tbody id="returnedTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section id="students" class="section">
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Student Records</h2>
+              <p>Live student directory from the backend.</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="toolbar">
+              <input id="studentsSearch" placeholder="Search by roll no, student, department, email" oninput="renderStudentsTable()">
+            </div>
+            <div class="table-shell">
+              <table>
+                <thead>
+                  <tr><th>Roll No</th><th>Name</th><th>Department</th><th>Year</th><th>Email</th><th>Phone</th></tr>
+                </thead>
+                <tbody id="studentsTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section id="fines" class="section">
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Pending Fines</h2>
+              <p>Read-only overdue fine list for staff visibility.</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="toolbar">
+              <input id="finesSearch" placeholder="Search by roll no, member, or book title" oninput="renderFinesTable()">
+            </div>
+            <div class="table-shell">
+              <table>
+                <thead>
+                  <tr><th>Roll No</th><th>Member</th><th>Book</th><th>Overdue Days</th><th>Fine Amount</th><th>Status</th></tr>
+                </thead>
+                <tbody id="finesTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
   </div>
-</div>
+<script>
+const BASE_URL = "http://localhost:8080";
+const authHeader = sessionStorage.getItem("lmsAuthHeader") || "";
+const dashboardState = {
+  staffProfile: null,
+  students: [],
+  books: [],
+  issues: [],
+  fines: []
+};
+
+function guardStaffSession() {
+  const role = sessionStorage.getItem("lmsRole");
+  if (role !== "staff") {
+    window.location.href = "index.html";
+    return false;
+  }
+  return true;
+}
+
+function logout() {
+  sessionStorage.removeItem("lmsStudent");
+  sessionStorage.removeItem("lmsAuthHeader");
+  sessionStorage.removeItem("lmsRole");
+  sessionStorage.removeItem("lmsUsername");
+  window.location.href = "index.html";
+}
+
+function showSection(sectionId, menuEl) {
+  document.querySelectorAll(".section").forEach(section => section.classList.remove("active"));
+  document.getElementById(sectionId)?.classList.add("active");
+  document.querySelectorAll(".menu li").forEach(item => item.classList.remove("active"));
+  if (menuEl) {
+    menuEl.classList.add("active");
+  } else {
+    const match = Array.from(document.querySelectorAll(".menu li"))
+      .find(item => String(item.getAttribute("onclick") || "").includes(`'${sectionId}'`));
+    if (match) match.classList.add("active");
+  }
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function parseDateOnly(value) {
+  if (!value) return null;
+  const date = new Date(`${value}T00:00:00`);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function dayDiff(fromDate, toDate) {
+  const msPerDay = 24 * 60 * 60 * 1000;
+  return Math.floor((toDate - fromDate) / msPerDay);
+}
+
+function isIssueReturned(issue) {
+  const status = String(issue.status ?? issue.issueStatus ?? "").trim().toUpperCase();
+  if (status.includes("RETURN")) return true;
+  if (status.includes("PAID")) return true;
+  const returnDate = String(issue.returnDate ?? issue.actualReturnDate ?? "").trim();
+  return Boolean(returnDate);
+}
+
+function isValidPhoneNumber(phone) {
+  return /^\d{10}$/.test(phone);
+}
+
+function isValidEmailAddress(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function makeRequestOptions(method = "GET", body) {
+  const headers = {};
+  if (authHeader) headers.Authorization = authHeader;
+  if (body !== undefined) headers["Content-Type"] = "application/json";
+  return {
+    method,
+    headers,
+    body: body !== undefined ? JSON.stringify(body) : undefined
+  };
+}
+
+async function safeFetchArray(url, options) {
+  const res = await fetch(url, options);
+  if (!res.ok) throw new Error(await res.text());
+  const data = await res.json();
+  if (Array.isArray(data)) return data;
+  if (data && Array.isArray(data.data)) return data.data;
+  if (data && Array.isArray(data.results)) return data.results;
+  if (data && Array.isArray(data.issues)) return data.issues;
+  return [];
+}
+
+async function fetchAllIssues() {
+  const endpoints = [
+    `${BASE_URL}/api/issue/all`,
+    `${BASE_URL}/api/issue/getall`,
+    `${BASE_URL}/api/issues/all`
+  ];
+  let lastError = "Unable to fetch issue records.";
+  for (const endpoint of endpoints) {
+    try {
+      return await safeFetchArray(endpoint, makeRequestOptions());
+    } catch (error) {
+      lastError = error.message || lastError;
+    }
+  }
+  throw new Error(lastError);
+}
+
+function getStudentId(student) {
+  return String(student.rollNumber ?? student.studrollNumber ?? student.studentId ?? "").trim();
+}
+
+function getBookId(book) {
+  return String(book.bookId ?? book.id ?? "").trim();
+}
+
+function getBookTitle(book) {
+  return String(book.title ?? book.bookTitle ?? "-").trim();
+}
+
+function buildStudentMap() {
+  return new Map(
+    dashboardState.students
+      .map(student => [getStudentId(student).toLowerCase(), student])
+      .filter(([key]) => key)
+  );
+}
+
+function buildBookMap() {
+  const map = new Map();
+  dashboardState.books.forEach(book => {
+    const id = getBookId(book);
+    if (id) map.set(id, book);
+  });
+  return map;
+}
+
+function getActiveIssues() {
+  return dashboardState.issues.filter(issue => !isIssueReturned(issue));
+}
+
+function getReturnedIssues() {
+  return dashboardState.issues.filter(issue => isIssueReturned(issue));
+}
+
+function setMetric(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = String(value);
+}
+
+function setAlert(id, type, message) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (!message) {
+    el.className = "alert";
+    el.textContent = "";
+    return;
+  }
+  el.className = `alert ${type} show`;
+  el.textContent = message;
+}
+
+function renderProfile() {
+  const username = sessionStorage.getItem("lmsUsername") || "staff";
+  const staff = dashboardState.staffProfile;
+  const displayName = staff?.name || username;
+  const initials = displayName.split(/\s+/).map(part => part[0]).join("").slice(0, 2).toUpperCase() || "ST";
+  document.getElementById("staffDisplayName").textContent = displayName;
+  document.getElementById("staffAvatar").textContent = initials;
+  document.getElementById("staffDisplayMeta").textContent = staff
+    ? `${staff.department || "Department"}${staff.staffType ? ` • ${staff.staffType}` : ""}`
+    : username;
+}
+
+function renderOverviewTables() {
+  const studentMap = buildStudentMap();
+  const bookMap = buildBookMap();
+  const tbody = document.getElementById("activeIssuesTable");
+  const activeRows = getActiveIssues()
+    .sort((a, b) => String(b.issueDate ?? "").localeCompare(String(a.issueDate ?? "")))
+    .slice(0, 8);
+  if (!activeRows.length) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty">No active issue records found.</td></tr>`;
+    return;
+  }
+  const today = new Date();
+  tbody.innerHTML = activeRows.map(issue => {
+    const rollNo = String(issue.memberId ?? issue.rollNumber ?? issue.studrollNumber ?? "").trim();
+    const student = studentMap.get(rollNo.toLowerCase()) || {};
+    const book = bookMap.get(String(issue.bookId ?? issue.id ?? "").trim()) || {};
+    const dueDateObj = parseDateOnly(issue.dueDate);
+    const overdue = dueDateObj ? dayDiff(dueDateObj, today) > 0 : false;
+    return `<tr>
+      <td>${escapeHtml(student.name || issue.studentName || "-")}</td>
+      <td>${escapeHtml(rollNo || "-")}</td>
+      <td>${escapeHtml(getBookTitle(book) || issue.bookName || "-")}</td>
+      <td>${escapeHtml(issue.issueDate || "-")}</td>
+      <td>${escapeHtml(issue.dueDate || "-")}</td>
+      <td>${overdue ? '<span class="status-badge status-overdue">Overdue</span>' : '<span class="status-badge status-active">Active</span>'}</td>
+    </tr>`;
+  }).join("");
+}
+
+function renderIssuedTable() {
+  const query = String(document.getElementById("issuedSearch")?.value || "").trim().toLowerCase();
+  const studentMap = buildStudentMap();
+  const bookMap = buildBookMap();
+  const today = new Date();
+  const rows = getActiveIssues().filter(issue => {
+    const rollNo = String(issue.memberId ?? issue.rollNumber ?? issue.studrollNumber ?? "").trim();
+    const student = studentMap.get(rollNo.toLowerCase()) || {};
+    const book = bookMap.get(String(issue.bookId ?? issue.id ?? "").trim()) || {};
+    const haystack = [rollNo, student.name, student.department, getBookTitle(book), book.author, issue.bookName].join(" ").toLowerCase();
+    return haystack.includes(query);
+  }).sort((a, b) => String(b.issueDate ?? "").localeCompare(String(a.issueDate ?? "")));
+  const tbody = document.getElementById("issuedTableBody");
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="7" class="empty">No issued books match this search.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = rows.map(issue => {
+    const rollNo = String(issue.memberId ?? issue.rollNumber ?? issue.studrollNumber ?? "").trim();
+    const student = studentMap.get(rollNo.toLowerCase()) || {};
+    const book = bookMap.get(String(issue.bookId ?? issue.id ?? "").trim()) || {};
+    const dueDateObj = parseDateOnly(issue.dueDate);
+    const overdue = dueDateObj ? dayDiff(dueDateObj, today) > 0 : false;
+    return `<tr>
+      <td>${escapeHtml(student.name || issue.studentName || "-")}</td>
+      <td>${escapeHtml(rollNo || "-")}</td>
+      <td>${escapeHtml(student.department || issue.department || "-")}</td>
+      <td>${escapeHtml(getBookTitle(book) || issue.bookName || "-")}</td>
+      <td>${escapeHtml(issue.issueDate || "-")}</td>
+      <td>${escapeHtml(issue.dueDate || "-")}</td>
+      <td>${overdue ? '<span class="status-badge status-overdue">Overdue</span>' : '<span class="status-badge status-active">Active</span>'}</td>
+    </tr>`;
+  }).join("");
+}
+
+function renderReturnedTable() {
+  const query = String(document.getElementById("returnedSearch")?.value || "").trim().toLowerCase();
+  const studentMap = buildStudentMap();
+  const bookMap = buildBookMap();
+  const rows = getReturnedIssues().filter(issue => {
+    const rollNo = String(issue.memberId ?? issue.rollNumber ?? issue.studrollNumber ?? "").trim();
+    const student = studentMap.get(rollNo.toLowerCase()) || {};
+    const book = bookMap.get(String(issue.bookId ?? issue.id ?? "").trim()) || {};
+    const haystack = [rollNo, student.name, getBookTitle(book), issue.bookName, issue.returnDate].join(" ").toLowerCase();
+    return haystack.includes(query);
+  }).sort((a, b) => String(b.returnDate ?? "").localeCompare(String(a.returnDate ?? "")));
+  const tbody = document.getElementById("returnedTableBody");
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="7" class="empty">No returned records match this search.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = rows.map(issue => {
+    const rollNo = String(issue.memberId ?? issue.rollNumber ?? issue.studrollNumber ?? "").trim();
+    const student = studentMap.get(rollNo.toLowerCase()) || {};
+    const book = bookMap.get(String(issue.bookId ?? issue.id ?? "").trim()) || {};
+    const dueDateObj = parseDateOnly(issue.dueDate);
+    const returnDateObj = parseDateOnly(issue.returnDate ?? issue.actualReturnDate);
+    const lateDays = dueDateObj && returnDateObj ? Math.max(0, dayDiff(dueDateObj, returnDateObj)) : 0;
+    return `<tr>
+      <td>${escapeHtml(student.name || issue.studentName || "-")}</td>
+      <td>${escapeHtml(rollNo || "-")}</td>
+      <td>${escapeHtml(getBookTitle(book) || issue.bookName || "-")}</td>
+      <td>${escapeHtml(issue.issueDate || "-")}</td>
+      <td>${escapeHtml(issue.returnDate || issue.actualReturnDate || "-")}</td>
+      <td>${escapeHtml(lateDays)}</td>
+      <td><span class="status-badge status-returned">Returned</span></td>
+    </tr>`;
+  }).join("");
+}
+
+function renderStudentsTable() {
+  const query = String(document.getElementById("studentsSearch")?.value || "").trim().toLowerCase();
+  const rows = dashboardState.students.filter(student => {
+    const haystack = [getStudentId(student), student.name, student.department, student.year, student.email, student.phone].join(" ").toLowerCase();
+    return haystack.includes(query);
+  }).sort((a, b) => String(getStudentId(a)).localeCompare(String(getStudentId(b))));
+  const tbody = document.getElementById("studentsTableBody");
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty">No students match this search.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = rows.map(student => `<tr>
+    <td>${escapeHtml(getStudentId(student) || "-")}</td>
+    <td>${escapeHtml(student.name || "-")}</td>
+    <td>${escapeHtml(student.department || "-")}</td>
+    <td>${escapeHtml(student.year || student.Year || "-")}</td>
+    <td>${escapeHtml(student.email || "-")}</td>
+    <td>${escapeHtml(student.phone || "-")}</td>
+  </tr>`).join("");
+}
+
+function renderFinesTable() {
+  const query = String(document.getElementById("finesSearch")?.value || "").trim().toLowerCase();
+  const rows = dashboardState.fines.filter(row => {
+    const haystack = [row.memberId, row.memberName, row.bookTitle, row.paymentStatus].join(" ").toLowerCase();
+    return haystack.includes(query);
+  });
+  const tbody = document.getElementById("finesTableBody");
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty">No pending fines match this search.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = rows.map(row => `<tr>
+    <td>${escapeHtml(row.memberId)}</td>
+    <td>${escapeHtml(row.memberName)}</td>
+    <td>${escapeHtml(row.bookTitle)}</td>
+    <td>${escapeHtml(row.overdueDays)}</td>
+    <td>${escapeHtml(row.fineAmount)}</td>
+    <td>${row.paymentStatus === "PAID" ? '<span class="status-badge status-returned">Paid</span>' : '<span class="status-badge status-pending">Pending</span>'}</td>
+  </tr>`).join("");
+}
+
+function renderFineMiniList() {
+  const host = document.getElementById("fineMiniList");
+  if (!dashboardState.fines.length) {
+    host.innerHTML = `<div class="mini-item"><strong>No pending fines</strong><span>Overdue fine records will appear here when available.</span></div>`;
+    return;
+  }
+  host.innerHTML = dashboardState.fines.slice(0, 5).map(row => `
+    <div class="mini-item">
+      <strong>${escapeHtml(row.memberName)} • ${escapeHtml(row.bookTitle)}</strong>
+      <span>${escapeHtml(row.memberId)} • ${escapeHtml(row.overdueDays)} overdue days • Fine ${escapeHtml(row.fineAmount)}</span>
+    </div>
+  `).join("");
+}
+
+function renderMetrics() {
+  setMetric("metricStudents", dashboardState.students.length);
+  setMetric("metricActiveIssues", getActiveIssues().length);
+  setMetric("metricReturned", getReturnedIssues().length);
+  setMetric("metricFines", dashboardState.fines.filter(row => row.paymentStatus !== "PAID").length);
+  setMetric("metricBooks", dashboardState.books.length);
+}
+
+async function loadStaffProfile() {
+  const username = String(sessionStorage.getItem("lmsUsername") || "").trim();
+  try {
+    const staffs = await safeFetchArray(`${BASE_URL}/api/staff/all`, makeRequestOptions());
+    dashboardState.staffProfile = staffs.find(item => {
+      const code = String(item.staffCode ?? item.staffId ?? item.id ?? "").trim();
+      return code.toLowerCase() === username.toLowerCase();
+    }) || null;
+  } catch (error) {
+    dashboardState.staffProfile = null;
+  }
+  renderProfile();
+}
+
+async function loadPendingFines() {
+  try {
+    const res = await fetch(`${BASE_URL}/api/issue/pending-fines`, makeRequestOptions());
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    dashboardState.fines = Array.isArray(data) ? data.map(row => ({
+      issueId: Number(row.issueId ?? row.id ?? 0),
+      memberId: String(row.memberId ?? row.rollNo ?? row.studrollNumber ?? row.rollNumber ?? "-"),
+      memberName: String(row.memberName ?? row.studentName ?? "-"),
+      bookTitle: String(row.bookTitle ?? "-"),
+      overdueDays: Number(row.overdueDays ?? row.overdue ?? 0),
+      fineAmount: Number(row.fineAmount ?? 0),
+      paymentStatus: String(row.paymentStatus ?? "PENDING").trim().toUpperCase()
+    })) : [];
+  } catch (error) {
+    dashboardState.fines = [];
+  }
+}
+
+function refreshLastUpdated() {
+  document.getElementById("lastUpdatedText").textContent = `Last updated ${new Date().toLocaleString()}`;
+}
+
+async function refreshDashboard() {
+  try {
+    const [students, books, issues] = await Promise.all([
+      safeFetchArray(`${BASE_URL}/api/students/getall`, makeRequestOptions()),
+      safeFetchArray(`${BASE_URL}/api/books/all`, makeRequestOptions()),
+      fetchAllIssues()
+    ]);
+    dashboardState.students = Array.isArray(students) ? students : [];
+    dashboardState.books = Array.isArray(books) ? books : [];
+    dashboardState.issues = Array.isArray(issues) ? issues.filter(issue => {
+      const memberType = String(issue.memberType ?? "STUDENT").trim().toUpperCase();
+      return memberType !== "EMPLOYEE" && memberType !== "EMPLOYEES";
+    }) : [];
+    await Promise.all([loadPendingFines(), loadStaffProfile()]);
+    renderMetrics();
+    renderOverviewTables();
+    renderIssuedTable();
+    renderReturnedTable();
+    renderStudentsTable();
+    renderFinesTable();
+    renderFineMiniList();
+    refreshLastUpdated();
+  } catch (error) {
+    document.getElementById("activeIssuesTable").innerHTML = `<tr><td colspan="6" class="empty">${escapeHtml(error.message || "Failed to load dashboard.")}</td></tr>`;
+    document.getElementById("issuedTableBody").innerHTML = `<tr><td colspan="7" class="empty">Failed to load issued books.</td></tr>`;
+    document.getElementById("returnedTableBody").innerHTML = `<tr><td colspan="7" class="empty">Failed to load returned books.</td></tr>`;
+    document.getElementById("studentsTableBody").innerHTML = `<tr><td colspan="6" class="empty">Failed to load students.</td></tr>`;
+    document.getElementById("finesTableBody").innerHTML = `<tr><td colspan="6" class="empty">Failed to load fines.</td></tr>`;
+  }
+}
+
+function resetIssueForm() {
+  document.getElementById("issueRollNumber").value = "";
+  document.getElementById("issueBookId").value = "";
+  document.getElementById("issueDate").value = new Date().toISOString().split("T")[0];
+  document.getElementById("dueDate").value = "";
+}
+
+async function submitIssueBook(event) {
+  event.preventDefault();
+  const memberId = String(document.getElementById("issueRollNumber").value || "").trim();
+  const bookId = String(document.getElementById("issueBookId").value || "").trim();
+  const issueDate = String(document.getElementById("issueDate").value || "").trim();
+  const dueDate = String(document.getElementById("dueDate").value || "").trim();
+  if (!memberId || !bookId || !issueDate || !dueDate) {
+    setAlert("issueStatus", "error", "Enter roll number, book id, issue date, and due date.");
+    return;
+  }
+  if (!/^\d+$/.test(bookId)) {
+    setAlert("issueStatus", "error", "Book ID must contain digits only.");
+    return;
+  }
+  if (parseDateOnly(dueDate) && parseDateOnly(issueDate) && parseDateOnly(dueDate) < parseDateOnly(issueDate)) {
+    setAlert("issueStatus", "error", "Due date must be on or after the issue date.");
+    return;
+  }
+  try {
+    const params = new URLSearchParams({ memberId, memberType: "STUDENT", bookId, issueDate, dueDate });
+    const res = await fetch(`${BASE_URL}/api/issue/add?${params.toString()}`, makeRequestOptions("POST"));
+    if (!res.ok) throw new Error(await res.text());
+    resetIssueForm();
+    await refreshDashboard();
+    setAlert("issueStatus", "success", "Book issued successfully.");
+  } catch (error) {
+    setAlert("issueStatus", "error", error.message || "Failed to issue book.");
+  }
+}
+
+async function submitStudent(event) {
+  event.preventDefault();
+  const password = String(document.getElementById("studentPassword").value || "").trim();
+  const phone = String(document.getElementById("studentPhone").value || "").trim().replace(/\s+/g, "");
+  const email = String(document.getElementById("studentEmail").value || "").trim();
+  if (!password) {
+    setAlert("studentStatus", "error", "Password is required for student.");
+    return;
+  }
+  if (phone && !isValidPhoneNumber(phone)) {
+    setAlert("studentStatus", "error", "Phone number must be exactly 10 digits.");
+    return;
+  }
+  if (email && !isValidEmailAddress(email)) {
+    setAlert("studentStatus", "error", "Enter a valid email address.");
+    return;
+  }
+  const payload = {
+    name: String(document.getElementById("studentName").value || "").trim(),
+    rollNumber: String(document.getElementById("studentRoll").value || "").trim(),
+    department: String(document.getElementById("studentDepartment").value || "").trim(),
+    year: String(document.getElementById("studentYear").value || "").trim(),
+    password,
+    phone,
+    email
+  };
+  try {
+    const res = await fetch(`${BASE_URL}/api/students/add`, makeRequestOptions("POST", payload));
+    if (!res.ok) throw new Error(await res.text());
+    event.target.reset();
+    await refreshDashboard();
+    setAlert("studentStatus", "success", "Student added successfully.");
+  } catch (error) {
+    setAlert("studentStatus", "error", error.message || "Failed to add student.");
+  }
+}
+
+if (guardStaffSession()) {
+  document.getElementById("issueDate").value = new Date().toISOString().split("T")[0];
+  refreshDashboard();
+}
+</script>
 </body>
 </html>

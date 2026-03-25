@@ -20,21 +20,9 @@
 
 <title>Admin Dashboard | Library Management</title>
 
-
-
-
-
-
-
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 
-
-
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-
-
-
 
 
 
@@ -112,6 +100,62 @@
 
 
 
+input, select, textarea {
+
+
+
+  border: 1px solid var(--border-soft);
+
+
+
+  border-radius: 8px;
+
+
+
+  padding: 12px;
+
+
+
+  background: var(--bg-soft);
+
+
+
+  color: var(--text-primary);
+
+
+
+  font-size: 14px;
+
+
+
+  transition: border-color 0.3s ease;
+
+
+
+}
+
+
+
+input:focus, select:focus, textarea:focus {
+
+
+
+  outline: none;
+
+
+
+  border-color: var(--primary-600);
+
+
+
+  box-shadow: 0 0 8px rgba(79, 70, 229, 0.3);
+
+
+
+}
+
+
+
 
 
 
@@ -155,13 +199,11 @@ body{
 .sidebar{
   width:260px;
   height:100vh;
-  background:linear-gradient(180deg, #4f46e5, #6366f1);
+  background:#1e3a8a;
   color:#fff;
-  padding:20px 25px;
+  padding:25px;
   overflow-y:auto;
   flex-shrink:0;
-  border-radius:0 20px 20px 0;
-  box-shadow:0 25px 45px rgba(15,23,42,0.35);
 }
 
 
@@ -413,12 +455,11 @@ button{
 
 .section{
   display:none;
-  background:var(--bg-surface);
+  background:#ffffff;
   padding:25px;
   border-radius:15px;
-  border:1px solid rgba(255,255,255,0.4);
-  box-shadow:var(--shadow-soft);
-  backdrop-filter:blur(10px);
+  border:1px solid rgba(226,231,255,0.8);
+  box-shadow:0 16px 26px rgba(15,23,42,0.08);
   transition:transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -494,17 +535,17 @@ button{
 
 
 .stat{
-  background:var(--bg-surface);
+  background:#fff;
   padding:20px;
   border-radius:15px;
-  border:1px solid rgba(255,255,255,0.4);
-  box-shadow:var(--shadow-soft);
+  border:1px solid #e2e8ff;
+  box-shadow:0 10px 24px rgba(15,23,42,0.12);
   color:#1e1f3a;
   transition:transform 0.3s ease, box-shadow 0.3s ease;
 }
 .stat:hover{
-  transform:translateY(-6px);
-  box-shadow:0 25px 40px rgba(15,23,42,0.35);
+  transform:translateY(-4px);
+  box-shadow:0 20px 36px rgba(15,23,42,0.18);
 }
 
 
@@ -572,6 +613,14 @@ button{
 
   border:1px solid var(--border-soft);
 
+  background:#ffffff;
+
+  color:#0f172a;
+
+  caret-color:#1d4ed8;
+
+  font-weight:500;
+
 
 
 }
@@ -635,6 +684,18 @@ th{
 
 
   color:#1e3c72;
+
+
+
+}
+
+
+
+table tbody td{
+
+
+
+  color:#1e1f3a;
 
 
 
@@ -3046,11 +3107,11 @@ body {
 
 
 
-  background: var(--bg-surface);
+  background: #fff;
 
 
 
-  border: 1px solid var(--border-soft);
+  border: 1px solid #d7dff6;
 
 
 
@@ -3062,7 +3123,7 @@ body {
 
 
 
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.1);
 
 
 
@@ -3534,6 +3595,16 @@ body {
 
 
 
+  color: #1f2937;
+
+
+
+}
+
+
+.timeline-item div {
+  color: #1f2937;
+  font-weight: 500;
 }
 
 
@@ -3582,7 +3653,7 @@ body {
 
 
 
-  color: var(--text-muted);
+  color: #64748b; /* stronger muted text for readability */
 
 
 
@@ -3590,6 +3661,13 @@ body {
 
 
 
+}
+
+
+.timeline-item .label {
+  color: #1f2937;
+  font-weight: 600;
+  line-height: 1.3;
 }
 
 
@@ -4316,7 +4394,79 @@ body {
 
   background: #f8fafc;
 
+  color: #0f172a;
 
+  min-width: 170px;
+
+  font-weight: 500;
+
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+
+
+
+}
+
+
+
+.table-toolbar input {
+
+  color: #0f172a;
+
+  caret-color: #1d4ed8;
+
+  font-weight: 500;
+
+}
+
+
+
+.table-toolbar input::placeholder {
+
+  color: #64748b;
+
+  opacity: 1;
+
+}
+
+
+
+.search input::placeholder{
+
+  color:#64748b;
+
+  opacity:1;
+
+}
+
+
+
+.table-toolbar select {
+
+  appearance: none;
+
+  -webkit-appearance: none;
+
+  -moz-appearance: none;
+
+  padding-right: 40px;
+
+  background-image: linear-gradient(45deg, transparent 50%, #1d4ed8 50%), linear-gradient(135deg, #1d4ed8 50%, transparent 50%);
+
+  background-position: calc(100% - 18px) calc(50% - 3px), calc(100% - 12px) calc(50% - 3px);
+
+  background-size: 6px 6px, 6px 6px;
+
+  background-repeat: no-repeat;
+
+}
+
+
+
+.table-toolbar select option {
+
+  color: #0f172a;
+
+  background: #ffffff;
 
 }
 
@@ -5242,6 +5392,31 @@ body.sidebar-open .sidebar-backdrop {
 
 
 
+.form input, .form select, .form textarea,
+.form-shell input, .form-shell select, .form-shell textarea {
+  border: 1px solid rgba(148,163,184,0.85) !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.form input:focus, .form select:focus, .form textarea:focus,
+.form-shell input:focus, .form-shell select:focus, .form-shell textarea:focus {
+  outline: none !important;
+  border-color: #4f46e5 !important;
+  box-shadow: 0 0 12px rgba(79, 70, 229, 0.35) !important;
+}
+
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+  background: #111827 !important;
+  color: #e5e7eb !important;
+  border-color: #334155 !important;
+}
+
 </style>
 
 </head>
@@ -5895,12 +6070,19 @@ body.sidebar-open .sidebar-backdrop {
       <div id="addUserStudentForm" class="form form-shell">
 
 
+          
 
-        <input id="sName" placeholder="Student Name">
+        <div class="form-group">
+          <label for="sName">Student Name</label>
+          <input id="sName" placeholder="Student Name">
+        </div>
 
+          
 
-
-        <input id="sReg" placeholder="Register Number">
+        <div class="form-group">
+          <label for="sReg">Register Number</label>
+          <input id="sReg" placeholder="Register Number">
+        </div>
 
 
 
@@ -5908,7 +6090,7 @@ body.sidebar-open .sidebar-backdrop {
 
 
 
-          <label>Department</label>
+          <label for="sDept">Department</label>
 
 
 
@@ -5960,7 +6142,7 @@ body.sidebar-open .sidebar-backdrop {
 
 
 
-          <label>Year</label>
+          <label for="sYear">Year</label>
 
 
 
@@ -5994,17 +6176,30 @@ body.sidebar-open .sidebar-backdrop {
 
         </div>
 
+          
+
+        <div class="form-group">
+          <label for="sPass">Password</label>
+          <input id="sPass" type="password" placeholder="Password" required>
+        </div>
 
 
-        <input id="sPass" type="password" placeholder="Password" required>
+
+                 
+
+        <div class="form-group">
+          <label for="sPhone">Phone Number</label>
+          <input id="sPhone" type="tel" placeholder="Phone Number" pattern="\\d{10}" maxlength="10" minlength="10" title="Enter a 10-digit phone number">
+        </div>
 
 
 
-        <input id="sPhone" type="tel" placeholder="Phone Number" pattern="\\d{9}" maxlength="9" minlength="9" title="Enter a 9-digit phone number">
+                  
 
-
-
-        <input id="sEmail" placeholder="Email">
+        <div class="form-group">
+          <label for="sEmail">Email</label>
+          <input id="sEmail" placeholder="Email">
+        </div>
 
 
 
@@ -6018,13 +6213,19 @@ body.sidebar-open .sidebar-backdrop {
 
       <div id="addUserStaffForm" class="form form-shell hidden">
 
+          
 
 
-        <input type="text" id="staffName" placeholder="Staff Name" required>
+        <div class="form-group">
+          <label for="staffName">Staff Name</label>
+          <input type="text" id="staffName" placeholder="Staff Name" required>
+        </div>
 
 
-
-        <input type="text" id="staffCode" placeholder="Staff Code" required>
+        <div class="form-group">
+          <label for="staffCode">Staff Code</label>
+          <input type="text" id="staffCode" placeholder="Staff Code" required>
+        </div>
 
 
 
@@ -6032,7 +6233,7 @@ body.sidebar-open .sidebar-backdrop {
 
 
 
-          <label>Department</label>
+          <label for="staffDept">Department</label>
 
 
 
@@ -6084,7 +6285,7 @@ body.sidebar-open .sidebar-backdrop {
 
 
 
-          <label>Staff Type</label>
+          <label for="staffType">Staff Type</label>
 
 
 
@@ -6110,17 +6311,28 @@ body.sidebar-open .sidebar-backdrop {
 
         </div>
 
+                 
 
 
-        <input type="email" id="staffEmail" placeholder="Email">
+        <div class="form-group">
+          <label for="staffEmail">Email</label>
+          <input type="email" id="staffEmail" placeholder="Email">
+        </div>
+
+          
+
+        <div class="form-group">
+          <label for="staffPhone">Phone</label>
+          <input type="text" id="staffPhone" placeholder="Phone" pattern="\\d{10}" maxlength="10" minlength="10" title="Enter a 10-digit phone number">
+        </div>
+
+         
 
 
-
-        <input type="text" id="staffPhone" placeholder="Phone">
-
-
-
-        <input type="password" id="staffPassword" placeholder="Password" required>
+        <div class="form-group">
+          <label for="staffPassword">Password</label>
+          <input type="password" id="staffPassword" placeholder="Password" required>
+        </div>
 
 
 
@@ -6514,19 +6726,31 @@ body.sidebar-open .sidebar-backdrop {
 
 
 
-    <input type="text" id="bookId" placeholder="Book ID" required>
+    <div class="form-group">
+      <label for="bookId">Book ID</label>
+      <input type="text" id="bookId" placeholder="Book ID" required>
+    </div>
 
 
 
-    <input type="text" id="bookTitle" placeholder="Book Title" required>
+    <div class="form-group">
+      <label for="bookTitle">Book Title</label>
+      <input type="text" id="bookTitle" placeholder="Book Title" required>
+    </div>
 
 
 
-    <input type="text" id="bookAuthor" placeholder="Author">
+    <div class="form-group">
+      <label for="bookAuthor">Author</label>
+      <input type="text" id="bookAuthor" placeholder="Author">
+    </div>
 
 
 
-    <input type="text" id="bookPublisher" placeholder="Publisher">
+    <div class="form-group">
+      <label for="bookPublisher">Publisher</label>
+      <input type="text" id="bookPublisher" placeholder="Publisher">
+    </div>
 
 
 
@@ -6538,7 +6762,7 @@ body.sidebar-open .sidebar-backdrop {
 
 
 
-    <label >Category</label>
+    <label for="bookCategory">Category</label>
 
 
 
@@ -6606,7 +6830,7 @@ body.sidebar-open .sidebar-backdrop {
 
 
 
-    <label >Rack Number</label>
+    <label for="rackNumber">Rack Number</label>
 
 
 
@@ -6646,7 +6870,7 @@ body.sidebar-open .sidebar-backdrop {
 
 
 
-<label >Shelf Number</label>
+<label for="shelfNumber">Shelf Number</label>
 
 
 
@@ -6686,7 +6910,10 @@ body.sidebar-open .sidebar-backdrop {
 
 
 
-    <input type="number" id="totalCopies" placeholder="Total Copies" min="1">
+    <div class="form-group">
+      <label for="totalCopies">Total Copies</label>
+      <input type="number" id="totalCopies" placeholder="Total Copies" min="1">
+    </div>
 
 
 
