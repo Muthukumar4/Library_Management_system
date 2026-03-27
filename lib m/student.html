@@ -6,6 +6,7 @@
 <title>Student Dashboard | Library</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
@@ -71,6 +72,7 @@
 .status-due{background:#fbc02d;color:#4a2c00;}
 .status-overdue{background:#d32f2f;color:#fff;}
 .status-returned{background:#2e7d32;color:#dff0dc;}
+.status-fine-paid{background:#d32f2f;color:#fff;}
 
 .sidebar h2{text-align:center;margin-bottom:30px;}
 
@@ -290,36 +292,6 @@ button{
   border-color:rgba(0,0,0,0.2);
 }
 
-.quick-search-bar{
-  background:#fff;
-  border-radius:15px;
-  padding:20px;
-  margin:20px 0;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:18px;
-  border:1px solid #d7dbff;
-  box-shadow:0 10px 30px rgba(15,23,42,0.12);
-}
-.quick-search-bar h4{margin:6px 0 0;color:#1e3c72;}
-.quick-search-field{
-  flex:1;
-  max-width:480px;
-  display:flex;
-  align-items:center;
-  background:#f6f8ff;
-  border-radius:10px;
-  padding:10px 14px;
-  border:1px solid #dfe6ff;
-}
-.quick-search-field input{
-  flex:1;
-  border:none;
-  background:transparent;
-  font-size:14px;
-  outline:none;
-}
 .search-icon{font-size:16px;margin-right:12px;}
 .eyebrow{
   font-size:12px;
@@ -528,134 +500,119 @@ tr:nth-child(even){background:#f6f8ff;}
   border:1px solid #cfd6ff;
 }
 
-.chatbot{
+.chatbot-box{
   position:fixed;
-  bottom:28px;
   right:28px;
+  bottom:28px;
   z-index:60;
-  display:flex;
-  flex-direction:column;
-  align-items:flex-end;
-  gap:10px;
-}
-
-.chatbot-toggle{
-  background:#fff;
-  border:none;
-  border-radius:999px;
-  padding:10px 16px;
-  box-shadow:0 20px 38px rgba(17,34,73,0.25);
-  display:flex;
-  align-items:center;
-  gap:8px;
-  cursor:pointer;
-  font-weight:600;
-  color:#1e1f3a;
-}
-
-.chatbot-panel{
-  width:320px;
-  max-width:calc(100vw - 36px);
+  width:340px;
+  max-width:calc(100vw - 28px);
   background:#fff;
   border-radius:18px;
   box-shadow:0 18px 40px rgba(17,34,73,0.2);
   overflow:hidden;
-  transform:translateY(20px);
-  opacity:0;
-  pointer-events:none;
-  transition:opacity 0.3s ease, transform 0.3s ease;
+  border:1px solid #dde5ff;
 }
 
-.chatbot-panel.visible{
-  opacity:1;
-  transform:translateY(0);
-  pointer-events:auto;
+.chatbot-box.hidden{
+  display:none;
 }
 
-.chatbot-header{
-  padding:16px;
-  border-bottom:1px solid rgba(148,163,184,0.3);
+.chatbot-launcher{
+  position:fixed;
+  right:28px;
+  bottom:28px;
+  z-index:61;
+  width:58px;
+  height:58px;
+  border:none;
+  border-radius:50%;
+  background:linear-gradient(135deg,#1e3a8a,#4f46e5);
+  color:#fff;
+  font-size:26px;
+  cursor:pointer;
+  box-shadow:0 18px 36px rgba(17,34,73,0.28);
+}
+
+.chatbot-launcher.hidden{
+  display:none;
+}
+
+.chatbot-topbar{
   display:flex;
-  justify-content:space-between;
   align-items:center;
+  justify-content:space-between;
   gap:12px;
+  padding:12px 14px;
+  border-bottom:1px solid #e5e7eb;
+  background:#f8faff;
 }
 
-.chatbot-header strong{
-  font-size:16px;
-  color:#1e1f3a;
-}
-
-.chatbot-header p{
-  margin:4px 0 0;
-  font-size:12px;
-  color:#58608b;
+.chatbot-topbar strong{
+  color:#1e3a8a;
+  font-size:15px;
 }
 
 .chatbot-close{
-  background:none;
   border:none;
-  font-size:18px;
+  background:transparent;
+  color:#475569;
+  font-size:20px;
   cursor:pointer;
-  color:#58608b;
+  line-height:1;
 }
 
-.chatbot-messages{
-  max-height:260px;
-  padding:16px;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  overflow-y:auto;
+.chat-body {
+    max-height: 350px;
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
-.chatbot-message{
-  padding:10px 14px;
-  border-radius:14px;
-  font-size:13px;
-  line-height:1.4;
-  white-space:pre-line;
+.user-msg {
+    align-self: flex-end;
+    background: #1e3a8a;
+    color: white;
+    padding: 10px 14px;
+    border-radius: 16px 16px 4px 16px;
+    max-width: 75%;
+    word-wrap: break-word;
 }
 
-.chatbot-message.bot{
-  background:#eef2ff;
-  color:#1e1f3a;
-  align-self:flex-start;
+.bot-msg {
+    align-self: flex-start;
+    background: #e9edf8;
+    color: #1f2937;
+    padding: 10px 14px;
+    border-radius: 16px 16px 16px 4px;
+    max-width: 75%;
+    word-wrap: break-word;
 }
 
-.chatbot-message.user{
-  background:#1e3c72;
-  color:#fff;
-  align-self:flex-end;
+.chat-input-area {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    border-top: 1px solid #ddd;
 }
 
-.chatbot-form{
-  display:flex;
-  border-top:1px solid rgba(148,163,184,0.3);
-  background:#f8fafc;
-  padding:12px;
-  gap:10px;
+.chat-input-area input {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 25px;
+    border: 1px solid #ccc;
+    outline: none;
 }
 
-.chatbot-form input{
-  flex:1;
-  border:none;
-  border-radius:999px;
-  padding:10px 16px;
-  outline:none;
-  border:1px solid rgba(148,163,184,0.4);
-  font-size:14px;
-}
-
-.chatbot-form button{
-  border:none;
-  border-radius:999px;
-  padding:10px 16px;
-  background:linear-gradient(135deg, #4f46e5, #6366f1);
-  color:#fff;
-  cursor:pointer;
-  font-weight:600;
-  box-shadow:0 8px 16px rgba(79,70,229,0.3);
+.chat-input-area button {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 25px;
+    background: #4f46e5;
+    color: white;
+    cursor: pointer;
 }
 
 @media (max-width: 1024px){
@@ -686,14 +643,6 @@ tr:nth-child(even){background:#f6f8ff;}
   }
   .stats{
     grid-template-columns:repeat(2,1fr);
-  }
-  .quick-search-bar{
-    flex-direction:column;
-    align-items:flex-start;
-  }
-  .quick-search-field{
-    width:100%;
-    max-width:none;
   }
   .insights-grid{
     grid-template-columns:1fr;
@@ -780,17 +729,6 @@ tr:nth-child(even){background:#f6f8ff;}
       <div><h4>Name</h4><p id="studentName">-</p></div>
       <div><h4>Register No</h4><p id="studentRollNumber">-</p></div>
       <div><h4>Department</h4><p id="studentDepartment">-</p></div>
-    </div>
-
-    <div class="quick-search-bar">
-      <div>
-        <p class="eyebrow">Quick catalog search</p>
-        <h4>Find a book without leaving the dashboard</h4>
-      </div>
-      <div class="quick-search-field">
-        <span class="search-icon">&#128269;</span>
-        <input type="text" id="quickSearchInput" placeholder="Search by title, author, or category" />
-      </div>
     </div>
 
     <div class="stats">
@@ -919,6 +857,32 @@ tr:nth-child(even){background:#f6f8ff;}
 
 </div>
 
+<button id="chatbotLauncher" class="chatbot-launcher" type="button" onclick="openChatbot()" aria-label="Open chatbot">🤖</button>
+
+<div id="chatbotBox" class="chatbot-box hidden">
+    <div class="chatbot-topbar">
+        <strong>Library Bot</strong>
+        <button class="chatbot-close" type="button" onclick="closeChatbot()" aria-label="Close chatbot">×</button>
+    </div>
+    <div id="chatBody" class="chat-body">
+        <div class="bot-msg">
+            I can help with book picks, study strategies, or quick catalog searches.
+            Try asking for a topic or author.
+        </div>
+    </div>
+
+    <div class="chat-input-area">
+        <input
+            type="text"
+            id="chatInput"
+            placeholder="Try: recommend data science books"
+            onkeypress="handleChatEnter(event)"
+        />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<!--
 <div class="chatbot" aria-live="polite">
   <button class="chatbot-toggle" type="button" aria-label="Open library bot">
     <span class="chatbot-icon">🤖</span>
@@ -939,6 +903,7 @@ tr:nth-child(even){background:#f6f8ff;}
     </form>
   </div>
 </div>
+-->
 
 <script>
 const BASE_URL = "http://localhost:8080";
@@ -950,7 +915,36 @@ function showSection(id,el){
   el.classList.add('active');
 }
 
-function logout(){
+async function logout(){
+  let canLogout = true;
+
+  if (window.Swal) {
+    const result = await Swal.fire({
+      icon: "warning",
+      title: "Logout Now?",
+      text: "You can login again anytime.",
+      showCancelButton: true,
+      confirmButtonText: "Logout",
+      cancelButtonText: "Stay Here",
+      confirmButtonColor: "#dc2626"
+    });
+    canLogout = result.isConfirmed;
+  } else {
+    canLogout = window.confirm("Logout now?");
+  }
+
+  if (!canLogout) return;
+
+  if (window.Swal) {
+    await Swal.fire({
+      icon: "success",
+      title: "See you soon",
+      text: "Logging out securely...",
+      timer: 900,
+      showConfirmButton: false
+    });
+  }
+
   sessionStorage.removeItem("lmsStudent");
   sessionStorage.removeItem("lmsAuthHeader");
   sessionStorage.removeItem("lmsRole");
@@ -958,20 +952,14 @@ function logout(){
   window.location.href="index.html";
 }
 
-function parseStudentSession() {
+function guardStudentSession() {
   const role = sessionStorage.getItem("lmsRole");
-  const rawStudent = sessionStorage.getItem("lmsStudent");
-  if (role !== "student" || !rawStudent) {
+  const username = String(sessionStorage.getItem("lmsUsername") || "").trim();
+  if (role !== "student" || !username) {
     window.location.href = "index.html";
     return null;
   }
-
-  try {
-    return JSON.parse(rawStudent);
-  } catch (err) {
-    window.location.href = "index.html";
-    return null;
-  }
+  return username;
 }
 
 function parseDateOnly(value) {
@@ -1001,6 +989,18 @@ function renderStudentProfile(student) {
     const initials = (displayName || "SB").split(" ").map(part => part[0]).filter(Boolean).join("").slice(0,2).toUpperCase() || "SB";
     avatar.textContent = initials;
   }
+}
+
+async function fetchStudentProfile(rollNumber) {
+  const res = await fetch(`${BASE_URL}/api/students/getall`);
+  if (!res.ok) throw new Error("Failed to load student profile.");
+
+  const students = await res.json();
+  if (!Array.isArray(students)) throw new Error("Invalid student profile response.");
+
+  return students.find(student =>
+    String(student.rollNumber ?? student.studrollNumber ?? "").trim().toLowerCase() === rollNumber.toLowerCase()
+  ) || null;
 }
 
 function getIssueDueStatus(issue) {
@@ -1094,6 +1094,7 @@ function renderReturnedBooks(issues, booksById) {
     const book = booksById.get(bookId) || {};
     const isLateReturn = Number(issue.lateDays ?? 0) > 0 || String(issue.paymentStatus ?? "").trim().toUpperCase() === "PAID";
     const statusLabel = isLateReturn ? "Fine Paid" : "Returned";
+    const statusClass = isLateReturn ? "status-fine-paid" : "status-returned";
 
     return `
       <tr>
@@ -1101,7 +1102,7 @@ function renderReturnedBooks(issues, booksById) {
         <td>${book.author || issue.author || "-"}</td>
         <td>${issue.issueDate || "-"}</td>
         <td>${issue.returnDate || "-"}</td>
-        <td>${statusLabel}</td>
+        <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
       </tr>
     `;
   }).join("");
@@ -1382,32 +1383,35 @@ async function loadStudentDashboard(student) {
   }
 }
 
-const bookFilterInputs = [document.getElementById("searchInput"), document.getElementById("quickSearchInput")].filter(Boolean);
-bookFilterInputs.forEach(input => {
-  input.addEventListener("keyup", event => {
-    const value = event.target.value;
-    filterBookTable(value);
-    bookFilterInputs.forEach(other => {
-      if (other !== input) other.value = value;
-    });
+const searchInput = document.getElementById("searchInput");
+if (searchInput) {
+  searchInput.addEventListener("keyup", event => {
+    filterBookTable(event.target.value);
   });
-});
+}
 
-const loggedInStudent = parseStudentSession();
-if (loggedInStudent) {
-  renderStudentProfile(loggedInStudent);
-  loadStudentDashboard(loggedInStudent);
+async function initializeStudentDashboard() {
+  const rollNumber = guardStudentSession();
+  if (!rollNumber) return;
+
+  try {
+    const student = await fetchStudentProfile(rollNumber);
+    if (!student) throw new Error("Student profile not found.");
+    renderStudentProfile(student);
+    await loadStudentDashboard(student);
+  } catch (error) {
+    console.error("Student dashboard init error:", error);
+    window.location.href = "index.html";
+    return;
+  }
+
   loadLibraryBooks();
 }
 
-const studentBotCatalog = [
-  {title:"Full-Stack Engineering", author:"Anitha Raj", category:"Technology", focus:"Modern JavaScript, Node.js, and cloud-ready systems."},
-  {title:"Design Thinking for Students", author:"K. Menon", category:"Creativity", focus:"Project-based research and user insights."},
-  {title:"Practical Data Science", author:"M. Fernandez", category:"Data", focus:"Python, SQL, and real-world datasets."},
-  {title:"Career Paths in AI", author:"Vikram Patel", category:"AI", focus:"Machine learning fundamentals and ethical design."},
-  {title:"Effective Research Writing", author:"S. Iyer", category:"Academic", focus:"Thesis structure and clarity."}
-];
+initializeStudentDashboard();
 
+if (false) {
+/*
 const chatbotToggle = document.querySelector(".chatbot-toggle");
 const chatbotPanel = document.querySelector(".chatbot-panel");
 const chatbotClose = document.querySelector(".chatbot-close");
@@ -1422,27 +1426,19 @@ function addBotMessage(text, type="bot") {
   chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
 }
 
-function findBookMatches(query) {
-  const clean = query.toLowerCase();
-  return studentBotCatalog.filter(book =>
-    book.title.toLowerCase().includes(clean) ||
-    book.author.toLowerCase().includes(clean) ||
-    book.category.toLowerCase().includes(clean)
-  );
+async function getChatbotReply(message) {
+  const url = `${BASE_URL}/api/chatbot/reply?message=${encodeURIComponent(message)}`;
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error("Chatbot request failed");
+  }
+  const data = await response.json();
+  return data.reply || "I couldn't generate a response right now.";
 }
 
-function recommendBooks(query) {
-  if (query.toLowerCase().includes("career")) {
-    return studentBotCatalog.filter(book => book.focus.toLowerCase().includes("career"));
-  }
-  if (query.toLowerCase().includes("study") || query.toLowerCase().includes("plan")) {
-    return studentBotCatalog.filter(book => book.category !== "AI");
-  }
-  return studentBotCatalog;
-}
+if (false) {
 
-function createBotResponse(text) {
-  const matches = findBookMatches(text);
+
   if (matches.length) {
     return matches.map(book => `${book.title} by ${book.author} (${book.category}) — ${book.focus}`).join("\n");
   }
@@ -1451,8 +1447,10 @@ function createBotResponse(text) {
     return recs.map(book => `${book.title} — ${book.focus}`).join("\n");
   }
   return "I can help with book picks, study strategies, or quick catalog searches. Try asking for a topic or author.";
+*/
 }
 
+/*
 if (chatbotToggle) {
   chatbotToggle.addEventListener("click", () => {
     if (!chatbotPanel) return;
@@ -1473,22 +1471,99 @@ if (chatbotClose && chatbotPanel) {
 }
 
 if (chatbotForm) {
-  chatbotForm.addEventListener("submit", event => {
+  chatbotForm.addEventListener("submit", async event => {
     event.preventDefault();
     const input = chatbotForm.querySelector("input");
     const message = input.value.trim();
     if (!message) return;
     addBotMessage(message, "user");
     input.value = "";
-    setTimeout(() => {
-      const reply = createBotResponse(message);
-      addBotMessage(reply, "bot");
-    }, 500);
+    addBotMessage("Searching the library...", "bot");
+    try {
+      const reply = await getChatbotReply(message);
+      const pending = chatbotMessages.querySelector(".chatbot-message.bot:last-child");
+      if (pending && pending.textContent === "Searching the library...") {
+        pending.textContent = reply;
+      } else {
+        addBotMessage(reply, "bot");
+      }
+    } catch (error) {
+      const pending = chatbotMessages.querySelector(".chatbot-message.bot:last-child");
+      if (pending && pending.textContent === "Searching the library...") {
+        pending.textContent = "Unable to reach the library assistant right now.";
+      } else {
+        addBotMessage("Unable to reach the library assistant right now.", "bot");
+      }
+    }
   });
 }
 
 if (chatbotMessages) {
-  addBotMessage("Hi! Ask me to recommend books, plan a study session, or check return reminders.", "bot");
+  addBotMessage("Hi! Ask for books by topic, author, or title availability.", "bot");
+}
+*/
+
+async function sendMessage() {
+    const input = document.getElementById("chatInput");
+    const chatBody = document.getElementById("chatBody");
+    const message = input.value.trim();
+
+    if (!message) return;
+
+    addMessage(message, "user");
+    input.value = "";
+
+    try {
+        const response = await fetch("http://localhost:8080/api/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ message: message })
+        });
+
+        if (!response.ok) {
+            throw new Error("Backend error");
+        }
+
+        const data = await response.json();
+        addMessage(data.reply, "bot");
+
+    } catch (error) {
+        console.error("Chatbot error:", error);
+        addMessage("Chatbot is not responding. Please check backend connection.", "bot");
+    }
+}
+
+function addMessage(text, sender) {
+    const chatBody = document.getElementById("chatBody");
+
+    const msgDiv = document.createElement("div");
+    msgDiv.className = sender === "user" ? "user-msg" : "bot-msg";
+    msgDiv.textContent = text;
+
+    chatBody.appendChild(msgDiv);
+    chatBody.scrollTop = chatBody.scrollHeight;
+}
+
+function handleChatEnter(event) {
+    if (event.key === "Enter") {
+        sendMessage();
+    }
+}
+
+function openChatbot() {
+    const chatbotBox = document.getElementById("chatbotBox");
+    const chatbotLauncher = document.getElementById("chatbotLauncher");
+    if (chatbotBox) chatbotBox.classList.remove("hidden");
+    if (chatbotLauncher) chatbotLauncher.classList.add("hidden");
+}
+
+function closeChatbot() {
+    const chatbotBox = document.getElementById("chatbotBox");
+    const chatbotLauncher = document.getElementById("chatbotLauncher");
+    if (chatbotBox) chatbotBox.classList.add("hidden");
+    if (chatbotLauncher) chatbotLauncher.classList.remove("hidden");
 }
 </script>
 

@@ -16,6 +16,7 @@ public class Staffservice {
     @Autowired
     private Staffrepo staffrepo;
 
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     public Staff addStaff(Staff staff) {

@@ -234,6 +234,43 @@ function showErrorPopup(message) {
 
 }
 
+function getSessionRole() {
+  return String(sessionStorage.getItem("lmsRole") || "").trim().toLowerCase();
+}
+
+function getAdminUsername() {
+  return String(sessionStorage.getItem("lmsUsername") || "").trim();
+}
+
+function isAdminSessionActive() {
+  return getSessionRole() === "admin" && !!getAdminUsername();
+}
+
+function requireAdminAccess() {
+  if (isAdminSessionActive()) return true;
+  window.location.href = "index.html";
+  return false;
+}
+
+function escapeInlineJsString(value) {
+  return String(value ?? "").replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+}
+
+async function readErrorMessage(res, fallbackMessage) {
+  try {
+    const text = await res.text();
+    if (!text) return fallbackMessage;
+    try {
+      const data = JSON.parse(text);
+      return data?.message || text;
+    } catch (err) {
+      return text;
+    }
+  } catch (err) {
+    return fallbackMessage;
+  }
+}
+
 function isValidPhoneNumber(phone) {
 
   return /^\d{10}$/.test(phone);
@@ -819,6 +856,13 @@ function renderBooks(books) {
         <td>${b.Totalcopies != null ? b.Totalcopies : ""}</td>
 
         <td>${getAvailableCopies(b)}</td>
+
+        <td>
+          <div class="row-actions">
+            <button type="button" class="edit-btn" onclick="openBookEditDialog(${Number(b.bookId ?? b.id ?? 0)})">Update</button>
+            <button type="button" class="delete-btn" onclick="confirmDeleteBook(${Number(b.bookId ?? b.id ?? 0)})">Delete</button>
+          </div>
+        </td>
 
       </tr>
 
@@ -2398,7 +2442,7 @@ function renderUsersTable() {
 
   if (!dataset.length) {
 
-    body.innerHTML = `<tr><td colspan="6">No ${label} found.</td></tr>`;
+    body.innerHTML = `<tr><td colspan="7">No ${label} found.</td></tr>`;
 
     return;
 
@@ -2426,6 +2470,13 @@ function renderUsersTable() {
 
           <td>${escapeHtml(item.phone ?? "-")}</td>
 
+          <td>
+            <div class="row-actions">
+              <button type="button" class="edit-btn" onclick="openStudentEditDialog('${escapeInlineJsString(item.rollNumber ?? "")}')">Update</button>
+              <button type="button" class="delete-btn" onclick="confirmDeleteStudent('${escapeInlineJsString(item.rollNumber ?? "")}')">Delete</button>
+            </div>
+          </td>
+
         </tr>
 
       `;
@@ -2447,6 +2498,13 @@ function renderUsersTable() {
         <td>${escapeHtml(item.email ?? "-")}</td>
 
         <td>${escapeHtml(item.phone ?? "-")}</td>
+
+        <td>
+          <div class="row-actions">
+            <button type="button" class="edit-btn" onclick="openStaffEditDialog('${escapeInlineJsString(item.staffCode ?? "")}')">Update</button>
+            <button type="button" class="delete-btn" onclick="confirmDeleteStaff('${escapeInlineJsString(item.staffCode ?? "")}')">Delete</button>
+          </div>
+        </td>
 
       </tr>
 
@@ -2513,6 +2571,778 @@ async function fetchStaff() {
     }
 
   }
+
+}
+
+
+
+function requireSwalForAdminAction() {
+
+  if (window.Swal) return true;
+
+  showErrorPopup("This action needs the dialog library to be loaded.");
+
+  return false;
+
+}
+
+
+
+function buildAdminAuthFields() {
+
+  return `
+    <textarea id="adminActionReason" placeholder="Reason for this change" required></textarea>
+    <input id="adminActionPassword" type="password" placeholder="Admin password" required>
+  `;
+
+}
+
+
+
+async function sendAdminRecordRequest(url, method, payload, loadingText, successMessage, refreshFn) {
+
+  setGlobalLoading(true, loadingText);
+
+  try {
+
+    const res = await fetch(url, {
+
+      method,
+
+      headers: { "Content-Type": "application/json" },
+
+      body: JSON.stringify(payload)
+
+    });
+
+
+
+    if (!res.ok) {
+
+      throw new Error(await readErrorMessage(res, "Request failed"));
+
+    }
+
+
+
+    if (typeof refreshFn === "function") {
+
+      await refreshFn();
+
+    }
+
+    loadDashboardOverview();
+
+    showSuccessPopup(successMessage);
+
+  } catch (err) {
+
+    console.error(err);
+
+    showErrorPopup(err.message || "Unable to complete admin action.");
+
+  } finally {
+
+    setGlobalLoading(false);
+
+  }
+
+}
+
+
+
+async function openStudentEditDialog(rollNumber) {
+
+  if (!requireAdminAccess() || !requireSwalForAdminAction()) return;
+
+  const student = cachedStudents.find(item => String(item.rollNumber || "").trim() === String(rollNumber || "").trim());
+
+  if (!student) {
+
+    showErrorPopup("Student record not found.");
+
+    return;
+
+  }
+
+
+
+  const { isConfirmed, value } = await Swal.fire({
+
+    title: `Update Student ${student.rollNumber || ""}`,
+
+    html: `
+      <div class="admin-action-form">
+        <input id="studentEditName" placeholder="Student name" value="${escapeHtml(student.name || "")}">
+        <input id="studentEditDepartment" placeholder="Department" value="${escapeHtml(student.department || "")}">
+        <input id="studentEditYear" placeholder="Year" value="${escapeHtml(student.year || "")}">
+        <input id="studentEditEmail" type="email" placeholder="Email" value="${escapeHtml(student.email || "")}">
+        <input id="studentEditPhone" placeholder="Phone" value="${escapeHtml(student.phone || "")}">
+        <label class="admin-action-check"><input id="studentEditActive" type="checkbox" ${student.active !== false ? "checked" : ""}>Active</label>
+        ${buildAdminAuthFields()}
+      </div>
+    `,
+
+    focusConfirm: false,
+
+    showCancelButton: true,
+
+    confirmButtonText: "Update Student",
+
+    preConfirm: () => {
+
+      const phone = String(document.getElementById("studentEditPhone")?.value || "").trim();
+
+      const email = String(document.getElementById("studentEditEmail")?.value || "").trim();
+
+      const reason = String(document.getElementById("adminActionReason")?.value || "").trim();
+
+      const adminPassword = String(document.getElementById("adminActionPassword")?.value || "");
+
+      if (phone && !isValidPhoneNumber(phone)) {
+
+        Swal.showValidationMessage("Phone number must be exactly 10 digits.");
+
+        return false;
+
+      }
+
+      if (email && !isValidEmailAddress(email)) {
+
+        Swal.showValidationMessage("Enter a valid email address.");
+
+        return false;
+
+      }
+
+      if (!reason) {
+
+        Swal.showValidationMessage("Reason is required.");
+
+        return false;
+
+      }
+
+      if (!adminPassword) {
+
+        Swal.showValidationMessage("Admin password is required.");
+
+        return false;
+
+      }
+
+      return {
+
+        adminUsername: getAdminUsername(),
+
+        adminPassword,
+
+        reason,
+
+        name: String(document.getElementById("studentEditName")?.value || "").trim(),
+
+        department: String(document.getElementById("studentEditDepartment")?.value || "").trim(),
+
+        year: String(document.getElementById("studentEditYear")?.value || "").trim(),
+
+        email,
+
+        phone,
+
+        active: Boolean(document.getElementById("studentEditActive")?.checked)
+
+      };
+
+    }
+
+  });
+
+
+
+  if (!isConfirmed || !value) return;
+
+  await sendAdminRecordRequest(
+
+    `${BASE_URL}/api/admin/students/${encodeURIComponent(rollNumber)}`,
+
+    "PUT",
+
+    value,
+
+    "Updating student record...",
+
+    "Student record updated successfully.",
+
+    async () => {
+
+      await fetchStudents();
+
+      renderUsersTable();
+
+    }
+
+  );
+
+}
+
+
+
+async function confirmDeleteStudent(rollNumber) {
+
+  if (!requireAdminAccess() || !requireSwalForAdminAction()) return;
+
+  const student = cachedStudents.find(item => String(item.rollNumber || "").trim() === String(rollNumber || "").trim());
+
+  const { isConfirmed, value } = await Swal.fire({
+
+    title: `Delete Student ${rollNumber}`,
+
+    html: `
+      <div class="admin-action-form">
+        <p>This will permanently remove ${escapeHtml(student?.name || rollNumber)} and store the deleted details in the audit table.</p>
+        ${buildAdminAuthFields()}
+      </div>
+    `,
+
+    icon: "warning",
+
+    showCancelButton: true,
+
+    confirmButtonText: "Delete Student",
+
+    confirmButtonColor: "#dc2626",
+
+    preConfirm: () => {
+
+      const reason = String(document.getElementById("adminActionReason")?.value || "").trim();
+
+      const adminPassword = String(document.getElementById("adminActionPassword")?.value || "");
+
+      if (!reason) {
+
+        Swal.showValidationMessage("Reason is required.");
+
+        return false;
+
+      }
+
+      if (!adminPassword) {
+
+        Swal.showValidationMessage("Admin password is required.");
+
+        return false;
+
+      }
+
+      return {
+
+        adminUsername: getAdminUsername(),
+
+        adminPassword,
+
+        reason
+
+      };
+
+    }
+
+  });
+
+
+
+  if (!isConfirmed || !value) return;
+
+  await sendAdminRecordRequest(
+
+    `${BASE_URL}/api/admin/students/${encodeURIComponent(rollNumber)}`,
+
+    "DELETE",
+
+    value,
+
+    "Deleting student record...",
+
+    "Student record deleted successfully.",
+
+    async () => {
+
+      await fetchStudents();
+
+      renderUsersTable();
+
+    }
+
+  );
+
+}
+
+
+
+async function openStaffEditDialog(staffCode) {
+
+  if (!requireAdminAccess() || !requireSwalForAdminAction()) return;
+
+  const staff = cachedStaff.find(item => String(item.staffCode || "").trim() === String(staffCode || "").trim());
+
+  if (!staff) {
+
+    showErrorPopup("Staff record not found.");
+
+    return;
+
+  }
+
+
+
+  const { isConfirmed, value } = await Swal.fire({
+
+    title: `Update Staff ${staff.staffCode || ""}`,
+
+    html: `
+      <div class="admin-action-form">
+        <input id="staffEditName" placeholder="Staff name" value="${escapeHtml(staff.name || "")}">
+        <input id="staffEditDepartment" placeholder="Department" value="${escapeHtml(staff.department || "")}">
+        <select id="staffEditType">
+          <option value="Teaching" ${String(staff.staffType || "") === "Teaching" ? "selected" : ""}>Teaching</option>
+          <option value="Non_Teaching" ${String(staff.staffType || "") === "Non_Teaching" ? "selected" : ""}>Non Teaching</option>
+        </select>
+        <input id="staffEditEmail" type="email" placeholder="Email" value="${escapeHtml(staff.email || "")}">
+        <input id="staffEditPhone" placeholder="Phone" value="${escapeHtml(staff.phone || "")}">
+        <label class="admin-action-check"><input id="staffEditActive" type="checkbox" ${staff.active !== false ? "checked" : ""}>Active</label>
+        ${buildAdminAuthFields()}
+      </div>
+    `,
+
+    focusConfirm: false,
+
+    showCancelButton: true,
+
+    confirmButtonText: "Update Staff",
+
+    preConfirm: () => {
+
+      const phone = String(document.getElementById("staffEditPhone")?.value || "").trim();
+
+      const email = String(document.getElementById("staffEditEmail")?.value || "").trim();
+
+      const reason = String(document.getElementById("adminActionReason")?.value || "").trim();
+
+      const adminPassword = String(document.getElementById("adminActionPassword")?.value || "");
+
+      if (phone && !isValidPhoneNumber(phone)) {
+
+        Swal.showValidationMessage("Phone number must be exactly 10 digits.");
+
+        return false;
+
+      }
+
+      if (email && !isValidEmailAddress(email)) {
+
+        Swal.showValidationMessage("Enter a valid email address.");
+
+        return false;
+
+      }
+
+      if (!reason) {
+
+        Swal.showValidationMessage("Reason is required.");
+
+        return false;
+
+      }
+
+      if (!adminPassword) {
+
+        Swal.showValidationMessage("Admin password is required.");
+
+        return false;
+
+      }
+
+      return {
+
+        adminUsername: getAdminUsername(),
+
+        adminPassword,
+
+        reason,
+
+        name: String(document.getElementById("staffEditName")?.value || "").trim(),
+
+        department: String(document.getElementById("staffEditDepartment")?.value || "").trim(),
+
+        staffType: String(document.getElementById("staffEditType")?.value || "").trim(),
+
+        email,
+
+        phone,
+
+        active: Boolean(document.getElementById("staffEditActive")?.checked)
+
+      };
+
+    }
+
+  });
+
+
+
+  if (!isConfirmed || !value) return;
+
+  await sendAdminRecordRequest(
+
+    `${BASE_URL}/api/admin/staff/${encodeURIComponent(staffCode)}`,
+
+    "PUT",
+
+    value,
+
+    "Updating staff record...",
+
+    "Staff record updated successfully.",
+
+    async () => {
+
+      await fetchStaff();
+
+      renderUsersTable();
+
+    }
+
+  );
+
+}
+
+
+
+async function confirmDeleteStaff(staffCode) {
+
+  if (!requireAdminAccess() || !requireSwalForAdminAction()) return;
+
+  const staff = cachedStaff.find(item => String(item.staffCode || "").trim() === String(staffCode || "").trim());
+
+  const { isConfirmed, value } = await Swal.fire({
+
+    title: `Delete Staff ${staffCode}`,
+
+    html: `
+      <div class="admin-action-form">
+        <p>This will permanently remove ${escapeHtml(staff?.name || staffCode)} and store the deleted details in the audit table.</p>
+        ${buildAdminAuthFields()}
+      </div>
+    `,
+
+    icon: "warning",
+
+    showCancelButton: true,
+
+    confirmButtonText: "Delete Staff",
+
+    confirmButtonColor: "#dc2626",
+
+    preConfirm: () => {
+
+      const reason = String(document.getElementById("adminActionReason")?.value || "").trim();
+
+      const adminPassword = String(document.getElementById("adminActionPassword")?.value || "");
+
+      if (!reason) {
+
+        Swal.showValidationMessage("Reason is required.");
+
+        return false;
+
+      }
+
+      if (!adminPassword) {
+
+        Swal.showValidationMessage("Admin password is required.");
+
+        return false;
+
+      }
+
+      return {
+
+        adminUsername: getAdminUsername(),
+
+        adminPassword,
+
+        reason
+
+      };
+
+    }
+
+  });
+
+
+
+  if (!isConfirmed || !value) return;
+
+  await sendAdminRecordRequest(
+
+    `${BASE_URL}/api/admin/staff/${encodeURIComponent(staffCode)}`,
+
+    "DELETE",
+
+    value,
+
+    "Deleting staff record...",
+
+    "Staff record deleted successfully.",
+
+    async () => {
+
+      await fetchStaff();
+
+      renderUsersTable();
+
+    }
+
+  );
+
+}
+
+
+
+async function openBookEditDialog(bookId) {
+
+  if (!requireAdminAccess() || !requireSwalForAdminAction()) return;
+
+  const book = allBooks.find(item => Number(item.bookId ?? item.id) === Number(bookId));
+
+  if (!book) {
+
+    showErrorPopup("Book record not found.");
+
+    return;
+
+  }
+
+
+
+  const { isConfirmed, value } = await Swal.fire({
+
+    title: `Update Book ${book.bookId || book.id || ""}`,
+
+    html: `
+      <div class="admin-action-form">
+        <input id="bookEditTitle" placeholder="Title" value="${escapeHtml(book.title || "")}">
+        <input id="bookEditAuthor" placeholder="Author" value="${escapeHtml(book.author || "")}">
+        <input id="bookEditPublisher" placeholder="Publisher" value="${escapeHtml(book.publisher || "")}">
+        <input id="bookEditCategory" placeholder="Category" value="${escapeHtml(book.category || "")}">
+        <input id="bookEditRack" placeholder="Rack number" value="${escapeHtml(book.rackNumber || "")}">
+        <input id="bookEditShelf" placeholder="Shelf number" value="${escapeHtml(book.shelfNumber || "")}">
+        <input id="bookEditTotalCopies" type="number" min="0" placeholder="Total copies" value="${escapeHtml(book.Totalcopies ?? 0)}">
+        <input id="bookEditAvailableCopies" type="number" min="0" placeholder="Available copies" value="${escapeHtml(getAvailableCopies(book))}">
+        <label class="admin-action-check"><input id="bookEditAvailable" type="checkbox" ${book.available !== false ? "checked" : ""}>Book available</label>
+        ${buildAdminAuthFields()}
+      </div>
+    `,
+
+    focusConfirm: false,
+
+    showCancelButton: true,
+
+    confirmButtonText: "Update Book",
+
+    preConfirm: () => {
+
+      const totalCopies = Number(document.getElementById("bookEditTotalCopies")?.value);
+
+      const availableCopies = Number(document.getElementById("bookEditAvailableCopies")?.value);
+
+      const reason = String(document.getElementById("adminActionReason")?.value || "").trim();
+
+      const adminPassword = String(document.getElementById("adminActionPassword")?.value || "");
+
+      if (!Number.isInteger(totalCopies) || totalCopies < 0) {
+
+        Swal.showValidationMessage("Total copies must be 0 or more.");
+
+        return false;
+
+      }
+
+      if (!Number.isInteger(availableCopies) || availableCopies < 0) {
+
+        Swal.showValidationMessage("Available copies must be 0 or more.");
+
+        return false;
+
+      }
+
+      if (availableCopies > totalCopies) {
+
+        Swal.showValidationMessage("Available copies cannot be greater than total copies.");
+
+        return false;
+
+      }
+
+      if (!reason) {
+
+        Swal.showValidationMessage("Reason is required.");
+
+        return false;
+
+      }
+
+      if (!adminPassword) {
+
+        Swal.showValidationMessage("Admin password is required.");
+
+        return false;
+
+      }
+
+      return {
+
+        adminUsername: getAdminUsername(),
+
+        adminPassword,
+
+        reason,
+
+        title: String(document.getElementById("bookEditTitle")?.value || "").trim(),
+
+        author: String(document.getElementById("bookEditAuthor")?.value || "").trim(),
+
+        publisher: String(document.getElementById("bookEditPublisher")?.value || "").trim(),
+
+        category: String(document.getElementById("bookEditCategory")?.value || "").trim(),
+
+        rackNumber: String(document.getElementById("bookEditRack")?.value || "").trim(),
+
+        shelfNumber: String(document.getElementById("bookEditShelf")?.value || "").trim(),
+
+        totalCopies,
+
+        availableCopies,
+
+        available: Boolean(document.getElementById("bookEditAvailable")?.checked)
+
+      };
+
+    }
+
+  });
+
+
+
+  if (!isConfirmed || !value) return;
+
+  await sendAdminRecordRequest(
+
+    `${BASE_URL}/api/admin/books/${encodeURIComponent(bookId)}`,
+
+    "PUT",
+
+    value,
+
+    "Updating book record...",
+
+    "Book record updated successfully.",
+
+    async () => {
+
+      loadBooks();
+
+    }
+
+  );
+
+}
+
+
+
+async function confirmDeleteBook(bookId) {
+
+  if (!requireAdminAccess() || !requireSwalForAdminAction()) return;
+
+  const book = allBooks.find(item => Number(item.bookId ?? item.id) === Number(bookId));
+
+  const { isConfirmed, value } = await Swal.fire({
+
+    title: `Delete Book ${bookId}`,
+
+    html: `
+      <div class="admin-action-form">
+        <p>This will permanently remove ${escapeHtml(book?.title || String(bookId))} and store the deleted details in the audit table.</p>
+        ${buildAdminAuthFields()}
+      </div>
+    `,
+
+    icon: "warning",
+
+    showCancelButton: true,
+
+    confirmButtonText: "Delete Book",
+
+    confirmButtonColor: "#dc2626",
+
+    preConfirm: () => {
+
+      const reason = String(document.getElementById("adminActionReason")?.value || "").trim();
+
+      const adminPassword = String(document.getElementById("adminActionPassword")?.value || "");
+
+      if (!reason) {
+
+        Swal.showValidationMessage("Reason is required.");
+
+        return false;
+
+      }
+
+      if (!adminPassword) {
+
+        Swal.showValidationMessage("Admin password is required.");
+
+        return false;
+
+      }
+
+      return {
+
+        adminUsername: getAdminUsername(),
+
+        adminPassword,
+
+        reason
+
+      };
+
+    }
+
+  });
+
+
+
+  if (!isConfirmed || !value) return;
+
+  await sendAdminRecordRequest(
+
+    `${BASE_URL}/api/admin/books/${encodeURIComponent(bookId)}`,
+
+    "DELETE",
+
+    value,
+
+    "Deleting book record...",
+
+    "Book record deleted successfully.",
+
+    async () => {
+
+      loadBooks();
+
+    }
+
+  );
 
 }
 
@@ -3403,7 +4233,7 @@ async function loadReturnedBooks() {
 
         <td>${escapeHtml(row.lateDays)}</td>
 
-        <td>${row.status === "ON_TIME" ? makeStatusBadge("returned", "RETURNED") : makeStatusBadge("paid", "RETURNED (FINE PAID)")}</td>
+        <td>${row.status === "ON_TIME" ? makeStatusBadge("returned", "RETURNED") : makeStatusBadge("paid", "FINE PAID")}</td>
 
         <td>${escapeHtml(row.paymentMethod)}</td>
 
@@ -4000,7 +4830,9 @@ async function logout() {
 
 
 
-window.addEventListener("DOMContentLoaded", () => {  renderNotifications();
+window.addEventListener("DOMContentLoaded", () => {  if (!requireAdminAccess()) return;
+
+  renderNotifications();
 
   setMemberInputPlaceholders();
 

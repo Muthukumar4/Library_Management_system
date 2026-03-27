@@ -109,7 +109,6 @@ function clearLoginFields() {
   if (passwordInput) passwordInput.value = "";
   clearError();
   updateCapsWarning(false);
-  hidePassword();
 }
 
 function setRole(role, clearTypedValues = false){
@@ -253,16 +252,28 @@ async function loginStaffWithApi(loginId, password) {
   throw new Error(errorMessage);
 }
 
-async function fetchStudentProfile(rollNumber) {
-  const res = await fetch(`${BASE_URL}/api/students/getall`);
-  if (!res.ok) throw new Error("Failed to load student details");
+async function loginAdminWithApi(username, password) {
+  const res = await fetch(`${BASE_URL}/api/admin/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      username,
+      password
+    })
+  });
 
-  const students = await res.json();
-  if (!Array.isArray(students)) return null;
+  let data = null;
+  try {
+    data = await res.json();
+  } catch (err) {
+    data = null;
+  }
 
-  return students.find(student =>
-    String(student.rollNumber ?? student.studrollNumber ?? "").trim().toLowerCase() === rollNumber.toLowerCase()
-  ) || null;
+  if (res.ok && data?.success) {
+    return data;
+  }
+
+  throw new Error(data?.message || "Invalid admin username or password");
 }
 
 async function login(){
@@ -291,23 +302,10 @@ async function login(){
         setLoading(false);
         return;
       }
-      const student = await fetchStudentProfile(user) || { rollNumber: user };
-      sessionStorage.setItem("lmsStudent", JSON.stringify(student));
     } else if (role === "staff") {
-      const staffResponse = await loginStaffWithApi(user, pass);
-      sessionStorage.setItem("lmsStaff", JSON.stringify({
-        name: staffResponse.name || "",
-        staffCode: staffResponse.staffCode || user,
-        email: staffResponse.email || "",
-        role: staffResponse.role || "STAFF"
-      }));
+      await loginStaffWithApi(user, pass);
     } else {
-      const ok = await validateBasicAuth(role, user, pass);
-      if (!ok) {
-        showError("Invalid credentials");
-        setLoading(false);
-        return;
-      }
+      await loginAdminWithApi(user, pass);
     }
 
     localStorage.setItem("rememberedRole", role);
@@ -321,7 +319,7 @@ async function login(){
     sessionStorage.setItem("lmsRole", role);
     sessionStorage.setItem("lmsUsername", user);
   } catch (err) {
-    showError("Login failed. Check backend connection.");
+    showError(err?.message || "Login failed. Check backend connection.");
     setLoading(false);
     return;
   }

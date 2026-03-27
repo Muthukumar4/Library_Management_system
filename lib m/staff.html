@@ -706,13 +706,13 @@ function setAlert(id, type, message) {
 function renderProfile() {
   const username = sessionStorage.getItem("lmsUsername") || "staff";
   const staff = dashboardState.staffProfile;
-  const displayName = staff?.name || username;
+  const displayName = staff?.name || "Staff";
   const initials = displayName.split(/\s+/).map(part => part[0]).join("").slice(0, 2).toUpperCase() || "ST";
   document.getElementById("staffDisplayName").textContent = displayName;
   document.getElementById("staffAvatar").textContent = initials;
   document.getElementById("staffDisplayMeta").textContent = staff
     ? `${staff.department || "Department"}${staff.staffType ? ` • ${staff.staffType}` : ""}`
-    : username;
+    : "Loading staff profile...";
 }
 
 function renderOverviewTables() {
@@ -884,7 +884,8 @@ async function loadStaffProfile() {
     const staffs = await safeFetchArray(`${BASE_URL}/api/staff/all`, makeRequestOptions());
     dashboardState.staffProfile = staffs.find(item => {
       const code = String(item.staffCode ?? item.staffId ?? item.id ?? "").trim();
-      return code.toLowerCase() === username.toLowerCase();
+      const email = String(item.email ?? "").trim();
+      return code.toLowerCase() === username.toLowerCase() || email.toLowerCase() === username.toLowerCase();
     }) || null;
   } catch (error) {
     dashboardState.staffProfile = null;

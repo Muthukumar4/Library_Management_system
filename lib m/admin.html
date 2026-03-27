@@ -1899,6 +1899,29 @@ tr:nth-child(even){
 
 
 
+.issue-date-row label {
+  color: #1e3c72;
+  font-weight: 600;
+}
+
+.issue-date-row input,
+.issue-date-row textarea {
+  color: #1f2937;
+  background: #ffffff;
+}
+
+.issue-date-row input::placeholder,
+.issue-date-row textarea::placeholder {
+  color: #7b879f;
+  opacity: 1;
+}
+
+.issue-date-row input[readonly],
+.issue-date-row textarea[readonly] {
+  color: #4b5563;
+  background: #ffffff;
+}
+
 .issue-status {
 
 
@@ -4072,11 +4095,13 @@ body {
 
 
 
-  color: #1d4ed8;
+  color: #991b1b;
 
 
 
-  background: #dbeafe;
+  background: #fee2e2;
+
+  border: 1px solid #fca5a5;
 
 
 
@@ -4860,6 +4885,62 @@ body.dark-mode .empty-state .title {
 
 
 
+}
+
+
+.row-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.row-actions button {
+  border: none;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.row-actions .edit-btn {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.row-actions .delete-btn {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.admin-action-form {
+  display: grid;
+  gap: 10px;
+  text-align: left;
+}
+
+.admin-action-form input,
+.admin-action-form select,
+.admin-action-form textarea {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font: inherit;
+  box-sizing: border-box;
+}
+
+.admin-action-form textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.admin-action-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #334155;
 }
 
 
@@ -6452,6 +6533,10 @@ body.dark-mode textarea {
 
 
 
+            <th>Actions</th>
+
+
+
           </tr>
 
 
@@ -7014,6 +7099,10 @@ body.dark-mode textarea {
 
 
             <th>Available</th>
+
+
+
+            <th>Actions</th>
 
 
 
