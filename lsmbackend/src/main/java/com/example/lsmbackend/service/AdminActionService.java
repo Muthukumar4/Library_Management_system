@@ -34,8 +34,8 @@ public class AdminActionService {
     @Autowired
     private AdminAuditLogRepository auditLogRepository;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+
+    ObjectMapper objectMapper= new ObjectMapper();
 
     @Value("${app.admin.username:admin}")
     private String adminUsername;

@@ -3,78 +3,89 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Library Management System | Login</title>
-
-  <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-  <!-- CSS -->
+  <title>Smart Library Automation System - Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
-<div class="login-page">
-  <div class="login-card">
-    <div class="card-grid">
-      <div class="card-hero" aria-label="Library overview">
+  <div class="main-container">
+    <div class="left-panel" aria-label="Library overview">
+      <div class="logo-wrap">
+        <img src="logo.png" alt="DAIT Logo">
       </div>
-      <div class="card-form" aria-label="Login form">
-        <div class="form-header compact minimal">
-          <h1 class="branding-title branding-title-right">Smart Library Automation System</h1>
-        </div>
+    </div>
 
-        <div class="role-buttons" role="tablist">
-          <button class="role-btn active" data-role="student" type="button">Student</button>
-          <button class="role-btn" data-role="staff" type="button">Staff</button>
-          <button class="role-btn" data-role="admin" type="button">Admin</button>
-        </div>
+    <div class="right-panel" aria-label="Login form">
+      <div class="login-shell">
+        <h1 class="title">Smart Library<br>Automation System</h1>
 
-        <input type="hidden" id="role" value="student">
-
-        <div class="input-group">
-          <label id="usernameLabel" for="username">Roll Number</label>
-          <div class="input-box">
-            <span class="icon" aria-hidden="true">&#128100;</span>
-            <input type="text" id="username" placeholder="Enter roll number" autocomplete="username">
+        <div class="login-card">
+          <div class="role-tabs" role="tablist">
+            <button class="role-tab" data-role="student" type="button">Student</button>
+            <button class="role-tab" data-role="staff" type="button">Staff</button>
+            <button class="role-tab active" data-role="admin" type="button">Admin</button>
           </div>
-        </div>
 
-        <div class="input-group password-group">
-          <label for="password">Password</label>
-          <div class="input-box">
-            <span class="icon" aria-hidden="true">&#128274;</span>
-            <input type="password" id="password" placeholder="Enter password" autocomplete="current-password">
-            <button class="password-toggle" id="passwordToggle" type="button" aria-label="Show password">Show</button>
+          <input type="hidden" id="role" value="admin">
+
+          <div class="form-group">
+            <label id="usernameLabel" for="username">Username</label>
+            <div class="input-box">
+              <span class="icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path d="M12 12c2.76 0 5-2.24 5-5S14.76 2 12 2 7 4.24 7 7s2.24 5 5 5Zm0 2c-3.87 0-7 2.24-7 5v1h14v-1c0-2.76-3.13-5-7-5Z"></path>
+                </svg>
+              </span>
+              <input type="text" id="username" placeholder="Enter username" autocomplete="username">
+            </div>
           </div>
-          <p class="caps-warning" id="capsWarning" aria-live="polite"></p>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="input-box">
+              <span class="icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path d="M17 9h-1V7a4 4 0 1 0-8 0v2H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2Zm-6 6.73V17a1 1 0 1 0 2 0v-1.27a2 2 0 1 0-2 0ZM10 9V7a2 2 0 1 1 4 0v2h-4Z"></path>
+                </svg>
+              </span>
+              <input type="password" id="password" placeholder="Enter password" autocomplete="current-password">
+              <button class="toggle-password" id="passwordToggle" type="button" aria-label="Show password">Show</button>
+            </div>
+            <p class="caps-warning" id="capsWarning" aria-live="polite"></p>
+          </div>
+
+          <div class="extra-row">
+            <label class="remember-wrap">
+              <input type="checkbox" id="rememberMe">
+              <span>Remember this device</span>
+            </label>
+
+            <a class="forgot-link" href="#">Forgot password?</a>
+          </div>
+
+          <p class="error-message" id="loginError" aria-live="polite"></p>
+
+          <button class="login-btn" type="button" onclick="login()">
+            <span class="loader" aria-hidden="true"></span>
+            <span class="btn-text">Login</span>
+          </button>
+
+          <p class="help-text">
+            Need help? Visit the library desk or email
+            <a href="mailto:library@dait.edu">library@dait.edu</a>.
+          </p>
         </div>
-
-        <div class="login-meta">
-          <label class="remember-me">
-            <input type="checkbox" id="rememberMe">
-            Remember this device
-          </label>
-          <a class="forgot-link" href="#">Forgot password?</a>
-        </div>
-
-        <p class="error-message" id="loginError" aria-live="polite"></p>
-
-        <button class="login-btn" type="button" onclick="login()">
-          <span class="loader" aria-hidden="true"></span>
-          <span class="btn-text">Login</span>
-        </button>
-
-        <p class="support-note">Need help? Visit the library desk or email <a href="mailto:library@dait.edu">library@dait.edu</a>.</p>
       </div>
     </div>
   </div>
-</div>
 
 <script>
 const BASE_URL = "http://localhost:8080";
 const loginError = document.getElementById("loginError");
 const passwordInput = document.getElementById("password");
-const roleButtons = document.querySelectorAll(".role-btn");
+const roleButtons = document.querySelectorAll(".role-tab");
 const loginButton = document.querySelector(".login-btn");
 const rememberMeCheckbox = document.getElementById("rememberMe");
 const usernameInput = document.getElementById("username");
@@ -185,6 +196,74 @@ async function validateBasicAuth(role, username, password) {
   return res.ok;
 }
 
+async function loginAdminWithApi(username, password) {
+  try {
+    const res = await fetch(`${BASE_URL}/api/admin/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username,
+        password
+      })
+    });
+
+    if (res.ok) {
+      return { ok: true };
+    }
+
+    if (res.status === 401 || res.status === 403 || res.status === 400 || res.status === 500) {
+      return {
+        ok: false,
+        message: "Invalid admin username or password"
+      };
+    }
+
+    return {
+      ok: false,
+      message: `Admin login failed (${res.status})`
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      message: error?.message || "Unable to login with admin credentials"
+    };
+  }
+}
+
+async function loginStaffWithApi(loginId, password) {
+  try {
+    const res = await fetch(`${BASE_URL}/api/auth/staff/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        loginId,
+        password
+      })
+    });
+
+    if (res.ok) {
+      return { ok: true };
+    }
+
+    if (res.status === 401 || res.status === 403 || res.status === 400 || res.status === 500) {
+      return {
+        ok: false,
+        message: "Invalid staff credentials"
+      };
+    }
+
+    return {
+      ok: false,
+      message: `Staff login failed (${res.status})`
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      message: error?.message || "Unable to login with staff credentials"
+    };
+  }
+}
+
 async function loginStudentWithApi(rollNumber, password) {
   const candidateUrls = [
     `${BASE_URL}/api/students/student/login`,
@@ -211,185 +290,147 @@ async function loginStudentWithApi(rollNumber, password) {
         };
       }
 
-      if (res.status === 401 || res.status === 403) {
+      if (res.status === 401 || res.status === 403 || res.status === 400 || res.status === 500) {
         return {
           ok: false,
           message: "Invalid student roll number or password"
         };
       }
 
-      lastError = new Error(`Student login failed with status ${res.status}`);
-    } catch (err) {
-      lastError = err;
+      lastError = `Student login failed (${res.status})`;
+    } catch (error) {
+      lastError = error;
     }
   }
 
-  throw lastError || new Error("Student login API unavailable");
+  return {
+    ok: false,
+    message: lastError?.message || "Unable to login with student credentials"
+  };
 }
 
-async function loginStaffWithApi(loginId, password) {
-  const res = await fetch(`${BASE_URL}/api/auth/staff/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      loginId,
-      password
-    })
-  });
-
-  let data = null;
-  try {
-    data = await res.json();
-  } catch (err) {
-    data = null;
-  }
-
-  if (res.ok && data?.success) {
-    return data;
-  }
-
-  const errorMessage = data?.message || "Invalid staff code/email or password";
-  throw new Error(errorMessage);
+function normalizeRole(role) {
+  return role === "admin" || role === "staff" || role === "student" ? role : "admin";
 }
 
-async function loginAdminWithApi(username, password) {
-  const res = await fetch(`${BASE_URL}/api/admin/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      username,
-      password
-    })
-  });
+async function login() {
+  const role = normalizeRole(document.getElementById("role")?.value);
+  const username = (document.getElementById("username")?.value || "").trim();
+  const password = document.getElementById("password")?.value || "";
 
-  let data = null;
-  try {
-    data = await res.json();
-  } catch (err) {
-    data = null;
-  }
-
-  if (res.ok && data?.success) {
-    return data;
-  }
-
-  throw new Error(data?.message || "Invalid admin username or password");
-}
-
-async function login(){
   clearError();
-  setLoading(true);
 
-  const role = document.getElementById("role").value;
-  const user = usernameInput?.value.trim() ?? "";
-  const pass = passwordInput?.value ?? "";
-  const rememberMe = rememberMeCheckbox?.checked;
-
-  if (!role || !user || !pass) {
-    showError("Select role and enter username/password");
-    setLoading(false);
+  if (!username || !password) {
+    showError("Please enter both username and password");
     return;
   }
 
-  try {
-    sessionStorage.removeItem("lmsStudent");
-    sessionStorage.removeItem("lmsStaff");
+  setLoading(true);
 
+  try {
     if (role === "student") {
-      const loginResult = await loginStudentWithApi(user, pass);
-      if (!loginResult.ok) {
-        showError(loginResult.message || "Invalid student roll number or password");
-        setLoading(false);
+      const result = await loginStudentWithApi(username, password);
+      if (!result.ok) {
+        showError(result.message || "Invalid student roll number or password");
+        return;
+      }
+    } else if (role === "admin") {
+      const result = await loginAdminWithApi(username, password);
+      if (!result.ok) {
+        showError(result.message || "Invalid admin username or password");
         return;
       }
     } else if (role === "staff") {
-      await loginStaffWithApi(user, pass);
+      const result = await loginStaffWithApi(username, password);
+      if (!result.ok) {
+        showError(result.message || "Invalid staff credentials");
+        return;
+      }
     } else {
-      await loginAdminWithApi(user, pass);
+      const valid = await validateBasicAuth(role, username, password);
+      if (!valid) {
+        showError(role === "staff" ? "Invalid staff credentials" : "Invalid admin credentials");
+        return;
+      }
     }
 
-    localStorage.setItem("rememberedRole", role);
-    if (rememberMe && user) {
-      localStorage.setItem("rememberedUser", user);
+    if (rememberMeCheckbox?.checked) {
+      localStorage.setItem("lmsSavedUsername", username);
+      localStorage.setItem("lmsSavedRole", role);
+      localStorage.setItem("lmsRememberMe", "true");
     } else {
-      localStorage.removeItem("rememberedUser");
+      localStorage.removeItem("lmsSavedUsername");
+      localStorage.removeItem("lmsSavedRole");
+      localStorage.removeItem("lmsRememberMe");
     }
 
-    sessionStorage.setItem("lmsAuthHeader", getAuthHeader(user, pass));
     sessionStorage.setItem("lmsRole", role);
-    sessionStorage.setItem("lmsUsername", user);
-  } catch (err) {
-    showError(err?.message || "Login failed. Check backend connection.");
+    sessionStorage.setItem("lmsUsername", username);
+    if (role === "student") {
+      sessionStorage.removeItem("lmsAuthHeader");
+      sessionStorage.setItem("lmsStudent", JSON.stringify({ rollNumber: username }));
+    } else {
+      sessionStorage.setItem("lmsAuthHeader", getAuthHeader(username, password));
+      sessionStorage.removeItem("lmsStudent");
+    }
+
+    const destinationByRole = {
+      student: "student.html",
+      staff: "staff.html",
+      admin: "admin.html"
+    };
+    window.location.href = destinationByRole[role];
+  } catch (error) {
+    showError("Unable to connect to the server. Please try again.");
+  } finally {
     setLoading(false);
-    return;
-  }
-
-  setLoading(false);
-  clearError();
-
-  if(role === "admin"){
-    window.location.href = "admin.html";
-  }
-  else if(role === "staff"){
-    window.location.href = "staff.html";
-  }
-  else if(role === "student"){
-    window.location.href = "student.html";
-  }
-  else{
-    showError("Invalid credentials");
   }
 }
 
-const savedRole = localStorage.getItem("rememberedRole") || "student";
-const savedUser = localStorage.getItem("rememberedUser");
-
-if (savedUser && usernameInput) {
-  usernameInput.value = savedUser;
-}
-
-if (rememberMeCheckbox) {
-  rememberMeCheckbox.checked = Boolean(savedUser);
-}
-
-setRole(savedRole);
-
-roleButtons.forEach(btn => {
-  btn.addEventListener("click", () => setRole(btn.dataset.role, true));
-});
-
-const enterFields = [usernameInput, passwordInput];
-enterFields.forEach(field => {
-  if (!field) return;
-  field.addEventListener("keydown", event => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      login();
-    }
-  });
-});
-
-const handleCaps = event => {
-  if (!event.getModifierState) return;
-  const isCaps = event.getModifierState("CapsLock");
-  updateCapsWarning(isCaps);
-};
-
-if (passwordInput) {
-  ["keydown","keyup"].forEach(evt => passwordInput.addEventListener(evt, handleCaps));
-  passwordInput.addEventListener("blur", () => updateCapsWarning(false));
-}
-
-if (passwordToggle) {
-  passwordToggle.addEventListener("click", () => {
-    if (passwordInput?.type === "text") {
-      hidePassword();
-      return;
-    }
+passwordToggle?.addEventListener("click", () => {
+  if (passwordInput?.type === "password") {
     showPasswordTemporarily();
-  });
-}
+  } else {
+    hidePassword();
+  }
+});
 
+passwordInput?.addEventListener("keydown", (event) => {
+  updateCapsWarning(event.getModifierState("CapsLock"));
+});
+
+passwordInput?.addEventListener("keyup", (event) => {
+  updateCapsWarning(event.getModifierState("CapsLock"));
+});
+
+passwordInput?.addEventListener("blur", () => {
+  updateCapsWarning(false);
+  hidePassword();
+});
+
+usernameInput?.addEventListener("input", clearError);
+passwordInput?.addEventListener("input", clearError);
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    login();
+  }
+});
+
+roleButtons.forEach(button => {
+  button.addEventListener("click", () => setRole(button.dataset.role, true));
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+  const remembered = localStorage.getItem("lmsRememberMe") === "true";
+  const savedRole = normalizeRole(localStorage.getItem("lmsSavedRole") || "admin");
+  const savedUsername = localStorage.getItem("lmsSavedUsername") || "";
+
+  setRole(savedRole, false);
+
+  if (rememberMeCheckbox) rememberMeCheckbox.checked = remembered;
+  if (remembered && usernameInput) usernameInput.value = savedUsername;
+});
 </script>
 </body>
 </html>

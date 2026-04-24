@@ -182,6 +182,8 @@ body{
 
   color: var(--text-primary);
 
+  font-size: 16px;
+
 
 
 }
@@ -254,7 +256,7 @@ body{
   margin-bottom:8px;
   border-radius:8px;
   cursor:pointer;
-  font-size:14px;
+  font-size:16px;
   transition:background 0.25s ease, color 0.25s ease;
 }
 
@@ -416,6 +418,8 @@ body{
 
   color:#1e3c72;
 
+  font-size:34px;
+
 
 
 }
@@ -496,6 +500,8 @@ button{
 
   margin-bottom:15px;
 
+  font-size:28px;
+
 
 
 }
@@ -559,7 +565,7 @@ button{
 
 
 
-  font-size:22px;
+  font-size:30px;
 
 
 
@@ -659,11 +665,11 @@ th,td{
 
 
 
-  padding:12px;
+  padding:14px;
 
 
 
-  font-size:14px;
+  font-size:16px;
 
 
 
@@ -1809,6 +1815,8 @@ tr:nth-child(even){
 
   color: #1e3c72;
 
+  font-size: 22px;
+
 
 
   margin-bottom: 8px;
@@ -1836,6 +1844,8 @@ tr:nth-child(even){
 
 
   margin-bottom: 5px;
+
+  font-size: 16px;
 
 
 
@@ -2300,6 +2310,8 @@ tr:nth-child(even){
 
   color: #1e3c72;
 
+  font-size: 22px;
+
 
 
   margin-bottom: 10px;
@@ -2327,6 +2339,8 @@ tr:nth-child(even){
 
 
   margin-bottom: 8px;
+
+  font-size: 16px;
 
 
 
@@ -3164,6 +3178,8 @@ body {
 
   color: #1e3a8a;
 
+  font-size: 22px;
+
 
 
   margin-bottom: 12px;
@@ -3366,11 +3382,11 @@ body {
 
 
 
-  padding: 8px;
+  padding: 10px;
 
 
 
-  font-size: 13px;
+  font-size: 15px;
 
 
 
@@ -4821,7 +4837,7 @@ body.dark-mode .empty-state .title {
 
 
 
-  font-size: 13px;
+  font-size: 16px;
 
 
 
@@ -4894,7 +4910,8 @@ body.dark-mode .empty-state .title {
   flex-wrap: wrap;
 }
 
-.row-actions button {
+.row-actions button,
+.user-bulk-actions button {
   border: none;
   border-radius: 999px;
   padding: 8px 12px;
@@ -4903,14 +4920,60 @@ body.dark-mode .empty-state .title {
   cursor: pointer;
 }
 
-.row-actions .edit-btn {
+.row-actions .edit-btn,
+.user-bulk-actions .edit-btn {
   background: #dbeafe;
   color: #1d4ed8;
 }
 
-.row-actions .delete-btn {
+.row-actions .delete-btn,
+.user-bulk-actions .delete-btn {
   background: #fee2e2;
   color: #b91c1c;
+}
+
+.user-action-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.user-toolbar-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 14px 0 12px;
+  flex-wrap: wrap;
+}
+
+.user-bulk-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.user-bulk-actions button[disabled] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.user-bulk-actions button.active {
+  box-shadow: 0 12px 24px rgba(30, 64, 175, 0.18);
+  transform: translateY(-1px);
+}
+
+.users-selection-header,
+.users-selection-cell {
+  display: none;
+}
+
+#usersTable.selection-mode .users-selection-header,
+#usersTable.selection-mode .users-selection-cell {
+  display: table-cell;
 }
 
 .admin-action-form {
@@ -4928,11 +4991,19 @@ body.dark-mode .empty-state .title {
   padding: 10px 12px;
   font: inherit;
   box-sizing: border-box;
+  background: #ffffff;
+  color: #0f172a;
+  caret-color: #0f172a;
 }
 
 .admin-action-form textarea {
   min-height: 90px;
   resize: vertical;
+}
+
+.admin-action-form input::placeholder,
+.admin-action-form textarea::placeholder {
+  color: #64748b;
 }
 
 .admin-action-check {
@@ -4941,6 +5012,19 @@ body.dark-mode .empty-state .title {
   gap: 8px;
   font-size: 14px;
   color: #334155;
+}
+
+.admin-action-check input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  margin: 0;
+  border-radius: 4px;
+  border: 1px solid #94a3b8;
+  background: #ffffff;
+  accent-color: #2563eb;
+  box-shadow: none;
+  flex: 0 0 auto;
 }
 
 
@@ -6465,22 +6549,28 @@ body.dark-mode textarea {
 
 
 
-    <div class="user-type-switch">
+    <div class="user-toolbar-row">
+      <div class="user-type-switch">
 
 
 
-      <button type="button" class="user-type-btn active" data-type="students" onclick="setUserView('students')">Students</button>
+        <button type="button" class="user-type-btn active" data-type="students" onclick="setUserView('students')">Students</button>
 
 
 
-      <button type="button" class="user-type-btn" data-type="staffs" onclick="setUserView('staffs')">Staff</button>
+        <button type="button" class="user-type-btn" data-type="staffs" onclick="setUserView('staffs')">Staff</button>
 
 
 
+      </div>
+
+      <div class="user-action-toolbar">
+      <div class="user-bulk-actions">
+        <button type="button" class="edit-btn" id="updateSelectedUserBtn" onclick="setUserActionMode('update')">Update</button>
+        <button type="button" class="delete-btn" id="deleteSelectedUserBtn" onclick="setUserActionMode('delete')">Delete</button>
+      </div>
+      </div>
     </div>
-
-
-
     <div class="search">
 
 
@@ -6509,6 +6599,7 @@ body.dark-mode textarea {
 
 
 
+            <th id="usersSelectionHeader" class="users-selection-header">Select</th>
             <th id="usersHeaderPrimary">Reg No</th>
 
 
@@ -6533,7 +6624,6 @@ body.dark-mode textarea {
 
 
 
-            <th>Actions</th>
 
 
 
@@ -6549,7 +6639,7 @@ body.dark-mode textarea {
 
 
 
-          <tr><td colspan="6">Select a view to load users.</td></tr>
+          <tr><td colspan="7">Select a view to load users.</td></tr>
 
 
 

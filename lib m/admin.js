@@ -2408,6 +2408,114 @@ let cachedStaff = [];
 
 let activeUserView = 'students';
 
+let selectedUserRecord = null;
+
+let activeUserActionMode = null;
+
+function getCurrentUserDataset() {
+
+  return activeUserView === "students" ? cachedStudents : cachedStaff;
+
+}
+
+function getCurrentUserKey(item) {
+
+  if (!item || typeof item !== "object") return "";
+
+  return activeUserView === "students"
+    ? String(item.rollNumber ?? item.studentId ?? "").trim()
+    : String(item.staffCode ?? item.staffId ?? "").trim();
+
+}
+
+function clearSelectedUserRecord() {
+
+  selectedUserRecord = null;
+
+  document.querySelectorAll('input[name="selectedUserRow"]').forEach(input => {
+    input.checked = false;
+  });
+
+  updateSelectedUserActions();
+
+}
+
+function updateSelectedUserActions() {
+
+  const updateBtn = document.getElementById("updateSelectedUserBtn");
+  const deleteBtn = document.getElementById("deleteSelectedUserBtn");
+  const table = document.getElementById("usersTable");
+
+  if (updateBtn) updateBtn.classList.toggle("active", activeUserActionMode === "update");
+  if (deleteBtn) deleteBtn.classList.toggle("active", activeUserActionMode === "delete");
+  if (table) table.classList.toggle("selection-mode", !!activeUserActionMode);
+
+}
+
+function setUserActionMode(action) {
+
+  activeUserActionMode = activeUserActionMode === action ? null : action;
+
+  clearSelectedUserRecord();
+
+  renderUsersTable();
+
+}
+
+function selectUserRecord(key) {
+
+  if (!activeUserActionMode) return;
+
+  const normalizedKey = String(key || "").trim();
+  const item = getCurrentUserDataset().find(entry => getCurrentUserKey(entry) === normalizedKey);
+
+  if (!item) {
+    clearSelectedUserRecord();
+    return;
+  }
+
+  selectedUserRecord = {
+    type: activeUserView,
+    key: normalizedKey,
+    name: String(item.name ?? "").trim()
+  };
+
+  document.querySelectorAll('input[name="selectedUserRow"]').forEach(input => {
+    input.checked = input.value === normalizedKey;
+  });
+
+  updateSelectedUserActions();
+
+  triggerSelectedUserAction();
+
+}
+
+function triggerSelectedUserAction() {
+
+  if (!activeUserActionMode || !selectedUserRecord) {
+    showErrorPopup("Select a user first.");
+    return;
+  }
+
+  if (selectedUserRecord.type === "students") {
+    if (activeUserActionMode === "update") {
+      openStudentEditDialog(selectedUserRecord.key);
+      return;
+    }
+
+    confirmDeleteStudent(selectedUserRecord.key);
+    return;
+  }
+
+  if (activeUserActionMode === "update") {
+    openStaffEditDialog(selectedUserRecord.key);
+    return;
+  }
+
+  confirmDeleteStaff(selectedUserRecord.key);
+
+}
+
 
 
 function renderUsersTable() {
@@ -2434,15 +2542,27 @@ function renderUsersTable() {
 
 
 
-  const dataset = activeUserView === "students" ? cachedStudents : cachedStaff;
+  const dataset = getCurrentUserDataset();
 
   const label = activeUserView === "students" ? "students" : "employees";
+
+  if (!selectedUserRecord || selectedUserRecord.type !== activeUserView) {
+
+    selectedUserRecord = null;
+
+  } else if (!dataset.some(item => getCurrentUserKey(item) === selectedUserRecord.key)) {
+
+    selectedUserRecord = null;
+
+  }
 
 
 
   if (!dataset.length) {
 
     body.innerHTML = `<tr><td colspan="7">No ${label} found.</td></tr>`;
+
+    updateSelectedUserActions();
 
     return;
 
@@ -2458,6 +2578,17 @@ function renderUsersTable() {
 
         <tr>
 
+          <td class="users-selection-cell">
+            <input
+              type="radio"
+              name="selectedUserRow"
+              value="${escapeHtml(item.rollNumber ?? item.studentId ?? "")}"
+              aria-label="Select student ${escapeHtml(item.name ?? "-")}"
+              onclick="selectUserRecord('${escapeInlineJsString(item.rollNumber ?? item.studentId ?? "")}')"
+              ${selectedUserRecord?.type === "students" && selectedUserRecord?.key === String(item.rollNumber ?? item.studentId ?? "").trim() ? "checked" : ""}
+            >
+          </td>
+
           <td>${escapeHtml(item.rollNumber ?? item.studentId ?? "-")}</td>
 
           <td>${escapeHtml(item.name ?? "-")}</td>
@@ -2470,13 +2601,6 @@ function renderUsersTable() {
 
           <td>${escapeHtml(item.phone ?? "-")}</td>
 
-          <td>
-            <div class="row-actions">
-              <button type="button" class="edit-btn" onclick="openStudentEditDialog('${escapeInlineJsString(item.rollNumber ?? "")}')">Update</button>
-              <button type="button" class="delete-btn" onclick="confirmDeleteStudent('${escapeInlineJsString(item.rollNumber ?? "")}')">Delete</button>
-            </div>
-          </td>
-
         </tr>
 
       `;
@@ -2486,6 +2610,17 @@ function renderUsersTable() {
     return `
 
       <tr>
+
+        <td class="users-selection-cell">
+          <input
+            type="radio"
+            name="selectedUserRow"
+            value="${escapeHtml(item.staffCode ?? item.staffId ?? "")}"
+            aria-label="Select staff ${escapeHtml(item.name ?? "-")}"
+            onclick="selectUserRecord('${escapeInlineJsString(item.staffCode ?? item.staffId ?? "")}')"
+            ${selectedUserRecord?.type === "staffs" && selectedUserRecord?.key === String(item.staffCode ?? item.staffId ?? "").trim() ? "checked" : ""}
+          >
+        </td>
 
         <td>${escapeHtml(item.staffCode ?? item.staffId ?? "-")}</td>
 
@@ -2499,18 +2634,13 @@ function renderUsersTable() {
 
         <td>${escapeHtml(item.phone ?? "-")}</td>
 
-        <td>
-          <div class="row-actions">
-            <button type="button" class="edit-btn" onclick="openStaffEditDialog('${escapeInlineJsString(item.staffCode ?? "")}')">Update</button>
-            <button type="button" class="delete-btn" onclick="confirmDeleteStaff('${escapeInlineJsString(item.staffCode ?? "")}')">Delete</button>
-          </div>
-        </td>
-
       </tr>
 
     `;
 
   }).join("");
+
+  updateSelectedUserActions();
 
 }
 
@@ -3351,6 +3481,10 @@ async function confirmDeleteBook(bookId) {
 function setUserView(type) {
 
   activeUserView = type;
+
+  activeUserActionMode = null;
+
+  clearSelectedUserRecord();
 
   document.querySelectorAll(".user-type-btn").forEach(btn => {
 

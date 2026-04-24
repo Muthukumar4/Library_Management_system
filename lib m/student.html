@@ -11,6 +11,10 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
 
+body{
+  font-size:16px;
+}
+
 .body-shell{
   min-height:100vh;
   background:linear-gradient(135deg, #667eea, #764ba2);
@@ -82,7 +86,7 @@
   margin-bottom:8px;
   border-radius:8px;
   cursor:pointer;
-  font-size:14px;
+  font-size:16px;
   transition:background 0.25s ease;
 }
 
@@ -204,7 +208,7 @@
   color:#6574a4;
   font-weight:500;
 }
-.header h2{color:#1e3c72;}
+.header h2{color:#1e3c72;font-size:34px;}
 .logout{
   padding:10px 18px;
   background:linear-gradient(90deg, #4f46e5, #6366f1);
@@ -241,7 +245,7 @@ button{
 .content:not(.active){
   animation:none;
 }
-.section h3{color:#1e3c72;margin-bottom:15px;}
+.section h3{color:#1e3c72;margin-bottom:15px;font-size:28px;}
 
 @keyframes fadeIn{
   from{opacity:0}
@@ -262,6 +266,12 @@ button{
   box-shadow:0 10px 24px rgba(15,23,42,0.12);
 }
 .profile h4{color:#1e3c72;}
+.profile p{
+  font-size:18px;
+  font-weight:600;
+  color:#1d2551;
+  margin-top:8px;
+}
 
 .stats{
   display:grid;
@@ -277,13 +287,14 @@ button{
   box-shadow:0 10px 20px rgba(18,34,73,0.08);
   transition:transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
-.stat h4{font-size:22px;color:var(--accent-color,#1e3c72);}
+.stat h4{font-size:28px;color:var(--accent-color,#1e3c72);}
 .stat p{
   margin-top:10px;
   color:#6172a1;
   display:flex;
   align-items:center;
   gap:8px;
+  font-size:16px;
 }
 .stat-icon{font-size:18px;line-height:1;}
 .stat:hover{
@@ -325,7 +336,7 @@ button{
   gap:20px;
   align-items:flex-start;
 }
-.chart-card__header h4{margin:4px 0 0;color:#1e3c72;}
+.chart-card__header h4{margin:4px 0 0;color:#1e3c72;font-size:22px;}
 .chart-tag{
   font-size:12px;
   padding:6px 12px;
@@ -349,7 +360,7 @@ button{
   gap:8px;
 }
 .reading-chart__bar .bar-value{
-  font-size:14px;
+  font-size:18px;
   color:#1e3c72;
 }
 .reading-chart__bar .bar-visual{
@@ -378,12 +389,12 @@ button{
 }
 .issue-return-stats span{
   display:block;
-  font-size:13px;
+  font-size:15px;
   color:#6d749a;
 }
 .issue-return-stats strong{
   display:block;
-  font-size:20px;
+  font-size:26px;
   color:#1e3c72;
 }
 .recent-books-card{
@@ -406,7 +417,7 @@ button{
   align-items:flex-start;
   gap:12px;
 }
-.recent-books-header h4{margin:4px 0 0;color:#1e3c72;}
+.recent-books-header h4{margin:4px 0 0;color:#1e3c72;font-size:22px;}
 .recent-books-card table{
   width:100%;
   border-collapse:collapse;
@@ -420,8 +431,8 @@ button{
   padding-bottom:8px;
 }
 .recent-books-card td{
-  padding:10px 6px;
-  font-size:14px;
+  padding:12px 8px;
+  font-size:16px;
   color:#1d2551;
 }
 .recent-books-card tbody tr:not(:last-child){
@@ -449,8 +460,8 @@ table{
   border-collapse:collapse;
 }
 th,td{
-  padding:12px;
-  font-size:14px;
+  padding:14px;
+  font-size:16px;
 }
 th{
   background:#e3e8ff;
