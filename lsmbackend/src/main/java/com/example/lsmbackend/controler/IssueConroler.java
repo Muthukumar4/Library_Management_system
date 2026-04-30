@@ -42,6 +42,11 @@ public class IssueConroler {
         return issuesrv.getAllIssueBook();
     }
 
+    @GetMapping("/staff-scope/{staffCode}")
+    public List<Issuebook> getIssuesForStaffScope(@PathVariable String staffCode) {
+        return issuesrv.getIssuesForStaffScope(staffCode);
+    }
+
 
     @PostMapping("/return")
     public Issuebook returnBook( @RequestParam Long issueId,

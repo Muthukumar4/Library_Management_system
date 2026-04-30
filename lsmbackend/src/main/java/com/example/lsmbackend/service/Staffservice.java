@@ -28,6 +28,11 @@ public class Staffservice {
         // 🔐 Encrypt password
         staff.setPassword(passwordEncoder.encode(staff.getPassword()));
 
+        // Set active to true if not provided
+        if (staff.getActive() == null) {
+            staff.setActive(true);
+        }
+
         return staffrepo.save(staff);
     }
 
@@ -49,10 +54,7 @@ public class Staffservice {
         st.setDepartment(staff.getDepartment());
         st.setEmail(staff.getEmail());
         st.setPhone(staff.getPhone());
-
-        if (!staff.isActive()) {
-            st.setActive(staff.isActive());
-        }
+        st.setActive(staff.getActive());
         return staffrepo.save(st);
 
     }

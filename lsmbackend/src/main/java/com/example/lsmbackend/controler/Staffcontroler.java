@@ -31,6 +31,7 @@ public class Staffcontroler {
         return staffsrv.getStaffbycode(staffCode);
     }
 
+
     @GetMapping("/barcode/{barcode}")
     public Staff getStaffbyBarcode(@PathVariable String barcode){
         return staffsrv.getStaffbyBarcode(barcode);

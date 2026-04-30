@@ -30,7 +30,7 @@ public class Staff {
     @Column(unique = true)
     private String barcode;
 
-    private boolean active=true;
+    private Boolean active=true;
     @Column(nullable = false)
     private String password;
 
@@ -99,11 +99,11 @@ public class Staff {
         this.barcode = barcode;
     }
 
-    public boolean isActive() {
+    public Boolean getActive() {
         return active;
     }
 
-    public void setActive(boolean active) {
+    public void setActive(Boolean active) {
         this.active = active;
     }
 

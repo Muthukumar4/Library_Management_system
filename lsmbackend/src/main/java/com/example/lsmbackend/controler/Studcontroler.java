@@ -27,6 +27,11 @@ public class   Studcontroler {
         return stsrv.getAllStudent();
     }
 
+    @GetMapping("/department/{department}")
+    public List<Student> getStudentsByDepartment(@PathVariable String department) {
+        return stsrv.getStudentsByDepartment(department);
+    }
+
     @GetMapping("/rollNumber/{rollNumber}")
     public Student getStudentbyRoll(@PathVariable String rollno){
         return stsrv.getStudentbyroll(rollno);

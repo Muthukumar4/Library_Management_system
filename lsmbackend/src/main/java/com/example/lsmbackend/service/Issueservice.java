@@ -130,6 +130,30 @@ public class Issueservice {
         return issuerepo.findAll();
     }
 
+    public List<Issuebook> getIssuesForStaffScope(String staffCode) {
+        if (staffCode == null || staffCode.trim().isEmpty()) {
+            throw new RuntimeException("Staff code is required");
+        }
+
+        String normalizedStaffCode = staffCode.trim();
+        var staff = staffrepo.findByStaffCode(normalizedStaffCode)
+                .orElseThrow(() -> new RuntimeException("Staff not found"));
+        String staffDepartment = staff.getDepartment() == null ? "" : staff.getDepartment().trim();
+
+        return issuerepo.findAll().stream()
+                .filter(issue -> {
+                    String memberType = normalizeMemberType(issue.getMemberType());
+                    if ("EMPLOYEE".equals(memberType)) {
+                        return normalizedStaffCode.equalsIgnoreCase(String.valueOf(issue.getMemberId()).trim());
+                    }
+
+                    return studentrepo.findByRollNumber(String.valueOf(issue.getMemberId()).trim())
+                            .map(student -> departmentMatches(student.getDepartment(), staffDepartment))
+                            .orElse(false);
+                })
+                .toList();
+    }
+
     public List<ActiveIssueRow> getActiveIssuedBooks() {
         return issuerepo.findAll().stream()
                 .filter(i -> {
@@ -256,6 +280,12 @@ public class Issueservice {
         String t = memberType == null ? "" : memberType.trim().toUpperCase(Locale.ROOT);
         if ("EMPLOYEE".equals(t) || "EMPLOYEES".equals(t) || "STAFF".equals(t)) return "EMPLOYEE";
         return "STUDENT";
+    }
+
+    private boolean departmentMatches(String first, String second) {
+        String a = first == null ? "" : first.trim();
+        String b = second == null ? "" : second.trim();
+        return !a.isEmpty() && !b.isEmpty() && a.equalsIgnoreCase(b);
     }
 
     private static class MemberView {

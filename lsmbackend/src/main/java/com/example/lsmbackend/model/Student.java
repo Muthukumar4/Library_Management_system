@@ -38,7 +38,7 @@ public class Student {
     @Column(nullable = false)
     private String password;
 
-    private boolean active=true;
+    private Boolean active=true;
 
     public Long getStudentId() {
         return studentId;
@@ -104,11 +104,11 @@ public class Student {
         this.barcode = barcode;
     }
 
-    public boolean isActive() {
+    public Boolean getActive() {
         return active;
     }
 
-    public void setActive(boolean active) {
+    public void setActive(Boolean active) {
         this.active = active;
     }
 

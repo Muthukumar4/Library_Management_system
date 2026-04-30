@@ -74,7 +74,9 @@ public class AdminActionService {
         student.setYear(request.getYear());
         student.setEmail(request.getEmail());
         student.setPhone(request.getPhone());
-        student.setActive(request.isActive());
+        if (request.getActive() != null) {
+            student.setActive(request.getActive());
+        }
 
         Student saved = studerepo.save(student);
         saveAudit("UPDATE", "STUDENT", saved.getRollNumber(), request.getAdminUsername(), request.getReason(), before, toJson(saved));
@@ -99,7 +101,9 @@ public class AdminActionService {
         staff.setDepartment(request.getDepartment());
         staff.setEmail(request.getEmail());
         staff.setPhone(request.getPhone());
-        staff.setActive(request.isActive());
+        if (request.getActive() != null) {
+            staff.setActive(request.getActive());
+        }
         if (request.getStaffType() != null && !request.getStaffType().isBlank()) {
             staff.setStaffType(StaffType.valueOf(request.getStaffType().trim()));
         }

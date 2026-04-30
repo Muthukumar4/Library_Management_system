@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -517,16 +517,51 @@ tr:nth-child(even){background:#f6f8ff;}
   bottom:28px;
   z-index:60;
   width:340px;
-  max-width:calc(100vw - 28px);
+  height:auto;
+  max-width:calc(100vw - 56px);
   background:#fff;
   border-radius:18px;
   box-shadow:0 18px 40px rgba(17,34,73,0.2);
   overflow:hidden;
   border:1px solid #dde5ff;
+  transition:all 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  display:flex;
+  flex-direction:column;
+}
+
+.chatbot-box.expanded{
+  position:fixed;
+  left:50%;
+  top:50%;
+  transform:translate(-50%, -50%);
+  width:88%;
+  max-width:550px;
+  height:80vh;
+  max-height:750px;
+  border-radius:20px;
+  z-index:65;
+  box-shadow:0 30px 60px rgba(17,34,73,0.35);
+  right:auto;
+  bottom:auto;
 }
 
 .chatbot-box.hidden{
   display:none;
+}
+
+.chatbot-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.45);
+  z-index:64;
+  opacity:0;
+  visibility:hidden;
+  transition:opacity 0.35s ease, visibility 0.35s ease;
+}
+
+.chatbot-overlay.show{
+  opacity:1;
+  visibility:visible;
 }
 
 .chatbot-launcher{
@@ -580,6 +615,14 @@ tr:nth-child(even){background:#f6f8ff;}
     display: flex;
     flex-direction: column;
     gap: 10px;
+    flex:1;
+    background: linear-gradient(135deg, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0.7) 100%), url('logo.png') center/220px no-repeat;
+    background-attachment: fixed;
+    position: relative;
+}
+
+.chatbot-box.expanded .chat-body {
+    max-height: calc(80vh - 130px);
 }
 
 .user-msg {
@@ -605,8 +648,10 @@ tr:nth-child(even){background:#f6f8ff;}
 .chat-input-area {
     display: flex;
     gap: 10px;
-    padding: 10px;
-    border-top: 1px solid #ddd;
+    padding: 12px 10px;
+    border-top: 1px solid #e5e7eb;
+    background:#fff;
+    flex-shrink:0;
 }
 
 .chat-input-area input {
@@ -658,6 +703,11 @@ tr:nth-child(even){background:#f6f8ff;}
   .insights-grid{
     grid-template-columns:1fr;
   }
+  .chatbot-box.expanded{
+    width:95%;
+    height:90vh;
+    max-width:none;
+  }
 }
 
 @media (max-width: 680px){
@@ -691,6 +741,15 @@ tr:nth-child(even){background:#f6f8ff;}
     padding:10px;
     font-size:13px;
     white-space:nowrap;
+  }
+  .chatbot-box.expanded{
+    width:calc(100vw - 16px);
+    height:92vh;
+    max-width:none;
+    border-radius:16px;
+  }
+  .chatbot-box.expanded .chat-body {
+    max-height: calc(92vh - 130px);
   }
 }
 </style>
@@ -870,9 +929,11 @@ tr:nth-child(even){background:#f6f8ff;}
 
 <button id="chatbotLauncher" class="chatbot-launcher" type="button" onclick="openChatbot()" aria-label="Open chatbot">🤖</button>
 
+<div id="chatbotOverlay" class="chatbot-overlay" onclick="closeChatbot()"></div>
+
 <div id="chatbotBox" class="chatbot-box hidden">
     <div class="chatbot-topbar">
-        <strong>Library Bot</strong>
+        <strong>DAIT Library Assisant </strong>
         <button class="chatbot-close" type="button" onclick="closeChatbot()" aria-label="Close chatbot">×</button>
     </div>
     <div id="chatBody" class="chat-body">
@@ -1566,15 +1627,25 @@ function handleChatEnter(event) {
 function openChatbot() {
     const chatbotBox = document.getElementById("chatbotBox");
     const chatbotLauncher = document.getElementById("chatbotLauncher");
-    if (chatbotBox) chatbotBox.classList.remove("hidden");
+    const overlay = document.getElementById("chatbotOverlay");
+    if (chatbotBox) {
+        chatbotBox.classList.remove("hidden");
+        chatbotBox.classList.add("expanded");
+    }
     if (chatbotLauncher) chatbotLauncher.classList.add("hidden");
+    if (overlay) overlay.classList.add("show");
 }
 
 function closeChatbot() {
     const chatbotBox = document.getElementById("chatbotBox");
     const chatbotLauncher = document.getElementById("chatbotLauncher");
-    if (chatbotBox) chatbotBox.classList.add("hidden");
+    const overlay = document.getElementById("chatbotOverlay");
+    if (chatbotBox) {
+        chatbotBox.classList.add("hidden");
+        chatbotBox.classList.remove("expanded");
+    }
     if (chatbotLauncher) chatbotLauncher.classList.remove("hidden");
+    if (overlay) overlay.classList.remove("show");
 }
 </script>
 

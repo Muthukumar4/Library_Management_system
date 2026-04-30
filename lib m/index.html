@@ -242,7 +242,12 @@ async function loginStaffWithApi(loginId, password) {
     });
 
     if (res.ok) {
-      return { ok: true };
+      const payload = await res.json().catch(() => null);
+      return {
+        ok: Boolean(payload?.success ?? true),
+        staff: payload || null,
+        message: payload?.message || ""
+      };
     }
 
     if (res.status === 401 || res.status === 403 || res.status === 400 || res.status === 500) {
@@ -317,6 +322,7 @@ async function login() {
   const role = normalizeRole(document.getElementById("role")?.value);
   const username = (document.getElementById("username")?.value || "").trim();
   const password = document.getElementById("password")?.value || "";
+  let staffResult = null;
 
   clearError();
 
@@ -346,6 +352,7 @@ async function login() {
         showError(result.message || "Invalid staff credentials");
         return;
       }
+      staffResult = result;
     } else {
       const valid = await validateBasicAuth(role, username, password);
       if (!valid) {
@@ -365,13 +372,22 @@ async function login() {
     }
 
     sessionStorage.setItem("lmsRole", role);
-    sessionStorage.setItem("lmsUsername", username);
+    const sessionUsername = role === "staff"
+      ? String(staffResult?.staff?.staffCode || username).trim()
+      : username;
+    sessionStorage.setItem("lmsUsername", sessionUsername);
     if (role === "student") {
       sessionStorage.removeItem("lmsAuthHeader");
       sessionStorage.setItem("lmsStudent", JSON.stringify({ rollNumber: username }));
+      sessionStorage.removeItem("lmsStaff");
     } else {
       sessionStorage.setItem("lmsAuthHeader", getAuthHeader(username, password));
       sessionStorage.removeItem("lmsStudent");
+      if (role === "staff") {
+        sessionStorage.setItem("lmsStaff", JSON.stringify(staffResult?.staff || {}));
+      } else {
+        sessionStorage.removeItem("lmsStaff");
+      }
     }
 
     const destinationByRole = {

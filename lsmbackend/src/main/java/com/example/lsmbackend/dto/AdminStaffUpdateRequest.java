@@ -6,7 +6,7 @@ public class AdminStaffUpdateRequest extends AdminDeleteRequest {
     private String email;
     private String phone;
     private String staffType;
-    private boolean active;
+    private Boolean active;
 
     public String getName() {
         return name;
@@ -48,11 +48,11 @@ public class AdminStaffUpdateRequest extends AdminDeleteRequest {
         this.staffType = staffType;
     }
 
-    public boolean isActive() {
+    public Boolean getActive() {
         return active;
     }
 
-    public void setActive(boolean active) {
+    public void setActive(Boolean active) {
         this.active = active;
     }
 }

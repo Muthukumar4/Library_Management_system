@@ -795,6 +795,8 @@ function loadBooks() {
 
       renderBooks(allBooks);
 
+      updateSelectedBookActions();
+
     })
 
     .catch(err => console.error("Error fetching books:", err));
@@ -839,6 +841,8 @@ function renderBooks(books) {
 
       <tr>
 
+        <td><input type="checkbox" name="selectedBookRow" value="${b.bookId ?? b.id ?? 0}" onclick="updateSelectedBookActions()"></td>
+
         <td>${b.bookId || b.id || ""}</td>
 
         <td>${b.title || ""}</td>
@@ -857,13 +861,6 @@ function renderBooks(books) {
 
         <td>${getAvailableCopies(b)}</td>
 
-        <td>
-          <div class="row-actions">
-            <button type="button" class="edit-btn" onclick="openBookEditDialog(${Number(b.bookId ?? b.id ?? 0)})">Update</button>
-            <button type="button" class="delete-btn" onclick="confirmDeleteBook(${Number(b.bookId ?? b.id ?? 0)})">Delete</button>
-          </div>
-        </td>
-
       </tr>
 
     `;
@@ -873,6 +870,40 @@ function renderBooks(books) {
 }
 
 
+
+function toggleAllBooks(checkbox) {
+  document.querySelectorAll('input[name="selectedBookRow"]').forEach(input => {
+    input.checked = checkbox.checked;
+  });
+  updateSelectedBookActions();
+}
+
+function updateSelectedBookActions() {
+  const selected = document.querySelectorAll('input[name="selectedBookRow"]:checked').length;
+  const updateBtn = document.getElementById("updateSelectedBookBtn");
+  const deleteBtn = document.getElementById("deleteSelectedBookBtn");
+  if (updateBtn) updateBtn.disabled = selected === 0;
+  if (deleteBtn) deleteBtn.disabled = selected === 0;
+}
+
+function setBookActionMode(action) {
+  const selected = Array.from(document.querySelectorAll('input[name="selectedBookRow"]:checked')).map(cb => cb.value);
+  if (selected.length === 0) {
+    alert("Please select at least one book.");
+    return;
+  }
+  if (action === "update") {
+    if (selected.length === 1) {
+      openBookEditDialog(Number(selected[0]));
+    } else {
+      alert("Please select only one book to update.");
+    }
+  } else if (action === "delete") {
+    if (confirm(`Delete ${selected.length} book(s)?`)) {
+      selected.forEach(bookId => confirmDeleteBook(Number(bookId)));
+    }
+  }
+}
 
 function openBooks() {
 

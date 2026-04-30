@@ -25,11 +25,23 @@ public class Studeservice {
         }
         stud.setPassword(passwordEncoder.encode(stud.getPassword()));
 
+        // Set active to true if not provided
+        if (stud.getActive() == null) {
+            stud.setActive(true);
+        }
+
         return strepo.save(stud);
     }
 
     public List<Student> getAllStudent() {
         return strepo.findAll();
+    }
+
+    public List<Student> getStudentsByDepartment(String department) {
+        if (department == null || department.trim().isEmpty()) {
+            return List.of();
+        }
+        return strepo.findByDepartmentIgnoreCase(department.trim());
     }
 
     public Student getStudentbyroll(String rollno) {
@@ -48,7 +60,7 @@ public class Studeservice {
             st.setDepartment(stud.getDepartment());
             st.setEmail(stud.getEmail());
             st.setPhone(stud.getPhone());
-            st.setActive(stud.isActive());
+            st.setActive(stud.getActive());
 
             return strepo.save(st);
 

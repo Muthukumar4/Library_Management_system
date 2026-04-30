@@ -1,577 +1,1218 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Staff Dashboard | Library Management</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Staff Dashboard | Library</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <style>
-:root{
-  --bg:#eef4ff;
-  --panel:#ffffff;
-  --panel-soft:#f8fbff;
-  --border:#dbe7ff;
-  --text:#0f172a;
-  --muted:#64748b;
-  --primary:#2563eb;
-  --primary-strong:#1d4ed8;
-  --success:#15803d;
-  --warning:#d97706;
-  --danger:#dc2626;
-  --shadow:0 20px 45px rgba(15,23,42,0.12);
-}
-*{box-sizing:border-box}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+
 body{
-  margin:0;
-  font-family:'Poppins',sans-serif;
-  color:var(--text);
-  background:
-    radial-gradient(circle at top left, rgba(37,99,235,0.18), transparent 34%),
-    linear-gradient(145deg,#edf4ff,#f7fbff 48%,#eef8f2);
+  font-size:16px;
 }
-.app{display:flex;min-height:100vh}
+
+.body-shell{
+  min-height:100vh;
+  background:linear-gradient(135deg, #667eea, #764ba2);
+}
+.app-layout{
+  display:block;
+}
 .sidebar{
-  width:280px;
-  padding:28px 22px;
-  background:linear-gradient(180deg,#0f172a,#172554 55%,#1e3a8a);
+  width:260px;
+  background:#1e3a8a;
   color:#fff;
-  display:flex;
-  flex-direction:column;
-  gap:24px;
-  position:sticky;
+  padding:25px;
+  position:fixed;
   top:0;
-  height:100vh;
+  left:0;
+  bottom:0;
+  overflow-y:auto;
+  z-index:5;
 }
-.brand-block{display:flex;flex-direction:column;gap:10px}
-.brand-title{font-size:24px;font-weight:700;letter-spacing:.03em}
-.brand-subtitle{font-size:13px;color:rgba(255,255,255,.72);line-height:1.6}
-.staff-card{
+.sidebar-profile{
   display:flex;
   align-items:center;
   gap:12px;
-  padding:14px;
-  border:1px solid rgba(255,255,255,.14);
-  border-radius:18px;
-  background:rgba(255,255,255,.08);
+  padding:16px 0 18px;
+  border-bottom:1px solid rgba(255,255,255,0.15);
+  margin-bottom:20px;
 }
-.staff-avatar{
-  width:48px;height:48px;border-radius:16px;
-  display:grid;place-items:center;
-  background:linear-gradient(135deg,#dbeafe,#93c5fd);
-  color:#1e3a8a;font-weight:700;
-}
-.staff-meta strong{display:block;font-size:15px}
-.staff-meta span{font-size:12px;color:rgba(255,255,255,.72)}
-.menu{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
-.menu li{
-  padding:13px 14px;
-  border-radius:14px;
-  cursor:pointer;
+.sidebar-profile .avatar{
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#2a3eb1,#1e3c72);
   display:flex;
   align-items:center;
-  gap:12px;
-  transition:.25s ease;
-  border:1px solid transparent;
-  color:#dbeafe;
-}
-.menu li.active,
-.menu li:hover{
-  background:rgba(255,255,255,.1);
-  border-color:rgba(255,255,255,.12);
-  transform:translateX(4px);
-}
-.logout-btn{
-  margin-top:auto;
-  border:none;
-  border-radius:14px;
-  padding:13px 16px;
-  background:rgba(255,255,255,.12);
-  color:#fff;
+  justify-content:center;
   font-weight:600;
-  cursor:pointer;
+  font-size:20px;
+  box-shadow:0 6px 16px rgba(16,30,58,0.4);
 }
-.main{flex:1;padding:28px}
-.topbar{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:16px;
-  margin-bottom:24px;
-}
-.title-stack h1{margin:0;font-size:30px}
-.title-stack p{margin:8px 0 0;color:var(--muted)}
-.topbar-actions{display:flex;gap:12px;align-items:center}
-.ghost-btn,
-.primary-btn{
-  border:none;
-  border-radius:14px;
-  padding:12px 18px;
+.sidebar-profile .profile-info p{
+  margin:0;
   font-weight:600;
-  cursor:pointer;
 }
-.ghost-btn{background:#fff;border:1px solid var(--border);color:var(--text)}
-.primary-btn{background:linear-gradient(135deg,var(--primary),#4f46e5);color:#fff}
-.metrics{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
-  gap:16px;
-  margin-bottom:24px;
-}
-.metric-card{
-  background:var(--panel);
-  border:1px solid rgba(15,23,42,.06);
-  border-radius:22px;
-  box-shadow:var(--shadow);
-  padding:20px;
-}
-.metric-label{display:block;font-size:13px;color:var(--muted)}
-.metric-value{display:block;margin-top:10px;font-size:30px;font-weight:700}
-.metric-note{display:block;margin-top:10px;font-size:12px;color:#475569}
-.content-grid{
-  display:grid;
-  grid-template-columns:minmax(0,1.4fr) minmax(340px,.95fr);
-  gap:20px;
-  align-items:start;
-}
-.stack{display:flex;flex-direction:column;gap:20px}
-.panel{
-  background:var(--panel);
-  border:1px solid rgba(15,23,42,.07);
-  border-radius:24px;
-  box-shadow:var(--shadow);
-  overflow:hidden;
-}
-.panel-head{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:12px;
-  padding:22px 22px 0;
-}
-.panel-head h2{margin:0;font-size:21px}
-.panel-head p{margin:6px 0 0;color:var(--muted);font-size:13px}
-.panel-body{padding:22px}
-.section{display:none}
-.section.active{display:block}
-.table-shell{overflow:auto;border:1px solid var(--border);border-radius:18px;background:var(--panel-soft)}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{padding:14px 12px;text-align:left;border-bottom:1px solid #e5eefc;vertical-align:top}
-th{background:#eef4ff;color:#1e3a8a;font-weight:600;white-space:nowrap}
-tbody tr:last-child td{border-bottom:none}
-.empty{
-  padding:28px 18px;
-  text-align:center;
-  color:var(--muted);
+.sidebar-profile .profile-info span{
+  font-size:12px;
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  color:#9bb1ff;
 }
 .status-badge{
+  font-size:11px;
+  padding:4px 8px;
+  border-radius:999px;
   display:inline-flex;
   align-items:center;
-  border-radius:999px;
-  padding:6px 10px;
-  font-size:12px;
+  gap:4px;
+  font-weight:600;
+}
+.status-due{background:#fbc02d;color:#4a2c00;}
+.status-overdue{background:#d32f2f;color:#fff;}
+.status-returned{background:#2e7d32;color:#dff0dc;}
+.status-fine-paid{background:#d32f2f;color:#fff;}
+
+.sidebar h2{text-align:center;margin-bottom:30px;}
+
+.menu{list-style:none;}
+.menu li{
+  padding:12px 15px;
+  margin-bottom:8px;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:16px;
+  transition:background 0.25s ease;
+}
+
+.menu li:hover,.menu li.active{
+  background:rgba(255,255,255,0.25);
+}
+
+.menu li .menu-icon{font-size:18px;}
+
+.main{
+  margin-left:260px;
+  padding:30px;
+  position:relative;
+  height:100vh;
+  overflow-y:auto;
+  background:transparent;
+}
+
+.main::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:url('college.png') center/600px no-repeat;
+  opacity:0.05;
+  z-index:0;
+}
+.main>*{position:relative;z-index:1;}
+
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:25px;
+  position:sticky;
+  top:0;
+  background:rgba(244,246,251,0.97);
+  backdrop-filter:blur(10px);
+  padding-top:4px;
+  padding-bottom:4px;
+  z-index:20;
+  border-bottom:1px solid rgba(227,232,255,0.6);
+}
+.header-actions{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.header .notify-group{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  position:relative;
+}
+.bell-button{
+  position:relative;
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  border:none;
+  background:#f2f5ff;
+  cursor:pointer;
+  box-shadow:0 15px 26px rgba(17,34,73,0.25);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+}
+.bell-button .badge-dot{
+  position:absolute;
+  right:4px;
+  bottom:4px;
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  background:#ff3b30;
+  border:2px solid #fff;
+  color:#fff;
+  font-size:11px;
   font-weight:700;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
-.status-active{background:#e0f2fe;color:#0c4a6e}
-.status-overdue{background:#fef3c7;color:#92400e}
-.status-returned{background:#dcfce7;color:#166534}
-.status-pending{background:#fee2e2;color:#991b1b}
-.form-grid{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:16px;
-}
-.form-group{display:flex;flex-direction:column;gap:7px}
-.form-group label{font-size:13px;font-weight:600;color:#334155}
-.form-group input,
-.form-group select{
-  width:100%;
-  border:1px solid #cfe0ff;
-  border-radius:14px;
-  padding:13px 14px;
+ .bell-message{
+  position:absolute;
+  top:62px;
+  right:0;
   background:#fff;
-  color:var(--text);
+  border-radius:14px;
+  padding:14px 18px;
+  box-shadow:0 20px 40px rgba(15,29,72,0.2);
+  min-width:210px;
+  opacity:0;
+  visibility:hidden;
+  transform:translateY(10px);
+  transition:opacity 0.25s ease, transform 0.25s ease;
+  z-index:50;
+}
+.bell-message.show{
+  opacity:1;
+  visibility:visible;
+  transform:translateY(0);
+}
+.bell-message strong{
+  display:block;
+  font-size:15px;
+  margin-bottom:4px;
+}
+.bell-message p{
+  margin:0;
+  font-size:12px;
+  color:#5a6189;
+}
+.notification-badge .badge-text .title{
   font-size:14px;
 }
-.form-group input:focus,
-.form-group select:focus{
-  outline:none;
-  border-color:var(--primary);
-  box-shadow:0 0 0 4px rgba(37,99,235,.12);
+.notification-badge .badge-text .subtitle{
+  font-size:11px;
+  color:#6574a4;
+  font-weight:500;
 }
-.form-actions{
-  grid-column:1 / -1;
+.header h2{color:#1e3c72;font-size:34px;}
+.logout{
+  padding:10px 18px;
+  background:linear-gradient(90deg, #4f46e5, #6366f1);
+  color:#fff;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+button{
+  font-family:'Poppins',sans-serif;
+  border:none;
+}
+
+.section{
+  display:none;
+  background:#ffffff;
+  padding:25px;
+  border-radius:15px;
+  border:1px solid #e2e8f0;
+  box-shadow:0 8px 22px rgba(15,23,42,0.1);
+  transition:transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.section:hover{
+  transform:translateY(-4px);
+  box-shadow:0 20px 32px rgba(15,23,42,0.15);
+}
+
+.section.active{display:block;}
+.content{
+  animation:fadeIn 0.3s ease-in;
+}
+.content:not(.active){
+  animation:none;
+}
+.section h3{color:#1e3c72;margin-bottom:15px;font-size:28px;}
+
+@keyframes fadeIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+
+.profile{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:20px;
+  margin-bottom:20px;
+}
+.profile div{
+  background:#fff;
+  padding:20px;
+  border-radius:14px;
+  border:1px solid #e4e6ff;
+  box-shadow:0 10px 24px rgba(15,23,42,0.12);
+}
+.profile h4{color:#1e3c72;}
+.profile p{
+  font-size:18px;
+  font-weight:600;
+  color:#1d2551;
+  margin-top:8px;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:20px;
+}
+.stat{
+  background:#ffffff;
+  padding:20px;
+  border-radius:12px;
+  border-top:4px solid var(--accent-color,#2a3eb1);
+  --accent-color:#2a3eb1;
+  box-shadow:0 10px 20px rgba(18,34,73,0.08);
+  transition:transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.stat h4{font-size:28px;color:var(--accent-color,#1e3c72);}
+.stat p{
+  margin-top:10px;
+  color:#6172a1;
   display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:16px;
+}
+.stat-icon{font-size:18px;line-height:1;}
+.stat:hover{
+  transform:translateY(-6px);
+  box-shadow:0 20px 36px rgba(18,34,73,0.15);
+  border-color:rgba(0,0,0,0.2);
+}
+
+.search-icon{font-size:16px;margin-right:12px;}
+.eyebrow{
+  font-size:12px;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:#7a86c6;
+  margin:0;
+}
+.insights-grid{
+  margin-top:10px;
+  display:grid;
+  grid-template-columns:2fr 1fr;
+  gap:20px;
+}
+.chart-card, .issue-return-card{
+  background:#fff;
+  border-radius:16px;
+  padding:20px 24px;
+  box-shadow:0 14px 32px rgba(17,34,73,0.15);
+  border:1px solid #e0e7ff;
+  transition:transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.chart-card:hover, .issue-return-card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 24px 44px rgba(17,34,73,0.2);
+}
+.chart-card__header{
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  align-items:flex-start;
+}
+.chart-card__header h4{margin:4px 0 0;color:#1e3c72;font-size:22px;}
+.chart-tag{
+  font-size:12px;
+  padding:6px 12px;
+  border-radius:999px;
+  background:#f1f4ff;
+  color:#2a3eb1;
+}
+.reading-chart{
+  margin-top:12px;
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  min-height:200px;
+  align-items:flex-end;
+}
+.reading-chart__bar{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  flex:1;
+  gap:8px;
+}
+.reading-chart__bar .bar-value{
+  font-size:18px;
+  color:#1e3c72;
+}
+.reading-chart__bar .bar-visual{
+  width:54px;
+  height:var(--bar-height,40%);
+  border-radius:12px;
+  background:linear-gradient(180deg, #5c7cfa, #2a3eb1);
+  transition:height 0.4s ease;
+}
+.reading-chart__bar .bar-label{
+  font-size:12px;
+  color:#58608b;
+}
+.issue-return-stats{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:12px;
+  margin-bottom:12px;
+}
+.issue-return-stats div{
+  background:#f5f6ff;
+  border-radius:12px;
+  padding:12px;
+  text-align:center;
+  border:1px solid #e3e8ff;
+}
+.issue-return-stats span{
+  display:block;
+  font-size:15px;
+  color:#6d749a;
+}
+.issue-return-stats strong{
+  display:block;
+  font-size:26px;
+  color:#1e3c72;
+}
+.recent-books-card{
+  background:#fff;
+  border-radius:16px;
+  padding:20px 24px;
+  margin-top:20px;
+  box-shadow:0 14px 28px rgba(12,28,72,0.15);
+  border:1px solid #e0e2ff;
+  transition:transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.recent-books-card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 22px 40px rgba(12,28,72,0.17);
+}
+.recent-books-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+}
+.recent-books-header h4{margin:4px 0 0;color:#1e3c72;font-size:22px;}
+.recent-books-card table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:16px;
+}
+.recent-books-card thead th{
+  text-transform:uppercase;
+  letter-spacing:0.2em;
+  font-size:11px;
+  color:#5b6490;
+  padding-bottom:8px;
+}
+.recent-books-card td{
+  padding:12px 8px;
+  font-size:16px;
+  color:#1d2551;
+}
+.recent-books-card tbody tr:not(:last-child){
+  border-bottom:1px solid #e4e6ff;
+}
+.status-issued{background:#dfe6ff;color:#1e3c72;}
+.section-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:14px;
+  margin-bottom:16px;
+}
+.muted{
+  font-size:13px;
+  color:#6574a4;
+}
+.stat.accent-blue{--accent-color:#2a3eb1;}
+.stat.accent-red{--accent-color:#d32f2f;}
+.stat.accent-orange{--accent-color:#f57c00;}
+.stat.accent-green{--accent-color:#2e7d32;}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+th,td{
+  padding:14px;
+  font-size:16px;
+}
+th{
+  background:#e3e8ff;
+  color:#1e3c72;
+}
+tr:nth-child(even){background:#f6f8ff;}
+
+#fines .fine-table-wrap{
+  margin-top:18px;
+  background:#fff;
+  border-radius:18px;
+  border:1px solid #cbd5ff;
+  padding:18px;
+  box-shadow:0 18px 36px rgba(15,32,86,0.08);
+}
+#fines .fines-table{
+  width:100%;
+  border-collapse:collapse;
+  background:transparent;
+}
+#fines .fines-table th{
+  background:#e4ecff;
+  color:#1f2f6d;
+  font-weight:600;
+  padding:12px 16px;
+  border:1px solid #e9edff;
+}
+#fines .fines-table th:last-child{
+  border-right:1px solid #e9edff;
+}
+#fines .fines-table td{
+  padding:14px 16px;
+  border:1px solid #f0f3ff;
+  color:#1c2351;
+}
+#fines .fines-table tbody tr:hover{
+  background:#f5f5ff;
+}
+
+.search{
+  margin-bottom:15px;
+}
+.search input{
+  width:100%;
+  padding:12px;
+  border-radius:8px;
+  border:1px solid #cfd6ff;
+}
+.filters-row,
+.scope-controls{
+  display:flex;
+  align-items:flex-end;
   gap:12px;
   flex-wrap:wrap;
 }
-.alert{
-  margin:0 0 14px;
-  padding:12px 14px;
-  border-radius:14px;
-  font-size:13px;
-  display:none;
+.filters-row{
+  margin-bottom:18px;
 }
-.alert.show{display:block}
-.alert.error{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
-.alert.success{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}
-.mini-list{display:flex;flex-direction:column;gap:12px}
-.mini-item{
-  border:1px solid var(--border);
-  border-radius:18px;
-  padding:14px;
-  background:linear-gradient(180deg,#fff,#f8fbff);
+.filters-row .search{
+  flex:1 1 260px;
+  margin-bottom:0;
 }
-.mini-item strong{display:block}
-.mini-item span{display:block;margin-top:6px;font-size:13px;color:var(--muted)}
-.toolbar{
+.filter-group{
   display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  margin-bottom:14px;
+  flex-direction:column;
+  gap:6px;
+  min-width:150px;
 }
-.toolbar input{
-  flex:1 1 220px;
-  border:1px solid #cfe0ff;
-  border-radius:14px;
-  padding:12px 14px;
+.filter-group label{
+  font-size:12px;
+  font-weight:600;
+  color:#4b5b93;
+}
+.filter-group select{
+  padding:12px;
+  border-radius:8px;
+  border:1px solid #cfd6ff;
   background:#fff;
-  color:var(--text);
+  color:#1c2351;
 }
-.toolbar input::placeholder{color:#64748b}
-.helper-chip{
+.scope-toggle{
   display:inline-flex;
   align-items:center;
-  padding:7px 10px;
+  gap:6px;
+  background:#eef2ff;
   border-radius:999px;
-  background:#eef4ff;
-  color:#1d4ed8;
-  font-size:12px;
-  font-weight:700;
+  padding:4px;
 }
-@media (max-width:1100px){
-  .app{flex-direction:column}
-  .sidebar{width:100%;height:auto;position:relative}
-  .content-grid{grid-template-columns:1fr}
+.scope-btn{
+  padding:10px 16px;
+  border-radius:999px;
+  background:transparent;
+  color:#44507f;
+  cursor:pointer;
+  font-weight:600;
 }
-@media (max-width:720px){
-  .main{padding:18px}
-  .topbar{flex-direction:column}
-  .form-grid{grid-template-columns:1fr}
-  .metrics{grid-template-columns:1fr 1fr}
+.scope-btn.active{
+  background:#1e3a8a;
+  color:#fff;
+}
+.scope-btn:not(.active):hover{
+  background:rgba(30,58,138,0.08);
+}
+.scope-select{
+  min-width:150px;
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px solid #cfd6ff;
+  background:#fff;
+  color:#1c2351;
+}
+.scope-select:disabled{
+  background:#f4f6fb;
+  color:#94a3b8;
+  cursor:not-allowed;
+}
+
+.chatbot-box{
+  position:fixed;
+  right:28px;
+  bottom:28px;
+  z-index:60;
+  width:340px;
+  height:auto;
+  max-width:calc(100vw - 56px);
+  background:#fff;
+  border-radius:18px;
+  box-shadow:0 18px 40px rgba(17,34,73,0.2);
+  overflow:hidden;
+  border:1px solid #dde5ff;
+  transition:all 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  display:flex;
+  flex-direction:column;
+}
+
+.chatbot-box.expanded{
+  position:fixed;
+  left:50%;
+  top:50%;
+  transform:translate(-50%, -50%);
+  width:88%;
+  max-width:550px;
+  height:80vh;
+  max-height:750px;
+  border-radius:20px;
+  z-index:65;
+  box-shadow:0 30px 60px rgba(17,34,73,0.35);
+  right:auto;
+  bottom:auto;
+}
+
+.chatbot-box.hidden{
+  display:none;
+}
+
+.chatbot-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.45);
+  z-index:64;
+  opacity:0;
+  visibility:hidden;
+  transition:opacity 0.35s ease, visibility 0.35s ease;
+}
+
+.chatbot-overlay.show{
+  opacity:1;
+  visibility:visible;
+}
+
+.chatbot-launcher{
+  position:fixed;
+  right:28px;
+  bottom:28px;
+  z-index:61;
+  width:58px;
+  height:58px;
+  border:none;
+  border-radius:50%;
+  background:linear-gradient(135deg,#1e3a8a,#4f46e5);
+  color:#fff;
+  font-size:26px;
+  cursor:pointer;
+  box-shadow:0 18px 36px rgba(17,34,73,0.28);
+}
+
+.chatbot-launcher.hidden{
+  display:none;
+}
+
+.chatbot-topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:12px 14px;
+  border-bottom:1px solid #e5e7eb;
+  background:#f8faff;
+}
+
+.chatbot-topbar strong{
+  color:#1e3a8a;
+  font-size:15px;
+}
+
+.chatbot-close{
+  border:none;
+  background:transparent;
+  color:#475569;
+  font-size:20px;
+  cursor:pointer;
+  line-height:1;
+}
+
+.chat-body {
+    max-height: 350px;
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex:1;
+    background: linear-gradient(135deg, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0.7) 100%), url('logo.png') center/220px no-repeat;
+    background-attachment: fixed;
+    position: relative;
+}
+
+.chatbot-box.expanded .chat-body {
+    max-height: calc(80vh - 130px);
+}
+
+.user-msg {
+    align-self: flex-end;
+    background: #1e3a8a;
+    color: white;
+    padding: 10px 14px;
+    border-radius: 16px 16px 4px 16px;
+    max-width: 75%;
+    word-wrap: break-word;
+}
+
+.bot-msg {
+    align-self: flex-start;
+    background: #e9edf8;
+    color: #1f2937;
+    padding: 10px 14px;
+    border-radius: 16px 16px 16px 4px;
+    max-width: 75%;
+    word-wrap: break-word;
+}
+
+.chat-input-area {
+    display: flex;
+    gap: 10px;
+    padding: 12px 10px;
+    border-top: 1px solid #e5e7eb;
+    background:#fff;
+    flex-shrink:0;
+}
+
+.chat-input-area input {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 25px;
+    border: 1px solid #ccc;
+    outline: none;
+}
+
+.chat-input-area button {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 25px;
+    background: #4f46e5;
+    color: white;
+    cursor: pointer;
+}
+
+@media (max-width: 1024px){
+  body{
+    display:block;
+  }
+  .sidebar{
+    width:100%;
+    padding:16px;
+  }
+  .sidebar h2{
+    margin-bottom:14px;
+  }
+  .menu{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+  }
+  .menu li{
+    margin-bottom:0;
+    text-align:center;
+  }
+  .main{
+    padding:18px;
+  }
+  .profile{
+    grid-template-columns:repeat(2,1fr);
+  }
+  .stats{
+    grid-template-columns:repeat(2,1fr);
+  }
+  .insights-grid{
+    grid-template-columns:1fr;
+  }
+  .chatbot-box.expanded{
+    width:95%;
+    height:90vh;
+    max-width:none;
+  }
+}
+
+@media (max-width: 680px){
+  .menu{
+    grid-template-columns:1fr;
+  }
+  .main{
+    padding:12px;
+  }
+  .header{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:10px;
+  }
+  .logout{
+    width:100%;
+  }
+  .section{
+    padding:14px;
+    overflow-x:auto;
+  }
+  .profile{
+    grid-template-columns:1fr;
+    gap:10px;
+  }
+  .stats{
+    grid-template-columns:1fr;
+    gap:10px;
+  }
+  th,td{
+    padding:10px;
+    font-size:13px;
+    white-space:nowrap;
+  }
+  .chatbot-box.expanded{
+    width:calc(100vw - 16px);
+    height:92vh;
+    max-width:none;
+    border-radius:16px;
+  }
+  .chatbot-box.expanded .chat-body {
+    max-height: calc(92vh - 130px);
+  }
 }
 </style>
 </head>
+
 <body>
-  <div class="app">
-    <aside class="sidebar">
-      <div class="brand-block">
-        <div class="brand-title">Library Staff</div>
-        <div class="brand-subtitle">Live circulation dashboard for staff operations, member support, and student-facing issue workflows.</div>
-      </div>
-      <div class="staff-card">
-        <div class="staff-avatar" id="staffAvatar">ST</div>
-        <div class="staff-meta">
-          <strong id="staffDisplayName">Staff User</strong>
-          <span id="staffDisplayMeta">Loading profile...</span>
-        </div>
-      </div>
-      <ul class="menu">
-        <li class="active" onclick="showSection('overview', this)">Overview</li>
-        <li onclick="showSection('issue-book', this)">Issue Book</li>
-        <li onclick="showSection('add-student', this)">Add Student</li>
-        <li onclick="showSection('issued', this)">Issued Books</li>
-        <li onclick="showSection('returned', this)">Returned Books</li>
-        <li onclick="showSection('students', this)">Students</li>
-        <li onclick="showSection('fines', this)">Pending Fines</li>
-      </ul>
-      <button class="logout-btn" type="button" onclick="logout()">Logout</button>
-    </aside>
-    <main class="main">
-      <div class="topbar">
-        <div class="title-stack">
-          <h1>Staff Dashboard</h1>
-          <p id="lastUpdatedText">Connected to the live library backend.</p>
-        </div>
-        <div class="topbar-actions">
-          <button class="ghost-btn" type="button" onclick="refreshDashboard()">Refresh</button>
-          <button class="primary-btn" type="button" onclick="showSection('issue-book')">Operations</button>
-        </div>
-      </div>
-      <section id="overview" class="section active">
-        <div class="metrics">
-          <div class="metric-card"><span class="metric-label">Total Students</span><strong class="metric-value" id="metricStudents">0</strong><span class="metric-note">Active member records</span></div>
-          <div class="metric-card"><span class="metric-label">Active Issues</span><strong class="metric-value" id="metricActiveIssues">0</strong><span class="metric-note">Books currently out</span></div>
-          <div class="metric-card"><span class="metric-label">Returned Records</span><strong class="metric-value" id="metricReturned">0</strong><span class="metric-note">Completed circulation entries</span></div>
-          <div class="metric-card"><span class="metric-label">Pending Fines</span><strong class="metric-value" id="metricFines">0</strong><span class="metric-note">Overdue items needing action</span></div>
-          <div class="metric-card"><span class="metric-label">Books Catalogued</span><strong class="metric-value" id="metricBooks">0</strong><span class="metric-note">Live book records</span></div>
-        </div>
-        <div class="content-grid">
-          <div class="stack">
-            <div class="panel">
-              <div class="panel-head">
-                <div>
-                  <h2>Recent Active Issues</h2>
-                  <p>Live issued-book records currently not returned.</p>
-                </div>
-              </div>
-              <div class="panel-body">
-                <div class="table-shell">
-                  <table>
-                    <thead>
-                      <tr><th>Student</th><th>Roll No</th><th>Book</th><th>Issue Date</th><th>Due Date</th><th>Status</th></tr>
-                    </thead>
-                    <tbody id="activeIssuesTable"></tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="stack">
-            <div class="panel">
-              <div class="panel-head">
-                <div>
-                  <h2>Fine Snapshot</h2>
-                  <p>Pending fine rows from the circulation backend.</p>
-                </div>
-              </div>
-              <div class="panel-body">
-                <div class="mini-list" id="fineMiniList"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      <section id="issue-book" class="section">
-        <div class="panel">
-          <div class="panel-head">
-            <div>
-              <h2>Issue Book</h2>
-              <p>Staff can issue books to students using the same backend flow as admin.</p>
-            </div>
-            <span class="helper-chip">Students only</span>
-          </div>
-          <div class="panel-body">
-            <div id="issueStatus" class="alert"></div>
-            <form class="form-grid" onsubmit="submitIssueBook(event)">
-              <div class="form-group">
-                <label for="issueRollNumber">Student Roll Number</label>
-                <input id="issueRollNumber" placeholder="Enter roll number" required>
-              </div>
-              <div class="form-group">
-                <label for="issueBookId">Book ID</label>
-                <input id="issueBookId" placeholder="Enter numeric book id" required>
-              </div>
-              <div class="form-group">
-                <label for="issueDate">Issue Date</label>
-                <input id="issueDate" type="date" required>
-              </div>
-              <div class="form-group">
-                <label for="dueDate">Due Date</label>
-                <input id="dueDate" type="date" required>
-              </div>
-              <div class="form-actions">
-                <button class="primary-btn" type="submit">Issue Book</button>
-                <button class="ghost-btn" type="button" onclick="resetIssueForm()">Clear</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </section>
-      <section id="add-student" class="section">
-        <div class="panel">
-          <div class="panel-head">
-            <div>
-              <h2>Add Student</h2>
-              <p>Create student records directly from the staff dashboard.</p>
-            </div>
-          </div>
-          <div class="panel-body">
-            <div id="studentStatus" class="alert"></div>
-            <form class="form-grid" onsubmit="submitStudent(event)">
-              <div class="form-group">
-                <label for="studentName">Student Name</label>
-                <input id="studentName" placeholder="Student name" required>
-              </div>
-              <div class="form-group">
-                <label for="studentRoll">Register Number</label>
-                <input id="studentRoll" placeholder="Register number" required>
-              </div>
-              <div class="form-group">
-                <label for="studentDepartment">Department</label>
-                <select id="studentDepartment" required>
-                  <option value="">-- Select Department --</option>
-                  <option value="CSE">Computer Science (CSE)</option>
-                  <option value="ECE">Electronics (ECE)</option>
-                  <option value="EEE">Electrical (EEE)</option>
-                  <option value="Mechanical">Mechanical</option>
-                  <option value="Civil">Civil</option>
-                  <option value="Ai&DS">Artificial Intelligence & Data Science</option>
-                  <option value="AIML">AI & Machine Learning</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="studentYear">Year</label>
-                <select id="studentYear" required>
-                  <option value="">-- Select Year --</option>
-                  <option value="1st">1st Year</option>
-                  <option value="2nd">2nd Year</option>
-                  <option value="3rd">3rd Year</option>
-                  <option value="4th">4th Year</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="studentPassword">Password</label>
-                <input id="studentPassword" type="password" placeholder="Password" required>
-              </div>
-              <div class="form-group">
-                <label for="studentPhone">Phone Number</label>
-                <input id="studentPhone" placeholder="10-digit phone number">
-              </div>
-              <div class="form-group" style="grid-column:1 / -1;">
-                <label for="studentEmail">Email</label>
-                <input id="studentEmail" type="email" placeholder="Email address">
-              </div>
-              <div class="form-actions">
-                <button class="primary-btn" type="submit">Add Student</button>
-                <button class="ghost-btn" type="button" onclick="document.getElementById('studentStatus').className='alert'; this.form.reset();">Reset</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </section>
-      <section id="issued" class="section">
-        <div class="panel">
-          <div class="panel-head">
-            <div>
-              <h2>Issued Books</h2>
-              <p>All live issue records for students that are still active.</p>
-            </div>
-          </div>
-          <div class="panel-body">
-            <div class="toolbar">
-              <input id="issuedSearch" placeholder="Search by roll no, student, or book title" oninput="renderIssuedTable()">
-            </div>
-            <div class="table-shell">
-              <table>
-                <thead>
-                  <tr><th>Student</th><th>Roll No</th><th>Department</th><th>Book</th><th>Issue Date</th><th>Due Date</th><th>Status</th></tr>
-                </thead>
-                <tbody id="issuedTableBody"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </section>
-      <section id="returned" class="section">
-        <div class="panel">
-          <div class="panel-head">
-            <div>
-              <h2>Returned Books</h2>
-              <p>Completed returns from the shared issue history.</p>
-            </div>
-          </div>
-          <div class="panel-body">
-            <div class="toolbar">
-              <input id="returnedSearch" placeholder="Search returned entries" oninput="renderReturnedTable()">
-            </div>
-            <div class="table-shell">
-              <table>
-                <thead>
-                  <tr><th>Student</th><th>Roll No</th><th>Book</th><th>Issue Date</th><th>Return Date</th><th>Late Days</th><th>Status</th></tr>
-                </thead>
-                <tbody id="returnedTableBody"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </section>
-      <section id="students" class="section">
-        <div class="panel">
-          <div class="panel-head">
-            <div>
-              <h2>Student Records</h2>
-              <p>Live student directory from the backend.</p>
-            </div>
-          </div>
-          <div class="panel-body">
-            <div class="toolbar">
-              <input id="studentsSearch" placeholder="Search by roll no, student, department, email" oninput="renderStudentsTable()">
-            </div>
-            <div class="table-shell">
-              <table>
-                <thead>
-                  <tr><th>Roll No</th><th>Name</th><th>Department</th><th>Year</th><th>Email</th><th>Phone</th></tr>
-                </thead>
-                <tbody id="studentsTableBody"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </section>
-      <section id="fines" class="section">
-        <div class="panel">
-          <div class="panel-head">
-            <div>
-              <h2>Pending Fines</h2>
-              <p>Read-only overdue fine list for staff visibility.</p>
-            </div>
-          </div>
-          <div class="panel-body">
-            <div class="toolbar">
-              <input id="finesSearch" placeholder="Search by roll no, member, or book title" oninput="renderFinesTable()">
-            </div>
-            <div class="table-shell">
-              <table>
-                <thead>
-                  <tr><th>Roll No</th><th>Member</th><th>Book</th><th>Overdue Days</th><th>Fine Amount</th><th>Status</th></tr>
-                </thead>
-                <tbody id="finesTableBody"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
+
+<div class="sidebar">
+  <h2>Staff Panel</h2>
+  <div class="sidebar-profile">
+    <div class="avatar">SF</div>
+    <div class="profile-info">
+      <p id="sidebarStaffName">Staff Name</p>
+      <span>Active Staff</span>
+    </div>
   </div>
+  <ul class="menu">
+    <li class="active" onclick="showSection('dashboard',this)"><span class="menu-icon">&#127968;</span>Dashboard</li>
+    <li onclick="showSection('issued',this)"><span class="menu-icon">&#128218;</span>Issued Books</li>
+    <li onclick="showSection('returned',this)"><span class="menu-icon">&#128216;</span>Returned Books</li>
+    <li onclick="showSection('fines',this)"><span class="menu-icon">&#128176;</span>Pending Fines</li>
+    <li onclick="showSection('students',this)"><span class="menu-icon">👥</span>Student Data</li>
+  </ul>
+</div>
+
+<div class="main">
+
+    <div class="header">
+    <h2>Staff Dashboard</h2>
+    <div class="header-actions">
+      <div class="notify-group">
+        <button type="button" class="bell-button" id="bellButton" onclick="toggleBellMessage()" aria-label="View overdue notifications">
+          <span>🔔</span>
+          <span class="badge-dot" id="overdueDot">0</span>
+        </button>
+        <div class="bell-message" id="bellMessage">
+          <strong id="bellTitle">No overdue books</strong>
+          <p id="bellSubtitle">All clear</p>
+        </div>
+      </div>
+      <button class="logout" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <div id="dashboard" class="section content active">
+    <div class="profile">
+      <div><h4>Name</h4><p id="staffName">-</p></div>
+      <div><h4>Staff ID</h4><p id="staffId">-</p></div>
+      <div><h4>Department</h4><p id="staffDepartment">-</p></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat accent-blue"><h4 id="booksIssuedCount">0</h4><p><span class="stat-icon">&#128218;</span>Active Issues</p></div>
+      <div class="stat accent-red"><h4 id="overdueCount">0</h4><p><span class="stat-icon">&#9200;</span>Overdue</p></div>
+      <div class="stat accent-orange"><h4 id="pendingFineAmount">Rs 0</h4><p><span class="stat-icon">&#128176;</span>Pending Fine</p></div>
+      <div class="stat accent-green"><h4 id="totalReadsCount">0</h4><p><span class="stat-icon">👥</span>Total Students</p></div>
+    </div>
+
+    <div class="insights-grid">
+      <div class="chart-card">
+        <div class="chart-card__header">
+          <div>
+            <p class="eyebrow">Circulation Activity</p>
+            <h4>Books issued per month</h4>
+          </div>
+          <span class="chart-tag">Last 6 months</span>
+        </div>
+        <div id="readingActivityChart" class="reading-chart"></div>
+      </div>
+      <div class="issue-return-card">
+        <div class="chart-card__header" style="margin-bottom:16px;">
+          <div>
+            <p class="eyebrow">Issue vs Return</p>
+            <h4>Circulation metrics</h4>
+          </div>
+        </div>
+        <div class="issue-return-stats">
+          <div>
+            <span>Issued</span>
+            <strong id="issueCountBadge">0</strong>
+          </div>
+          <div>
+            <span>Returned</span>
+            <strong id="returnCountBadge">0</strong>
+          </div>
+          <div>
+            <span>Return rate</span>
+            <strong id="returnRateBadge">0%</strong>
+          </div>
+        </div>
+        <p class="muted">Library circulation pulse.</p>
+      </div>
+    </div>
+
+    <div class="recent-books-card">
+      <div class="recent-books-header">
+        <div>
+          <p class="eyebrow">Recent Activity</p>
+          <h4>Latest book transactions</h4>
+        </div>
+        <span class="status-badge status-returned">Status</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Member</th>
+            <th>Book Title</th>
+            <th>Issue Date</th>
+            <th>Due Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="recentBooksBody">
+          <tr><td colspan="5">No recent activity yet.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="issued" class="section content">
+    <div class="section-header">
+      <div>
+        <h3>Issued Books</h3>
+        <p class="muted">Switch between department students and your own staff account.</p>
+      </div>
+      <div class="scope-controls">
+        <div class="scope-toggle">
+          <button type="button" class="scope-btn active" data-circulation-view="student" onclick="setCirculationView('student')">Student</button>
+          <button type="button" class="scope-btn" data-circulation-view="staff" onclick="setCirculationView('staff')">Staff</button>
+        </div>
+        <select class="scope-select" data-circulation-year onchange="setCirculationYear(this.value)">
+          <option value="ALL">All Years</option>
+        </select>
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr><th id="issuedMemberHeader">Student</th><th id="issuedIdHeader">Roll No</th><th>Book</th><th>Author</th><th>Issue</th><th>Due</th><th>Status</th></tr>
+      </thead>
+      <tbody id="issuedBooksBody">
+        <tr><td colspan="7">No issued books found.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div id="returned" class="section content">
+    <div class="section-header">
+      <div>
+        <h3>Returned Books</h3>
+      </div>
+      <div class="scope-controls">
+        <div class="scope-toggle">
+          <button type="button" class="scope-btn active" data-circulation-view="student" onclick="setCirculationView('student')">Student</button>
+          <button type="button" class="scope-btn" data-circulation-view="staff" onclick="setCirculationView('staff')">Staff</button>
+        </div>
+        <select class="scope-select" data-circulation-year onchange="setCirculationYear(this.value)">
+          <option value="ALL">All Years</option>
+        </select>
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr><th id="returnedMemberHeader">Student</th><th id="returnedIdHeader">Roll No</th><th>Book</th><th>Issue</th><th>Returned</th><th>Late Days</th><th>Status</th></tr>
+      </thead>
+      <tbody id="returnedBooksBody">
+        <tr><td colspan="7">No returned books found.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div id="fines" class="section content">
+    <div class="section-header">
+      <div>
+        <h3>Pending Fines</h3>
+        <p class="muted">Student fines can also be filtered by year.</p>
+      </div>
+      <div class="scope-controls">
+        <div class="scope-toggle">
+          <button type="button" class="scope-btn active" data-circulation-view="student" onclick="setCirculationView('student')">Student</button>
+          <button type="button" class="scope-btn" data-circulation-view="staff" onclick="setCirculationView('staff')">Staff</button>
+        </div>
+        <select class="scope-select" data-circulation-year onchange="setCirculationYear(this.value)">
+          <option value="ALL">All Years</option>
+        </select>
+      </div>
+    </div>
+    <div class="fine-table-wrap">
+      <table class="fines-table">
+        <thead>
+          <tr><th id="fineMemberHeader">Student</th><th id="fineIdHeader">Roll No</th><th>Book</th><th>Days Late</th><th>Fine</th></tr>
+        </thead>
+        <tbody id="fineTableBody">
+          <tr><td colspan="5">No pending fines.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+<div id="students" class="section content">
+  <div class="section-header">
+    <div>
+      <h3>Student Data</h3>
+      <p class="muted" id="studentScopeNote">Showing students from your department only.</p>
+    </div>
+  </div>
+    <div class="filters-row">
+      <div class="search">
+        <input type="text" id="searchInput" placeholder="Search by name / roll number / email">
+      </div>
+      <div class="filter-group">
+        <label for="studentYearFilter">Year</label>
+        <select id="studentYearFilter" onchange="updateStudentFilters()">
+          <option value="ALL">All Years</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="studentDepartmentFilter">Department</label>
+        <select id="studentDepartmentFilter" onchange="updateStudentFilters()">
+          <option value="ALL">All Departments</option>
+        </select>
+      </div>
+    </div>
+
+    <table id="bookTable">
+      <thead>
+        <tr><th>Name</th><th>Roll Number</th><th>Department</th><th>Year</th><th>Email</th><th>Phone</th></tr>
+      </thead>
+      <tbody id="bookTableBody">
+        <tr><td colspan="6">Loading students...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<button id="chatbotLauncher" class="chatbot-launcher" type="button" onclick="openChatbot()" aria-label="Open chatbot">🤖</button>
+
+<div id="chatbotOverlay" class="chatbot-overlay" onclick="closeChatbot()"></div>
+
+<div id="chatbotBox" class="chatbot-box hidden">
+    <div class="chatbot-topbar">
+        <strong>DAIT Library Assisant </strong>
+        <button class="chatbot-close" type="button" onclick="closeChatbot()" aria-label="Close chatbot">×</button>
+    </div>
+    <div id="chatBody" class="chat-body">
+        <div class="bot-msg">
+            I can help with book picks, study strategies, or quick catalog searches.
+            Try asking for a topic or author.
+        </div>
+    </div>
+
+    <div class="chat-input-area">
+        <input
+            type="text"
+            id="chatInput"
+            placeholder="Try: recommend data science books"
+            onkeypress="handleChatEnter(event)"
+        />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<!--
+<div class="chatbot" aria-live="polite">
+  <button class="chatbot-toggle" type="button" aria-label="Open library bot">
+    <span class="chatbot-icon">🤖</span>
+    <span class="chatbot-label">Need a book?</span>
+  </button>
+  <div class="chatbot-panel" aria-hidden="true">
+    <div class="chatbot-header">
+      <div>
+        <strong>Library Assistant</strong>
+        <p>Ask about books, upcoming returns, or study suggestions.</p>
+      </div>
+      <button class="chatbot-close" type="button" aria-label="Close chat">✕</button>
+    </div>
+    <div class="chatbot-messages" role="log" aria-live="polite"></div>
+    <form class="chatbot-form">
+      <input type="text" placeholder="Try: recommend data science books" required>
+      <button type="submit">Send</button>
+    </form>
+  </div>
+</div>
+-->
+
 <script>
 const BASE_URL = "http://localhost:8080";
-const authHeader = sessionStorage.getItem("lmsAuthHeader") || "";
-const dashboardState = {
-  staffProfile: null,
-  students: [],
-  books: [],
-  issues: [],
-  fines: []
-};
 
-function guardStaffSession() {
-  const role = sessionStorage.getItem("lmsRole");
-  if (role !== "staff") {
-    window.location.href = "index.html";
-    return false;
-  }
-  return true;
+function showSection(id,el){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.menu li').forEach(m=>m.classList.remove('active'));
+  el.classList.add('active');
 }
 
-function logout() {
+async function logout(){
+  let canLogout = true;
+
+  if (window.Swal) {
+    const result = await Swal.fire({
+      icon: "warning",
+      title: "Logout Now?",
+      text: "You can login again anytime.",
+      showCancelButton: true,
+      confirmButtonText: "Logout",
+      cancelButtonText: "Stay Here",
+      confirmButtonColor: "#dc2626"
+    });
+    canLogout = result.isConfirmed;
+  } else {
+    canLogout = window.confirm("Logout now?");
+  }
+
+  if (!canLogout) return;
+
+  if (window.Swal) {
+    await Swal.fire({
+      icon: "success",
+      title: "See you soon",
+      text: "Logging out securely...",
+      timer: 900,
+      showConfirmButton: false
+    });
+  }
+
   sessionStorage.removeItem("lmsStudent");
   sessionStorage.removeItem("lmsAuthHeader");
   sessionStorage.removeItem("lmsRole");
   sessionStorage.removeItem("lmsUsername");
-  window.location.href = "index.html";
+  window.location.href="index.html";
 }
 
-function showSection(sectionId, menuEl) {
-  document.querySelectorAll(".section").forEach(section => section.classList.remove("active"));
-  document.getElementById(sectionId)?.classList.add("active");
-  document.querySelectorAll(".menu li").forEach(item => item.classList.remove("active"));
-  if (menuEl) {
-    menuEl.classList.add("active");
-  } else {
-    const match = Array.from(document.querySelectorAll(".menu li"))
-      .find(item => String(item.getAttribute("onclick") || "").includes(`'${sectionId}'`));
-    if (match) match.classList.add("active");
+function guardStaffSession() {
+  const role = sessionStorage.getItem("lmsRole");
+  const username = String(sessionStorage.getItem("lmsUsername") || "").trim();
+  if (role !== "staff" || !username) {
+    window.location.href = "index.html";
+    return null;
   }
+  return username;
+}
+
+function getStoredStaffSession() {
+  try {
+    const raw = sessionStorage.getItem("lmsStaff");
+    return raw ? JSON.parse(raw) : null;
+  } catch (error) {
+    return null;
+  }
+}
+
+function parseDateOnly(value) {
+  if (!value) return null;
+  const date = new Date(`${value}T00:00:00`);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function dayDiff(startDate, endDate) {
+  const msPerDay = 24 * 60 * 60 * 1000;
+  return Math.floor((endDate - startDate) / msPerDay);
+}
+
+function setText(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = value;
+}
+
+function renderStaffProfile(staff) {
+  const displayName = staff.name || "-";
+  setText("staffName", displayName);
+  setText("sidebarStaffName", displayName);
+  setText("staffId", staff.staffCode || staff.staffId || "-");
+  setText("staffDepartment", staff.department || "-");
+  const avatar = document.querySelector(".sidebar-profile .avatar");
+  if (avatar) {
+    const initials = (displayName || "SF").split(" ").map(part => part[0]).filter(Boolean).join("").slice(0,2).toUpperCase() || "SF";
+    avatar.textContent = initials;
+  }
+}
+
+const staffPageState = {
+  staff: null,
+  students: [],
+  studentsById: new Map(),
+  booksById: new Map(),
+  scopedIssues: [],
+  circulationView: "student",
+  circulationYear: "ALL",
+  studentSearch: "",
+  studentYear: "ALL",
+  studentDepartment: "ALL"
+};
+
+function normalizeText(value) {
+  return String(value ?? "").trim().toLowerCase();
 }
 
 function escapeHtml(value) {
@@ -583,448 +1224,894 @@ function escapeHtml(value) {
     .replace(/'/g, "&#39;");
 }
 
-function parseDateOnly(value) {
-  if (!value) return null;
-  const date = new Date(`${value}T00:00:00`);
-  return Number.isNaN(date.getTime()) ? null : date;
+function getStaffCode(staff = staffPageState.staff) {
+  return String(staff?.staffCode ?? staff?.staffId ?? "").trim();
 }
 
-function dayDiff(fromDate, toDate) {
-  const msPerDay = 24 * 60 * 60 * 1000;
-  return Math.floor((toDate - fromDate) / msPerDay);
+function getStaffDepartment(staff = staffPageState.staff) {
+  return String(staff?.department || "").trim();
 }
 
-function isIssueReturned(issue) {
-  const status = String(issue.status ?? issue.issueStatus ?? "").trim().toUpperCase();
-  if (status.includes("RETURN")) return true;
-  if (status.includes("PAID")) return true;
-  const returnDate = String(issue.returnDate ?? issue.actualReturnDate ?? "").trim();
-  return Boolean(returnDate);
+function departmentMatches(first, second) {
+  const a = normalizeText(first);
+  const b = normalizeText(second);
+  return Boolean(a) && Boolean(b) && a === b;
 }
 
-function isValidPhoneNumber(phone) {
-  return /^\d{10}$/.test(phone);
+function normalizeMemberType(memberType) {
+  const type = String(memberType ?? "").trim().toUpperCase();
+  return type === "EMPLOYEE" || type === "EMPLOYEES" || type === "STAFF" ? "EMPLOYEE" : "STUDENT";
 }
 
-function isValidEmailAddress(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+function getIssueMemberId(issue) {
+  return String(issue?.memberId ?? issue?.studrollNumber ?? issue?.rollNumber ?? "").trim();
 }
 
-function makeRequestOptions(method = "GET", body) {
-  const headers = {};
-  if (authHeader) headers.Authorization = authHeader;
-  if (body !== undefined) headers["Content-Type"] = "application/json";
+function getIssueBook(issue) {
+  const bookId = String(issue?.bookId ?? issue?.id ?? "").trim();
+  return staffPageState.booksById.get(bookId) || {};
+}
+
+function getStudentFromIssue(issue) {
+  return staffPageState.studentsById.get(normalizeText(getIssueMemberId(issue))) || null;
+}
+
+function isStudentIssue(issue) {
+  return normalizeMemberType(issue?.memberType) === "STUDENT";
+}
+
+function isStaffIssue(issue) {
+  return normalizeMemberType(issue?.memberType) === "EMPLOYEE";
+}
+
+function isReturnedIssue(issue) {
+  const status = String(issue?.status ?? "").trim().toUpperCase();
+  return status === "RETURNED" || Boolean(issue?.returnDate);
+}
+
+function isActiveIssue(issue) {
+  return !isReturnedIssue(issue);
+}
+
+function getIssueMemberDetails(issue) {
+  if (isStaffIssue(issue)) {
+    return {
+      name: staffPageState.staff?.name || "-",
+      id: getStaffCode() || getIssueMemberId(issue) || "-",
+      yearOrType: String(staffPageState.staff?.staffType || "-"),
+      department: getStaffDepartment() || "-"
+    };
+  }
+
+  const student = getStudentFromIssue(issue);
   return {
-    method,
-    headers,
-    body: body !== undefined ? JSON.stringify(body) : undefined
+    name: student?.name || issue?.studentName || "-",
+    id: student?.rollNumber || student?.studrollNumber || getIssueMemberId(issue) || "-",
+    yearOrType: student?.year || "-",
+    department: student?.department || "-"
   };
 }
 
-async function safeFetchArray(url, options) {
-  const res = await fetch(url, options);
-  if (!res.ok) throw new Error(await res.text());
-  const data = await res.json();
-  if (Array.isArray(data)) return data;
-  if (data && Array.isArray(data.data)) return data.data;
-  if (data && Array.isArray(data.results)) return data.results;
-  if (data && Array.isArray(data.issues)) return data.issues;
-  return [];
+function buildOptionsMarkup(options) {
+  return options.map(option => (
+    `<option value="${escapeHtml(option.value)}">${escapeHtml(option.label)}</option>`
+  )).join("");
 }
 
-async function fetchAllIssues() {
-  const endpoints = [
-    `${BASE_URL}/api/issue/all`,
-    `${BASE_URL}/api/issue/getall`,
-    `${BASE_URL}/api/issues/all`
-  ];
-  let lastError = "Unable to fetch issue records.";
-  for (const endpoint of endpoints) {
-    try {
-      return await safeFetchArray(endpoint, makeRequestOptions());
-    } catch (error) {
-      lastError = error.message || lastError;
+function syncSelectOptions(selects, options, selectedValue) {
+  const markup = buildOptionsMarkup(options);
+  selects.forEach(select => {
+    select.innerHTML = markup;
+    const nextValue = options.some(option => option.value === selectedValue) ? selectedValue : options[0]?.value;
+    if (nextValue != null) {
+      select.value = nextValue;
+    }
+  });
+}
+
+async function fetchStaffProfile(staffId) {
+  const storedStaff = getStoredStaffSession();
+  const normalizedStaffId = normalizeText(staffId);
+  const storedStaffCode = normalizeText(storedStaff?.staffCode ?? storedStaff?.staffId);
+  const storedEmail = normalizeText(storedStaff?.email);
+  const hasStoredDepartment = Boolean(String(storedStaff?.department || "").trim());
+
+  if (storedStaff && hasStoredDepartment && (storedStaffCode === normalizedStaffId || storedEmail === normalizedStaffId)) {
+    return storedStaff;
+  }
+
+  const lookupStaffCode = String(storedStaff?.staffCode || staffId).trim();
+  const res = await fetch(`${BASE_URL}/api/staff/code/${encodeURIComponent(lookupStaffCode)}`);
+  if (!res.ok) {
+    if (storedStaff) return storedStaff;
+    throw new Error("Failed to load staff profile.");
+  }
+
+  const freshStaff = await res.json();
+  return { ...(storedStaff || {}), ...(freshStaff || {}) };
+}
+
+function getIssueDueStatus(issue) {
+  const dueDate = parseDateOnly(issue.dueDate);
+  if (!dueDate) {
+    return { label:"Due date not set", className:"status-issued" };
+  }
+  const remaining = dayDiff(new Date(), dueDate);
+  if (remaining < 0) {
+    return { label:`Overdue by ${Math.abs(remaining)} day${Math.abs(remaining) === 1 ? "" : "s"}`, className:"status-overdue" };
+  }
+  if (remaining === 0) {
+    return { label:"Due today", className:"status-due" };
+  }
+  return { label:`Due in ${remaining} day${remaining === 1 ? "" : "s"}`, className:"status-due" };
+}
+
+function renderIssuedBooks(issues) {
+  const tbody = document.getElementById("issuedBooksBody");
+  if (!tbody) return;
+
+  if (!issues.length) {
+    const emptyText = staffPageState.circulationView === "staff"
+      ? "No issued books found for your staff account."
+      : "No issued books found for your department students.";
+    tbody.innerHTML = `<tr><td colspan="7">${escapeHtml(emptyText)}</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = issues.map(issue => {
+    const book = getIssueBook(issue);
+    const member = getIssueMemberDetails(issue);
+    const status = getIssueDueStatus(issue);
+    return `
+      <tr>
+        <td>${escapeHtml(member.name)}</td>
+        <td>${escapeHtml(member.id)}</td>
+        <td>${escapeHtml(book.title || issue.bookName || "-")}</td>
+        <td>${escapeHtml(book.author || issue.author || "-")}</td>
+        <td>${escapeHtml(issue.issueDate || "-")}</td>
+        <td>${escapeHtml(issue.dueDate || "-")}</td>
+        <td><span class="status-badge ${status.className}">${status.label}</span></td>
+      </tr>
+    `;
+  }).join("");
+}
+
+function getLateDays(issue) {
+  const dueDate = parseDateOnly(issue.dueDate);
+  if (!dueDate) return 0;
+  return Math.max(0, dayDiff(dueDate, new Date()));
+}
+
+function computeFineData(issue) {
+  const lateDays = getLateDays(issue);
+  const explicitFine = Number(issue.fineAmount ?? 0) || 0;
+  const fineAmount = explicitFine > 0 ? explicitFine : lateDays * 2;
+  return { lateDays, fineAmount };
+}
+
+function renderFineRows(issues) {
+  const tbody = document.getElementById("fineTableBody");
+  if (!tbody) return;
+
+  const fineIssues = issues.filter(issue => {
+    const { lateDays, fineAmount } = computeFineData(issue);
+    const paymentStatus = String(issue.paymentStatus ?? "").trim().toUpperCase();
+    const notPaid = paymentStatus !== "PAID";
+    const hasUnpaidFine = fineAmount > 0 && notPaid;
+    return (lateDays > 0 && notPaid) || hasUnpaidFine;
+  });
+
+  if (!fineIssues.length) {
+    const emptyText = staffPageState.circulationView === "staff"
+      ? "No pending fines for your staff account."
+      : "No pending fines for your department students.";
+    tbody.innerHTML = `<tr><td colspan="5">${escapeHtml(emptyText)}</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = fineIssues.map(issue => {
+    const book = getIssueBook(issue);
+    const { lateDays, fineAmount } = computeFineData(issue);
+    const member = getIssueMemberDetails(issue);
+
+    return `
+      <tr>
+        <td>${escapeHtml(member.name)}</td>
+        <td>${escapeHtml(member.id)}</td>
+        <td>${escapeHtml(book.title || issue.bookName || "-")}</td>
+        <td>${escapeHtml(lateDays)}</td>
+        <td>Rs ${escapeHtml(fineAmount)}</td>
+      </tr>
+    `;
+  }).join("");
+}
+
+function renderReturnedBooks(issues) {
+  const tbody = document.getElementById("returnedBooksBody");
+  if (!tbody) return;
+
+  if (!issues.length) {
+    const emptyText = staffPageState.circulationView === "staff"
+      ? "No returned books found for your staff account."
+      : "No returned books found for your department students.";
+    tbody.innerHTML = `<tr><td colspan="7">${escapeHtml(emptyText)}</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = issues.map(issue => {
+    const book = getIssueBook(issue);
+    const isLateReturn = Number(issue.lateDays ?? 0) > 0 || String(issue.paymentStatus ?? "").trim().toUpperCase() === "PAID";
+    const statusLabel = isLateReturn ? "Fine Paid" : "Returned";
+    const statusClass = isLateReturn ? "status-fine-paid" : "status-returned";
+    const member = getIssueMemberDetails(issue);
+    const dueDateObj = parseDateOnly(issue.dueDate);
+    const returnDateObj = parseDateOnly(issue.returnDate);
+    const lateDays = dueDateObj && returnDateObj ? Math.max(0, dayDiff(dueDateObj, returnDateObj)) : 0;
+
+    return `
+      <tr>
+        <td>${escapeHtml(member.name)}</td>
+        <td>${escapeHtml(member.id)}</td>
+        <td>${escapeHtml(book.title || issue.bookName || "-")}</td>
+        <td>${escapeHtml(issue.issueDate || "-")}</td>
+        <td>${escapeHtml(issue.returnDate || "-")}</td>
+        <td>${escapeHtml(lateDays)}</td>
+        <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+      </tr>
+    `;
+  }).join("");
+}
+
+function getIssueStatus(issue) {
+  const dueDate = parseDateOnly(issue.dueDate);
+  const returnDate = parseDateOnly(issue.returnDate);
+  if (returnDate) {
+    return { label:"Returned", className:"status-returned" };
+  }
+  if (dueDate) {
+    const daysUntilDue = dayDiff(new Date(), dueDate);
+    if (daysUntilDue < 0) {
+      return { label:"Overdue", className:"status-overdue" };
+    }
+    if (daysUntilDue <= 3) {
+      return { label:"Due Soon", className:"status-due" };
     }
   }
-  throw new Error(lastError);
+  return { label:"Issued", className:"status-issued" };
 }
 
-function getStudentId(student) {
-  return String(student.rollNumber ?? student.studrollNumber ?? student.studentId ?? "").trim();
-}
+function renderRecentBooks(issues) {
+  const tbody = document.getElementById("recentBooksBody");
+  if (!tbody) return;
+  const allIssues = Array.isArray(issues) ? issues.slice() : [];
+  const sorted = allIssues.sort((a, b) => {
+    const aDate = parseDateOnly(a.issueDate || a.returnDate || a.dueDate) || 0;
+    const bDate = parseDateOnly(b.issueDate || b.returnDate || b.dueDate) || 0;
+    return bDate - aDate;
+  }).slice(0, 5);
 
-function getBookId(book) {
-  return String(book.bookId ?? book.id ?? "").trim();
-}
-
-function getBookTitle(book) {
-  return String(book.title ?? book.bookTitle ?? "-").trim();
-}
-
-function buildStudentMap() {
-  return new Map(
-    dashboardState.students
-      .map(student => [getStudentId(student).toLowerCase(), student])
-      .filter(([key]) => key)
-  );
-}
-
-function buildBookMap() {
-  const map = new Map();
-  dashboardState.books.forEach(book => {
-    const id = getBookId(book);
-    if (id) map.set(id, book);
-  });
-  return map;
-}
-
-function getActiveIssues() {
-  return dashboardState.issues.filter(issue => !isIssueReturned(issue));
-}
-
-function getReturnedIssues() {
-  return dashboardState.issues.filter(issue => isIssueReturned(issue));
-}
-
-function setMetric(id, value) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = String(value);
-}
-
-function setAlert(id, type, message) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  if (!message) {
-    el.className = "alert";
-    el.textContent = "";
+  if (!sorted.length) {
+    tbody.innerHTML = `<tr><td colspan="5">No recent activity yet.</td></tr>`;
     return;
   }
-  el.className = `alert ${type} show`;
-  el.textContent = message;
-}
 
-function renderProfile() {
-  const username = sessionStorage.getItem("lmsUsername") || "staff";
-  const staff = dashboardState.staffProfile;
-  const displayName = staff?.name || "Staff";
-  const initials = displayName.split(/\s+/).map(part => part[0]).join("").slice(0, 2).toUpperCase() || "ST";
-  document.getElementById("staffDisplayName").textContent = displayName;
-  document.getElementById("staffAvatar").textContent = initials;
-  document.getElementById("staffDisplayMeta").textContent = staff
-    ? `${staff.department || "Department"}${staff.staffType ? ` • ${staff.staffType}` : ""}`
-    : "Loading staff profile...";
-}
-
-function renderOverviewTables() {
-  const studentMap = buildStudentMap();
-  const bookMap = buildBookMap();
-  const tbody = document.getElementById("activeIssuesTable");
-  const activeRows = getActiveIssues()
-    .sort((a, b) => String(b.issueDate ?? "").localeCompare(String(a.issueDate ?? "")))
-    .slice(0, 8);
-  if (!activeRows.length) {
-    tbody.innerHTML = `<tr><td colspan="6" class="empty">No active issue records found.</td></tr>`;
-    return;
-  }
-  const today = new Date();
-  tbody.innerHTML = activeRows.map(issue => {
-    const rollNo = String(issue.memberId ?? issue.rollNumber ?? issue.studrollNumber ?? "").trim();
-    const student = studentMap.get(rollNo.toLowerCase()) || {};
-    const book = bookMap.get(String(issue.bookId ?? issue.id ?? "").trim()) || {};
-    const dueDateObj = parseDateOnly(issue.dueDate);
-    const overdue = dueDateObj ? dayDiff(dueDateObj, today) > 0 : false;
-    return `<tr>
-      <td>${escapeHtml(student.name || issue.studentName || "-")}</td>
-      <td>${escapeHtml(rollNo || "-")}</td>
-      <td>${escapeHtml(getBookTitle(book) || issue.bookName || "-")}</td>
-      <td>${escapeHtml(issue.issueDate || "-")}</td>
-      <td>${escapeHtml(issue.dueDate || "-")}</td>
-      <td>${overdue ? '<span class="status-badge status-overdue">Overdue</span>' : '<span class="status-badge status-active">Active</span>'}</td>
-    </tr>`;
+  tbody.innerHTML = sorted.map(issue => {
+    const book = getIssueBook(issue);
+    const member = getIssueMemberDetails(issue);
+    const status = getIssueStatus(issue);
+    return `
+      <tr>
+        <td>${escapeHtml(member.name)}</td>
+        <td>${escapeHtml(book.title || issue.bookName || "-")}</td>
+        <td>${escapeHtml(issue.issueDate || "-")}</td>
+        <td>${escapeHtml(issue.dueDate || "-")}</td>
+        <td><span class="status-badge ${status.className}">${status.label}</span></td>
+      </tr>
+    `;
   }).join("");
 }
 
-function renderIssuedTable() {
-  const query = String(document.getElementById("issuedSearch")?.value || "").trim().toLowerCase();
-  const studentMap = buildStudentMap();
-  const bookMap = buildBookMap();
-  const today = new Date();
-  const rows = getActiveIssues().filter(issue => {
-    const rollNo = String(issue.memberId ?? issue.rollNumber ?? issue.studrollNumber ?? "").trim();
-    const student = studentMap.get(rollNo.toLowerCase()) || {};
-    const book = bookMap.get(String(issue.bookId ?? issue.id ?? "").trim()) || {};
-    const haystack = [rollNo, student.name, student.department, getBookTitle(book), book.author, issue.bookName].join(" ").toLowerCase();
-    return haystack.includes(query);
-  }).sort((a, b) => String(b.issueDate ?? "").localeCompare(String(a.issueDate ?? "")));
-  const tbody = document.getElementById("issuedTableBody");
-  if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="7" class="empty">No issued books match this search.</td></tr>`;
-    return;
+function getAvailableCopies(book) {
+  if (book?.Availablecopies != null) return book.Availablecopies;
+  if (book?.available != null) return book.available;
+  if (book?.copiesAvailable != null) return book.copiesAvailable;
+  if (book?.issuedCopies != null && book?.Totalcopies != null) {
+    return Number(book.Totalcopies) - Number(book.issuedCopies);
   }
-  tbody.innerHTML = rows.map(issue => {
-    const rollNo = String(issue.memberId ?? issue.rollNumber ?? issue.studrollNumber ?? "").trim();
-    const student = studentMap.get(rollNo.toLowerCase()) || {};
-    const book = bookMap.get(String(issue.bookId ?? issue.id ?? "").trim()) || {};
-    const dueDateObj = parseDateOnly(issue.dueDate);
-    const overdue = dueDateObj ? dayDiff(dueDateObj, today) > 0 : false;
-    return `<tr>
-      <td>${escapeHtml(student.name || issue.studentName || "-")}</td>
-      <td>${escapeHtml(rollNo || "-")}</td>
-      <td>${escapeHtml(student.department || issue.department || "-")}</td>
-      <td>${escapeHtml(getBookTitle(book) || issue.bookName || "-")}</td>
-      <td>${escapeHtml(issue.issueDate || "-")}</td>
-      <td>${escapeHtml(issue.dueDate || "-")}</td>
-      <td>${overdue ? '<span class="status-badge status-overdue">Overdue</span>' : '<span class="status-badge status-active">Active</span>'}</td>
-    </tr>`;
-  }).join("");
+  return book?.Totalcopies != null ? book.Totalcopies : "-";
 }
 
-function renderReturnedTable() {
-  const query = String(document.getElementById("returnedSearch")?.value || "").trim().toLowerCase();
-  const studentMap = buildStudentMap();
-  const bookMap = buildBookMap();
-  const rows = getReturnedIssues().filter(issue => {
-    const rollNo = String(issue.memberId ?? issue.rollNumber ?? issue.studrollNumber ?? "").trim();
-    const student = studentMap.get(rollNo.toLowerCase()) || {};
-    const book = bookMap.get(String(issue.bookId ?? issue.id ?? "").trim()) || {};
-    const haystack = [rollNo, student.name, getBookTitle(book), issue.bookName, issue.returnDate].join(" ").toLowerCase();
-    return haystack.includes(query);
-  }).sort((a, b) => String(b.returnDate ?? "").localeCompare(String(a.returnDate ?? "")));
-  const tbody = document.getElementById("returnedTableBody");
-  if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="7" class="empty">No returned records match this search.</td></tr>`;
-    return;
-  }
-  tbody.innerHTML = rows.map(issue => {
-    const rollNo = String(issue.memberId ?? issue.rollNumber ?? issue.studrollNumber ?? "").trim();
-    const student = studentMap.get(rollNo.toLowerCase()) || {};
-    const book = bookMap.get(String(issue.bookId ?? issue.id ?? "").trim()) || {};
-    const dueDateObj = parseDateOnly(issue.dueDate);
-    const returnDateObj = parseDateOnly(issue.returnDate ?? issue.actualReturnDate);
-    const lateDays = dueDateObj && returnDateObj ? Math.max(0, dayDiff(dueDateObj, returnDateObj)) : 0;
-    return `<tr>
-      <td>${escapeHtml(student.name || issue.studentName || "-")}</td>
-      <td>${escapeHtml(rollNo || "-")}</td>
-      <td>${escapeHtml(getBookTitle(book) || issue.bookName || "-")}</td>
-      <td>${escapeHtml(issue.issueDate || "-")}</td>
-      <td>${escapeHtml(issue.returnDate || issue.actualReturnDate || "-")}</td>
-      <td>${escapeHtml(lateDays)}</td>
-      <td><span class="status-badge status-returned">Returned</span></td>
-    </tr>`;
-  }).join("");
-}
+function renderLibraryStudents(students) {
+  const tbody = document.getElementById("bookTableBody");
+  if (!tbody) return;
 
-function renderStudentsTable() {
-  const query = String(document.getElementById("studentsSearch")?.value || "").trim().toLowerCase();
-  const rows = dashboardState.students.filter(student => {
-    const haystack = [getStudentId(student), student.name, student.department, student.year, student.email, student.phone].join(" ").toLowerCase();
-    return haystack.includes(query);
-  }).sort((a, b) => String(getStudentId(a)).localeCompare(String(getStudentId(b))));
-  const tbody = document.getElementById("studentsTableBody");
-  if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="6" class="empty">No students match this search.</td></tr>`;
+  if (!Array.isArray(students) || !students.length) {
+    tbody.innerHTML = `<tr><td colspan="6">No students available for your department.</td></tr>`;
     return;
   }
-  tbody.innerHTML = rows.map(student => `<tr>
-    <td>${escapeHtml(getStudentId(student) || "-")}</td>
-    <td>${escapeHtml(student.name || "-")}</td>
-    <td>${escapeHtml(student.department || "-")}</td>
-    <td>${escapeHtml(student.year || student.Year || "-")}</td>
-    <td>${escapeHtml(student.email || "-")}</td>
-    <td>${escapeHtml(student.phone || "-")}</td>
-  </tr>`).join("");
-}
 
-function renderFinesTable() {
-  const query = String(document.getElementById("finesSearch")?.value || "").trim().toLowerCase();
-  const rows = dashboardState.fines.filter(row => {
-    const haystack = [row.memberId, row.memberName, row.bookTitle, row.paymentStatus].join(" ").toLowerCase();
-    return haystack.includes(query);
-  });
-  const tbody = document.getElementById("finesTableBody");
-  if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="6" class="empty">No pending fines match this search.</td></tr>`;
-    return;
-  }
-  tbody.innerHTML = rows.map(row => `<tr>
-    <td>${escapeHtml(row.memberId)}</td>
-    <td>${escapeHtml(row.memberName)}</td>
-    <td>${escapeHtml(row.bookTitle)}</td>
-    <td>${escapeHtml(row.overdueDays)}</td>
-    <td>${escapeHtml(row.fineAmount)}</td>
-    <td>${row.paymentStatus === "PAID" ? '<span class="status-badge status-returned">Paid</span>' : '<span class="status-badge status-pending">Pending</span>'}</td>
-  </tr>`).join("");
-}
-
-function renderFineMiniList() {
-  const host = document.getElementById("fineMiniList");
-  if (!dashboardState.fines.length) {
-    host.innerHTML = `<div class="mini-item"><strong>No pending fines</strong><span>Overdue fine records will appear here when available.</span></div>`;
-    return;
-  }
-  host.innerHTML = dashboardState.fines.slice(0, 5).map(row => `
-    <div class="mini-item">
-      <strong>${escapeHtml(row.memberName)} • ${escapeHtml(row.bookTitle)}</strong>
-      <span>${escapeHtml(row.memberId)} • ${escapeHtml(row.overdueDays)} overdue days • Fine ${escapeHtml(row.fineAmount)}</span>
-    </div>
+  tbody.innerHTML = students.map(student => `
+    <tr>
+      <td>${escapeHtml(student.name || "-")}</td>
+      <td>${escapeHtml(student.rollNumber || student.studrollNumber || "-")}</td>
+      <td>${escapeHtml(student.department || "-")}</td>
+      <td>${escapeHtml(student.year || "-")}</td>
+      <td>${escapeHtml(student.email || "-")}</td>
+      <td>${escapeHtml(student.phone || "-")}</td>
+    </tr>
   `).join("");
 }
 
-function renderMetrics() {
-  setMetric("metricStudents", dashboardState.students.length);
-  setMetric("metricActiveIssues", getActiveIssues().length);
-  setMetric("metricReturned", getReturnedIssues().length);
-  setMetric("metricFines", dashboardState.fines.filter(row => row.paymentStatus !== "PAID").length);
-  setMetric("metricBooks", dashboardState.books.length);
-}
-
-async function loadStaffProfile() {
-  const username = String(sessionStorage.getItem("lmsUsername") || "").trim();
-  try {
-    const staffs = await safeFetchArray(`${BASE_URL}/api/staff/all`, makeRequestOptions());
-    dashboardState.staffProfile = staffs.find(item => {
-      const code = String(item.staffCode ?? item.staffId ?? item.id ?? "").trim();
-      const email = String(item.email ?? "").trim();
-      return code.toLowerCase() === username.toLowerCase() || email.toLowerCase() === username.toLowerCase();
-    }) || null;
-  } catch (error) {
-    dashboardState.staffProfile = null;
+function renderReadingActivityChart(returnedIssues) {
+  const container = document.getElementById("readingActivityChart");
+  if (!container) return;
+  const now = new Date();
+  const buckets = [];
+  for (let i = 5; i >= 0; i--) {
+    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const key = `${date.getFullYear()}-${date.getMonth()}`;
+    buckets.push({
+      key,
+      label: date.toLocaleString("en-US", { month: "short" }),
+      count: 0
+    });
   }
-  renderProfile();
+  (Array.isArray(returnedIssues) ? returnedIssues : []).forEach(issue => {
+    const refDate = parseDateOnly(issue.returnDate || issue.issueDate);
+    if (!refDate) return;
+    const key = `${refDate.getFullYear()}-${refDate.getMonth()}`;
+    const bucket = buckets.find(b => b.key === key);
+    if (bucket) bucket.count += 1;
+  });
+  const maxCount = Math.max(1, ...buckets.map(b => b.count));
+  container.innerHTML = buckets.map(bucket => {
+    const height = bucket.count ? Math.max(12, Math.round((bucket.count / maxCount) * 100)) : 8;
+    return `
+      <div class="reading-chart__bar" style="--bar-height:${height}%">
+        <span class="bar-value">${bucket.count}</span>
+        <span class="bar-visual" aria-hidden="true"></span>
+        <span class="bar-label">${bucket.label}</span>
+      </div>
+    `;
+  }).join("");
 }
 
-async function loadPendingFines() {
-  try {
-    const res = await fetch(`${BASE_URL}/api/issue/pending-fines`, makeRequestOptions());
-    if (!res.ok) throw new Error(await res.text());
-    const data = await res.json();
-    dashboardState.fines = Array.isArray(data) ? data.map(row => ({
-      issueId: Number(row.issueId ?? row.id ?? 0),
-      memberId: String(row.memberId ?? row.rollNo ?? row.studrollNumber ?? row.rollNumber ?? "-"),
-      memberName: String(row.memberName ?? row.studentName ?? "-"),
-      bookTitle: String(row.bookTitle ?? "-"),
-      overdueDays: Number(row.overdueDays ?? row.overdue ?? 0),
-      fineAmount: Number(row.fineAmount ?? 0),
-      paymentStatus: String(row.paymentStatus ?? "PENDING").trim().toUpperCase()
-    })) : [];
-  } catch (error) {
-    dashboardState.fines = [];
+function updateIssueReturnStats(activeCount, returnedCount) {
+  setText("issueCountBadge", String(activeCount));
+  setText("returnCountBadge", String(returnedCount));
+  const total = activeCount + returnedCount;
+  const rate = total ? Math.round((returnedCount / total) * 100) : 0;
+  setText("returnRateBadge", `${rate}%`);
+}
+
+function getDueSoonCount(issues) {
+  const now = new Date();
+  return (Array.isArray(issues) ? issues : []).reduce((count, issue) => {
+    const dueDate = parseDateOnly(issue.dueDate);
+    if (!dueDate) return count;
+    const remaining = dayDiff(now, dueDate);
+    return remaining >= 0 && remaining <= 3 ? count + 1 : count;
+  }, 0);
+}
+
+function updateNotificationBar(overdueCount, dueSoonCount) {
+  const overdueDot = document.getElementById("overdueDot");
+  if (overdueDot) {
+    overdueDot.textContent = overdueCount || "0";
+  }
+  const bellTitle = document.getElementById("bellTitle");
+  const bellSubtitle = document.getElementById("bellSubtitle");
+  if (bellTitle) {
+    if (overdueCount) {
+      bellTitle.textContent = `${overdueCount} overdue book${overdueCount === 1 ? "" : "s"}`;
+      bellSubtitle.textContent = "Overdue reminder";
+    } else if (dueSoonCount) {
+      bellTitle.textContent = `${dueSoonCount} due soon`;
+      bellSubtitle.textContent = "Return within 3 days";
+    } else {
+      bellTitle.textContent = "No overdue books";
+      bellSubtitle.textContent = "All clear";
+    }
+  }
+  if (overdueCount || dueSoonCount) {
+    showBellMessage(true);
   }
 }
 
-function refreshLastUpdated() {
-  document.getElementById("lastUpdatedText").textContent = `Last updated ${new Date().toLocaleString()}`;
+function toggleBellMessage() {
+  const message = document.getElementById("bellMessage");
+  if (message) {
+    message.classList.toggle("show");
+  }
 }
 
-async function refreshDashboard() {
+function showBellMessage(autoHide = false) {
+  const message = document.getElementById("bellMessage");
+  if (!message) return;
+  message.classList.add("show");
+  if (autoHide) {
+    setTimeout(() => message.classList.remove("show"), 4500);
+  }
+}
+
+async function loadStudents() {
+  const tbody = document.getElementById("bookTableBody");
+  if (tbody) {
+    tbody.innerHTML = `<tr><td colspan="6">Loading students...</td></tr>`;
+  }
+}
+
+function getFilteredStudents() {
+  const search = normalizeText(staffPageState.studentSearch);
+  const year = normalizeText(staffPageState.studentYear);
+  const department = normalizeText(staffPageState.studentDepartment);
+
+  return staffPageState.students.filter(student => {
+    const matchesSearch = !search || [
+      student.name,
+      student.rollNumber,
+      student.studrollNumber,
+      student.email
+    ].some(value => normalizeText(value).includes(search));
+
+    const matchesYear = year === "all" || normalizeText(student.year) === year;
+    const matchesDepartment = department === "all" || normalizeText(student.department) === department;
+    return matchesSearch && matchesYear && matchesDepartment;
+  });
+}
+
+function populateStudentFilterOptions() {
+  const yearSelect = document.getElementById("studentYearFilter");
+  const departmentSelect = document.getElementById("studentDepartmentFilter");
+  const years = [...new Set(staffPageState.students.map(student => String(student.year || "").trim()).filter(Boolean))].sort();
+  const departments = [...new Set(staffPageState.students.map(student => String(student.department || "").trim()).filter(Boolean))].sort();
+
+  if (yearSelect) {
+    const yearOptions = [{ value: "ALL", label: "All Years" }, ...years.map(year => ({ value: year, label: year }))];
+    syncSelectOptions([yearSelect], yearOptions, staffPageState.studentYear);
+    staffPageState.studentYear = yearSelect.value;
+  }
+
+  if (departmentSelect) {
+    const departmentOptions = [{ value: "ALL", label: "All Departments" }, ...departments.map(department => ({ value: department, label: department }))];
+    syncSelectOptions([departmentSelect], departmentOptions, staffPageState.studentDepartment);
+    staffPageState.studentDepartment = departmentSelect.value;
+  }
+}
+
+function populateCirculationYearOptions() {
+  const yearSelects = [...document.querySelectorAll("[data-circulation-year]")];
+  const years = [...new Set(staffPageState.students.map(student => String(student.year || "").trim()).filter(Boolean))].sort();
+  const yearOptions = [{ value: "ALL", label: "All Years" }, ...years.map(year => ({ value: year, label: year }))];
+  syncSelectOptions(yearSelects, yearOptions, staffPageState.circulationYear);
+  if (!yearOptions.some(option => option.value === staffPageState.circulationYear)) {
+    staffPageState.circulationYear = "ALL";
+    yearSelects.forEach(select => {
+      select.value = "ALL";
+    });
+  }
+}
+
+function updateStudentScopeNote() {
+  const note = document.getElementById("studentScopeNote");
+  if (!note) return;
+  const department = getStaffDepartment();
+  note.textContent = department
+    ? `Showing only ${department} department students.`
+    : "Showing only students from your department.";
+}
+
+function renderStudentsSection() {
+  populateStudentFilterOptions();
+  renderLibraryStudents(getFilteredStudents());
+}
+
+function updateStudentFilters() {
+  staffPageState.studentSearch = document.getElementById("searchInput")?.value || "";
+  staffPageState.studentYear = document.getElementById("studentYearFilter")?.value || "ALL";
+  staffPageState.studentDepartment = document.getElementById("studentDepartmentFilter")?.value || "ALL";
+  renderLibraryStudents(getFilteredStudents());
+}
+
+function syncCirculationControls() {
+  document.querySelectorAll("[data-circulation-view]").forEach(button => {
+    button.classList.toggle("active", button.dataset.circulationView === staffPageState.circulationView);
+  });
+
+  document.querySelectorAll("[data-circulation-year]").forEach(select => {
+    select.value = staffPageState.circulationYear;
+    select.disabled = staffPageState.circulationView === "staff";
+  });
+}
+
+function updateCirculationHeaders() {
+  const memberLabel = staffPageState.circulationView === "staff" ? "Staff" : "Student";
+  const idLabel = staffPageState.circulationView === "staff" ? "Staff Code" : "Roll No";
+
+  setText("issuedMemberHeader", memberLabel);
+  setText("issuedIdHeader", idLabel);
+  setText("returnedMemberHeader", memberLabel);
+  setText("returnedIdHeader", idLabel);
+  setText("fineMemberHeader", memberLabel);
+  setText("fineIdHeader", idLabel);
+}
+
+function getDashboardScopedIssues() {
+  const staffCode = normalizeText(getStaffCode());
+  return staffPageState.scopedIssues.filter(issue => {
+    if (isStaffIssue(issue)) {
+      return normalizeText(getIssueMemberId(issue)) === staffCode;
+    }
+    return Boolean(getStudentFromIssue(issue));
+  });
+}
+
+function getVisibleCirculationIssues() {
+  const staffCode = normalizeText(getStaffCode());
+  if (staffPageState.circulationView === "staff") {
+    return staffPageState.scopedIssues.filter(issue =>
+      isStaffIssue(issue) && normalizeText(getIssueMemberId(issue)) === staffCode
+    );
+  }
+
+  const selectedYear = normalizeText(staffPageState.circulationYear);
+  return staffPageState.scopedIssues.filter(issue => {
+    if (!isStudentIssue(issue)) return false;
+    const student = getStudentFromIssue(issue);
+    if (!student) return false;
+    return selectedYear === "all" || normalizeText(student.year) === selectedYear;
+  });
+}
+
+function renderCirculationTables() {
+  const visibleIssues = getVisibleCirculationIssues();
+  const activeIssues = visibleIssues.filter(isActiveIssue);
+  const returnedIssues = visibleIssues.filter(isReturnedIssue);
+
+  updateCirculationHeaders();
+  renderIssuedBooks(activeIssues);
+  renderReturnedBooks(returnedIssues);
+  renderFineRows(visibleIssues);
+}
+
+function renderDashboard(staff) {
+  const scopedIssues = getDashboardScopedIssues();
+  const activeIssues = scopedIssues.filter(isActiveIssue);
+  const returnedIssues = scopedIssues.filter(isReturnedIssue);
+  const overdueIssues = activeIssues.filter(issue => getLateDays(issue) > 0);
+  const fineIssues = scopedIssues.filter(issue => {
+    const { lateDays, fineAmount } = computeFineData(issue);
+    const paymentStatus = String(issue.paymentStatus ?? "").trim().toUpperCase();
+    const notPaid = paymentStatus !== "PAID";
+    return (lateDays > 0 && notPaid) || (fineAmount > 0 && notPaid);
+  });
+  const pendingFine = fineIssues.reduce((total, issue) => total + computeFineData(issue).fineAmount, 0);
+
+  setText("booksIssuedCount", String(activeIssues.length));
+  setText("overdueCount", String(overdueIssues.length));
+  setText("pendingFineAmount", `Rs ${pendingFine}`);
+  setText("totalReadsCount", String(staffPageState.students.length));
+
+  renderRecentBooks(scopedIssues);
+  renderReadingActivityChart(returnedIssues);
+  updateIssueReturnStats(activeIssues.length, returnedIssues.length);
+  updateNotificationBar(overdueIssues.length, getDueSoonCount(activeIssues));
+}
+
+async function fetchBooks() {
+  const res = await fetch(`${BASE_URL}/api/books/all`);
+  if (!res.ok) return [];
+  const books = await res.json();
+  return Array.isArray(books) ? books : [];
+}
+
+async function fetchScopedStudents(staff) {
+  const department = getStaffDepartment(staff);
+  if (!department) return [];
+
   try {
-    const [students, books, issues] = await Promise.all([
-      safeFetchArray(`${BASE_URL}/api/students/getall`, makeRequestOptions()),
-      safeFetchArray(`${BASE_URL}/api/books/all`, makeRequestOptions()),
-      fetchAllIssues()
+    const scopedRes = await fetch(`${BASE_URL}/api/students/department/${encodeURIComponent(department)}`);
+    if (scopedRes.ok) {
+      const students = await scopedRes.json();
+      return Array.isArray(students) ? students : [];
+    }
+  } catch (error) {
+  }
+
+  const res = await fetch(`${BASE_URL}/api/students/getall`);
+  if (!res.ok) return [];
+  const students = await res.json();
+  return (Array.isArray(students) ? students : []).filter(student =>
+    departmentMatches(student.department, department)
+  );
+}
+
+function filterIssuesForStaffScope(issues, staff) {
+  const staffCode = normalizeText(getStaffCode(staff));
+  return (Array.isArray(issues) ? issues : []).filter(issue => {
+    if (isStaffIssue(issue)) {
+      return normalizeText(getIssueMemberId(issue)) === staffCode;
+    }
+    return Boolean(staffPageState.studentsById.get(normalizeText(getIssueMemberId(issue))));
+  });
+}
+
+async function fetchScopedIssues(staff) {
+  const staffCode = getStaffCode(staff);
+  if (staffCode) {
+    try {
+      const scopedRes = await fetch(`${BASE_URL}/api/issue/staff-scope/${encodeURIComponent(staffCode)}`);
+      if (scopedRes.ok) {
+        const issues = await scopedRes.json();
+        return Array.isArray(issues) ? issues : [];
+      }
+    } catch (error) {
+    }
+  }
+
+  const res = await fetch(`${BASE_URL}/api/issue/all`);
+  if (!res.ok) return [];
+  const issues = await res.json();
+  return filterIssuesForStaffScope(issues, staff);
+}
+
+async function loadStaffDashboard(staff) {
+  const tbody = document.getElementById("bookTableBody");
+  if (tbody) {
+    tbody.innerHTML = `<tr><td colspan="6">Loading students...</td></tr>`;
+  }
+
+  try {
+    const [books, students] = await Promise.all([
+      fetchBooks(),
+      fetchScopedStudents(staff)
     ]);
-    dashboardState.students = Array.isArray(students) ? students : [];
-    dashboardState.books = Array.isArray(books) ? books : [];
-    dashboardState.issues = Array.isArray(issues) ? issues.filter(issue => {
-      const memberType = String(issue.memberType ?? "STUDENT").trim().toUpperCase();
-      return memberType !== "EMPLOYEE" && memberType !== "EMPLOYEES";
-    }) : [];
-    await Promise.all([loadPendingFines(), loadStaffProfile()]);
-    renderMetrics();
-    renderOverviewTables();
-    renderIssuedTable();
-    renderReturnedTable();
-    renderStudentsTable();
-    renderFinesTable();
-    renderFineMiniList();
-    refreshLastUpdated();
-  } catch (error) {
-    document.getElementById("activeIssuesTable").innerHTML = `<tr><td colspan="6" class="empty">${escapeHtml(error.message || "Failed to load dashboard.")}</td></tr>`;
-    document.getElementById("issuedTableBody").innerHTML = `<tr><td colspan="7" class="empty">Failed to load issued books.</td></tr>`;
-    document.getElementById("returnedTableBody").innerHTML = `<tr><td colspan="7" class="empty">Failed to load returned books.</td></tr>`;
-    document.getElementById("studentsTableBody").innerHTML = `<tr><td colspan="6" class="empty">Failed to load students.</td></tr>`;
-    document.getElementById("finesTableBody").innerHTML = `<tr><td colspan="6" class="empty">Failed to load fines.</td></tr>`;
+
+    staffPageState.staff = staff;
+    staffPageState.students = (Array.isArray(students) ? students : []).filter(student =>
+      departmentMatches(student.department, getStaffDepartment(staff))
+    );
+    staffPageState.studentsById = new Map(
+      staffPageState.students.map(student => [
+        normalizeText(student.rollNumber ?? student.studrollNumber),
+        student
+      ])
+    );
+    staffPageState.booksById = new Map(
+      (Array.isArray(books) ? books : []).map(book => [String(book.bookId ?? book.id ?? "").trim(), book])
+    );
+
+    populateCirculationYearOptions();
+    updateStudentScopeNote();
+    renderStudentsSection();
+
+    staffPageState.scopedIssues = await fetchScopedIssues(staff);
+    syncCirculationControls();
+    renderCirculationTables();
+    renderDashboard(staff);
+  } catch (err) {
+    const issuedBooksBody = document.getElementById("issuedBooksBody");
+    const returnedBooksBody = document.getElementById("returnedBooksBody");
+    const fineTableBody = document.getElementById("fineTableBody");
+    if (issuedBooksBody) {
+      issuedBooksBody.innerHTML = `<tr><td colspan="7">Failed to load issued books.</td></tr>`;
+    }
+    if (returnedBooksBody) {
+      returnedBooksBody.innerHTML = `<tr><td colspan="7">Failed to load returned books.</td></tr>`;
+    }
+    if (fineTableBody) {
+      fineTableBody.innerHTML = `<tr><td colspan="5">Failed to load fines.</td></tr>`;
+    }
+    if (tbody) {
+      tbody.innerHTML = `<tr><td colspan="6">Failed to load student data.</td></tr>`;
+    }
+    throw err;
   }
 }
 
-function resetIssueForm() {
-  document.getElementById("issueRollNumber").value = "";
-  document.getElementById("issueBookId").value = "";
-  document.getElementById("issueDate").value = new Date().toISOString().split("T")[0];
-  document.getElementById("dueDate").value = "";
+function setCirculationView(view) {
+  staffPageState.circulationView = view === "staff" ? "staff" : "student";
+  syncCirculationControls();
+  renderCirculationTables();
 }
 
-async function submitIssueBook(event) {
-  event.preventDefault();
-  const memberId = String(document.getElementById("issueRollNumber").value || "").trim();
-  const bookId = String(document.getElementById("issueBookId").value || "").trim();
-  const issueDate = String(document.getElementById("issueDate").value || "").trim();
-  const dueDate = String(document.getElementById("dueDate").value || "").trim();
-  if (!memberId || !bookId || !issueDate || !dueDate) {
-    setAlert("issueStatus", "error", "Enter roll number, book id, issue date, and due date.");
-    return;
-  }
-  if (!/^\d+$/.test(bookId)) {
-    setAlert("issueStatus", "error", "Book ID must contain digits only.");
-    return;
-  }
-  if (parseDateOnly(dueDate) && parseDateOnly(issueDate) && parseDateOnly(dueDate) < parseDateOnly(issueDate)) {
-    setAlert("issueStatus", "error", "Due date must be on or after the issue date.");
-    return;
-  }
+function setCirculationYear(year) {
+  staffPageState.circulationYear = year || "ALL";
+  syncCirculationControls();
+  renderCirculationTables();
+}
+
+const searchInput = document.getElementById("searchInput");
+if (searchInput) {
+  searchInput.addEventListener("input", event => {
+    staffPageState.studentSearch = event.target.value || "";
+    renderLibraryStudents(getFilteredStudents());
+  });
+}
+
+async function initializeStaffDashboard() {
+  const staffId = guardStaffSession();
+  if (!staffId) return;
+
   try {
-    const params = new URLSearchParams({ memberId, memberType: "STUDENT", bookId, issueDate, dueDate });
-    const res = await fetch(`${BASE_URL}/api/issue/add?${params.toString()}`, makeRequestOptions("POST"));
-    if (!res.ok) throw new Error(await res.text());
-    resetIssueForm();
-    await refreshDashboard();
-    setAlert("issueStatus", "success", "Book issued successfully.");
+    const staff = await fetchStaffProfile(staffId);
+    if (!staff) throw new Error("Staff profile not found.");
+    renderStaffProfile(staff);
+    await loadStaffDashboard(staff);
   } catch (error) {
-    setAlert("issueStatus", "error", error.message || "Failed to issue book.");
+    console.error("Staff dashboard init error:", error);
+    window.location.href = "index.html";
   }
 }
 
-async function submitStudent(event) {
-  event.preventDefault();
-  const password = String(document.getElementById("studentPassword").value || "").trim();
-  const phone = String(document.getElementById("studentPhone").value || "").trim().replace(/\s+/g, "");
-  const email = String(document.getElementById("studentEmail").value || "").trim();
-  if (!password) {
-    setAlert("studentStatus", "error", "Password is required for student.");
-    return;
-  }
-  if (phone && !isValidPhoneNumber(phone)) {
-    setAlert("studentStatus", "error", "Phone number must be exactly 10 digits.");
-    return;
-  }
-  if (email && !isValidEmailAddress(email)) {
-    setAlert("studentStatus", "error", "Enter a valid email address.");
-    return;
-  }
-  const payload = {
-    name: String(document.getElementById("studentName").value || "").trim(),
-    rollNumber: String(document.getElementById("studentRoll").value || "").trim(),
-    department: String(document.getElementById("studentDepartment").value || "").trim(),
-    year: String(document.getElementById("studentYear").value || "").trim(),
-    password,
-    phone,
-    email
-  };
-  try {
-    const res = await fetch(`${BASE_URL}/api/students/add`, makeRequestOptions("POST", payload));
-    if (!res.ok) throw new Error(await res.text());
-    event.target.reset();
-    await refreshDashboard();
-    setAlert("studentStatus", "success", "Student added successfully.");
-  } catch (error) {
-    setAlert("studentStatus", "error", error.message || "Failed to add student.");
-  }
+initializeStaffDashboard();
+
+if (false) {
+/*
+const chatbotToggle = document.querySelector(".chatbot-toggle");
+const chatbotPanel = document.querySelector(".chatbot-panel");
+const chatbotClose = document.querySelector(".chatbot-close");
+const chatbotMessages = document.querySelector(".chatbot-messages");
+const chatbotForm = document.querySelector(".chatbot-form");
+
+function addBotMessage(text, type="bot") {
+  const bubble = document.createElement("div");
+  bubble.className = `chatbot-message ${type}`;
+  bubble.textContent = text;
+  chatbotMessages.appendChild(bubble);
+  chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
 }
 
-if (guardStaffSession()) {
-  document.getElementById("issueDate").value = new Date().toISOString().split("T")[0];
-  refreshDashboard();
+async function getChatbotReply(message) {
+  const url = `${BASE_URL}/api/chatbot/reply?message=${encodeURIComponent(message)}`;
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error("Chatbot request failed");
+  }
+  const data = await response.json();
+  return data.reply || "I couldn't generate a response right now.";
+}
+
+if (false) {
+
+
+  if (matches.length) {
+    return matches.map(book => `${book.title} by ${book.author} (${book.category}) — ${book.focus}`).join("\n");
+  }
+  if (text.toLowerCase().includes("suggest") || text.toLowerCase().includes("recommend")) {
+    const recs = recommendBooks(text).slice(0, 3);
+    return recs.map(book => `${book.title} — ${book.focus}`).join("\n");
+  }
+  return "I can help with book picks, study strategies, or quick catalog searches. Try asking for a topic or author.";
+*/
+}
+
+/*
+if (chatbotToggle) {
+  chatbotToggle.addEventListener("click", () => {
+    if (!chatbotPanel) return;
+    const visible = chatbotPanel.getAttribute("aria-hidden") === "false";
+    chatbotPanel.setAttribute("aria-hidden", visible ? "true" : "false");
+    chatbotPanel.classList.toggle("visible", !visible);
+    if (!visible && chatbotMessages) {
+      setTimeout(() => chatbotMessages.scrollTo(0, chatbotMessages.scrollHeight), 100);
+    }
+  });
+}
+
+if (chatbotClose && chatbotPanel) {
+  chatbotClose.addEventListener("click", () => {
+    chatbotPanel.setAttribute("aria-hidden", "true");
+    chatbotPanel.classList.remove("visible");
+  });
+}
+
+if (chatbotForm) {
+  chatbotForm.addEventListener("submit", async event => {
+    event.preventDefault();
+    const input = chatbotForm.querySelector("input");
+    const message = input.value.trim();
+    if (!message) return;
+    addBotMessage(message, "user");
+    input.value = "";
+    addBotMessage("Searching the library...", "bot");
+    try {
+      const reply = await getChatbotReply(message);
+      const pending = chatbotMessages.querySelector(".chatbot-message.bot:last-child");
+      if (pending && pending.textContent === "Searching the library...") {
+        pending.textContent = reply;
+      } else {
+        addBotMessage(reply, "bot");
+      }
+    } catch (error) {
+      const pending = chatbotMessages.querySelector(".chatbot-message.bot:last-child");
+      if (pending && pending.textContent === "Searching the library...") {
+        pending.textContent = "Unable to reach the library assistant right now.";
+      } else {
+        addBotMessage("Unable to reach the library assistant right now.", "bot");
+      }
+    }
+  });
+}
+
+if (chatbotMessages) {
+  addBotMessage("Hi! Ask for books by topic, author, or title availability.", "bot");
+}
+*/
+
+async function sendMessage() {
+    const input = document.getElementById("chatInput");
+    const chatBody = document.getElementById("chatBody");
+    const message = input.value.trim();
+
+    if (!message) return;
+
+    addMessage(message, "user");
+    input.value = "";
+
+    try {
+        const response = await fetch("http://localhost:8080/api/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ message: message })
+        });
+
+        if (!response.ok) {
+            throw new Error("Backend error");
+        }
+
+        const data = await response.json();
+        addMessage(data.reply, "bot");
+
+    } catch (error) {
+        console.error("Chatbot error:", error);
+        addMessage("Chatbot is not responding. Please check backend connection.", "bot");
+    }
+}
+
+function addMessage(text, sender) {
+    const chatBody = document.getElementById("chatBody");
+
+    const msgDiv = document.createElement("div");
+    msgDiv.className = sender === "user" ? "user-msg" : "bot-msg";
+    msgDiv.textContent = text;
+
+    chatBody.appendChild(msgDiv);
+    chatBody.scrollTop = chatBody.scrollHeight;
+}
+
+function handleChatEnter(event) {
+    if (event.key === "Enter") {
+        sendMessage();
+    }
+}
+
+function openChatbot() {
+    const chatbotBox = document.getElementById("chatbotBox");
+    const chatbotLauncher = document.getElementById("chatbotLauncher");
+    const overlay = document.getElementById("chatbotOverlay");
+    if (chatbotBox) {
+        chatbotBox.classList.remove("hidden");
+        chatbotBox.classList.add("expanded");
+    }
+    if (chatbotLauncher) chatbotLauncher.classList.add("hidden");
+    if (overlay) overlay.classList.add("show");
+}
+
+function closeChatbot() {
+    const chatbotBox = document.getElementById("chatbotBox");
+    const chatbotLauncher = document.getElementById("chatbotLauncher");
+    const overlay = document.getElementById("chatbotOverlay");
+    if (chatbotBox) {
+        chatbotBox.classList.add("hidden");
+        chatbotBox.classList.remove("expanded");
+    }
+    if (chatbotLauncher) chatbotLauncher.classList.remove("hidden");
+    if (overlay) overlay.classList.remove("show");
 }
 </script>
+
 </body>
 </html>
