@@ -9,7 +9,7 @@ public class AdminBookUpdateRequest extends AdminDeleteRequest {
     private String shelfNumber;
     private Integer totalCopies;
     private Integer availableCopies;
-    private boolean available;
+    private Boolean available;
 
     public String getTitle() {
         return title;
@@ -75,11 +75,11 @@ public class AdminBookUpdateRequest extends AdminDeleteRequest {
         this.availableCopies = availableCopies;
     }
 
-    public boolean isAvailable() {
+    public Boolean getAvailable() {
         return available;
     }
 
-    public void setAvailable(boolean available) {
+    public void setAvailable(Boolean available) {
         this.available = available;
     }
 }

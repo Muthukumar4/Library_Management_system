@@ -17,7 +17,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 @Service
 public class AdminActionService {
@@ -61,6 +66,29 @@ public class AdminActionService {
     public boolean loginAdmin(String username, String password) {
         return adminUsername.equals(username == null ? "" : username.trim())
                 && adminPassword.equals(password == null ? "" : password);
+    }
+
+    public void validateAdminAuthorizationHeader(String authorizationHeader) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Basic ")) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Admin authorization header is required");
+        }
+
+        try {
+            String encoded = authorizationHeader.substring(6).trim();
+            String decoded = new String(Base64.getDecoder().decode(encoded), StandardCharsets.UTF_8);
+            int separatorIndex = decoded.indexOf(':');
+            if (separatorIndex < 0) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid admin authorization header");
+            }
+
+            String username = decoded.substring(0, separatorIndex);
+            String password = decoded.substring(separatorIndex + 1);
+            if (!loginAdmin(username, password)) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid admin authorization");
+            }
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid admin authorization header");
+        }
     }
 
     public Student updateStudent(String rollNumber, AdminStudentUpdateRequest request) {
@@ -147,7 +175,7 @@ public class AdminActionService {
         book.setShelfNumber(request.getShelfNumber());
         book.setTotalcopies(totalCopies);
         book.setAvailablecopies(availableCopies);
-        book.setAvailable(request.isAvailable());
+        book.setAvailable(availableCopies > 0);
 
         Book saved = bookrepo.save(book);
         saveAudit("UPDATE", "BOOK", String.valueOf(saved.getBookId()), request.getAdminUsername(), request.getReason(), before, toJson(saved));

@@ -1604,6 +1604,8 @@ tr:nth-child(even){
 
   background: #f8fafc;
 
+  color: #0f172a;
+
 
 
   font-size: 13px;
@@ -1617,6 +1619,30 @@ tr:nth-child(even){
 
 
 
+
+.notification-message {
+
+  display: block;
+
+  color: #0f172a;
+
+  font-weight: 500;
+
+  line-height: 1.45;
+
+  white-space: normal;
+
+  word-break: break-word;
+
+}
+
+.notification-message.is-fallback {
+
+  color: #475569;
+
+  font-style: italic;
+
+}
 
 .notification-time {
 
@@ -2465,54 +2491,29 @@ tr:nth-child(even){
 
 
 
-.fine-method-row {
-
-
-
-  margin-top: 8px;
-
-
-
-  display: grid;
-
-
-
-  grid-template-columns: 140px 1fr;
-
-
-
-  gap: 10px;
-
-
-
-  align-items: center;
-
-
-
+.payment-group{
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 20px;
+  width: 300px;
 }
 
+.payment-group label{
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e3a5f;
+}
 
-
-
-
-
-
-.fine-method-row select {
-
-
-
-  padding: 9px;
-
-
-
-  border-radius: 8px;
-
-
-
-  border: 1px solid #cbd5e1;
-
-
-
+.payment-group select{
+  height: 45px;
+  padding: 0 12px;
+  border: 1px solid #cfd8e3;
+  border-radius: 10px;
+  font-size: 15px;
+  background: white;
+  color: #333;
+  outline: none;
 }
 
 
@@ -4999,6 +5000,60 @@ body.dark-mode .empty-state .title {
   transform: translateY(-1px);
 }
 
+.payment-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 16px;
+  margin: 18px 0;
+}
+
+.payment-summary-card {
+  border-radius: 16px;
+  padding: 18px 20px;
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  border: 1px solid #bfdbfe;
+  box-shadow: 0 10px 24px rgba(30, 64, 175, 0.10);
+}
+
+.payment-summary-card h4 {
+  margin: 0 0 10px;
+  font-size: 14px;
+  color: #1e3a8a;
+  letter-spacing: 0.02em;
+}
+
+.payment-summary-card strong {
+  display: block;
+  font-size: 28px;
+  color: #0f172a;
+}
+
+.payment-summary-card span {
+  display: block;
+  margin-top: 6px;
+  color: #475569;
+  font-size: 13px;
+}
+
+.payment-summary-card.gpay {
+  background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+  border-color: #a7f3d0;
+}
+
+.payment-summary-card.cash {
+  background: linear-gradient(135deg, #fff7ed, #ffedd5);
+  border-color: #fdba74;
+}
+
+.payment-summary-card.students {
+  background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+  border-color: #c4b5fd;
+}
+
+.payment-summary-status {
+  margin-top: 12px;
+}
+
 .users-selection-header,
 .users-selection-cell {
   display: none;
@@ -5007,6 +5062,10 @@ body.dark-mode .empty-state .title {
 #usersTable.selection-mode .users-selection-header,
 #usersTable.selection-mode .users-selection-cell {
   display: table-cell;
+}
+
+#bookTable .select-col.hidden {
+  display: none;
 }
 
 .admin-action-form {
@@ -5729,6 +5788,10 @@ body.dark-mode textarea {
 
 
     <li onclick="showSection('pendingFines',this)">Pending Fines</li>
+
+
+
+    <li onclick="showSection('paymentSummary',this)">Total Amount</li>
 
 
 
@@ -7172,11 +7235,11 @@ body.dark-mode textarea {
 
 
 
-        <button type="button" class="edit-btn" id="updateSelectedBookBtn" onclick="setBookActionMode('update')" disabled>Update</button>
+        <button type="button" class="edit-btn" id="updateSelectedBookBtn" onclick="setBookActionMode('update')">Update</button>
 
 
 
-        <button type="button" class="delete-btn" id="deleteSelectedBookBtn" onclick="setBookActionMode('delete')" disabled>Delete</button>
+        <button type="button" class="delete-btn" id="deleteSelectedBookBtn" onclick="setBookActionMode('delete')">Delete</button>
 
 
 
@@ -7216,7 +7279,7 @@ body.dark-mode textarea {
 
 
 
-            <th><input type="checkbox" id="selectAllBooks" onclick="toggleAllBooks(this)"></th>
+            <th class="select-col hidden"><input type="checkbox" id="selectAllBooks" onclick="toggleAllBooks(this)"></th>
 
 
 
@@ -8244,15 +8307,17 @@ body.dark-mode textarea {
 
 
 
-      <div class="fine-method-row">
+      <div class="payment-group">
 
 
 
-        <label for="detailFineMethod">Payment Method</label>
+        <label for="paymentMethod">Payment Method</label>
 
 
 
-        <select id="detailFineMethod">
+        <select id="paymentMethod">
+
+          <option value="">Select Payment</option>
 
 
 
@@ -8298,15 +8363,57 @@ body.dark-mode textarea {
 
   </div>
 
+  <div id="paymentSummary" class="section">
 
+    <div class="section-head"><h3>Total Amount</h3><span class="section-kicker">Admin Only</span></div>
 
+    <p class="section-subtitle">Shows student fine collections with separate totals for GPay and Cash.</p>
 
+    <div class="payment-summary-grid">
+      <div class="payment-summary-card">
+        <h4>Total Paid By Students</h4>
+        <strong id="summaryTotalPaid">Rs 0.00</strong>
+        <span>All paid student fines</span>
+      </div>
+      <div class="payment-summary-card gpay">
+        <h4>Paid By GPay</h4>
+        <strong id="summaryGpayPaid">Rs 0.00</strong>
+        <span>Collected through GPay</span>
+      </div>
+      <div class="payment-summary-card cash">
+        <h4>Paid By Cash</h4>
+        <strong id="summaryCashPaid">Rs 0.00</strong>
+        <span>Collected through cash</span>
+      </div>
+      <div class="payment-summary-card students">
+        <h4>Students Paid</h4>
+        <strong id="summaryStudentCount">0</strong>
+        <span>Students with paid fines</span>
+      </div>
+    </div>
 
+    <div class="table-container table-shell">
+      <table id="paymentSummaryTable" border="1" style="width:100%; margin-top:10px;">
+        <thead>
+          <tr>
+            <th>Roll Number</th>
+            <th>Name</th>
+            <th>Department</th>
+            <th>Year</th>
+            <th>Total Paid</th>
+            <th>GPay</th>
+            <th>Cash</th>
+          </tr>
+        </thead>
+        <tbody id="paymentSummaryTableBody">
+          <tr><td colspan="7">Loading payment summary...</td></tr>
+        </tbody>
+      </table>
+    </div>
 
+    <div id="paymentSummaryStatus" class="issue-status payment-summary-status"></div>
 
-
-
-
+  </div>
 
   </div>
 

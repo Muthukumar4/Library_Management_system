@@ -22,6 +22,17 @@ body{
 .app-layout{
   display:block;
 }
+.sidebar-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,0.45);
+  backdrop-filter:blur(4px);
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition:opacity 0.3s ease, visibility 0.3s ease;
+  z-index:15;
+}
 .sidebar{
   width:260px;
   background:#1e3a8a;
@@ -33,6 +44,7 @@ body{
   bottom:0;
   overflow-y:auto;
   z-index:5;
+  transition:transform 0.3s ease, box-shadow 0.3s ease;
 }
 .sidebar-profile{
   display:flex;
@@ -100,7 +112,7 @@ body{
   margin-left:260px;
   padding:30px;
   position:relative;
-  height:100vh;
+  min-height:100vh;
   overflow-y:auto;
   background:transparent;
 }
@@ -119,15 +131,36 @@ body{
   display:flex;
   justify-content:space-between;
   align-items:center;
+  gap:16px;
   margin-bottom:25px;
   position:sticky;
   top:0;
   background:rgba(244,246,251,0.97);
   backdrop-filter:blur(10px);
-  padding-top:4px;
-  padding-bottom:4px;
+  padding:8px 0 12px;
   z-index:20;
   border-bottom:1px solid rgba(227,232,255,0.6);
+}
+.header-title-wrap{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  min-width:0;
+}
+.menu-toggle{
+  display:none;
+  width:46px;
+  height:46px;
+  border-radius:14px;
+  background:#ffffff;
+  color:#1e3a8a;
+  border:1px solid #dbe4ff;
+  box-shadow:0 12px 24px rgba(17,34,73,0.12);
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  font-size:22px;
+  flex-shrink:0;
 }
 .header-actions{
   display:flex;
@@ -231,6 +264,7 @@ button{
   border:1px solid #e2e8f0;
   box-shadow:0 8px 22px rgba(15,23,42,0.1);
   transition:transform 0.3s ease, box-shadow 0.3s ease;
+  overflow:hidden;
 }
 
 .section:hover{
@@ -439,12 +473,13 @@ button{
   border-bottom:1px solid #e4e6ff;
 }
 .status-issued{background:#dfe6ff;color:#1e3c72;}
-.section-header{
+.section-header,
+.table-header{
   display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:14px;
-  margin-bottom:16px;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:15px;
+  margin-bottom:20px;
 }
 .muted{
   font-size:13px;
@@ -458,6 +493,20 @@ button{
 table{
   width:100%;
   border-collapse:collapse;
+}
+.table-shell{
+  margin-top:18px;
+  border:1px solid #dbe4ff;
+  border-radius:18px;
+  background:#fff;
+  box-shadow:0 18px 36px rgba(15,32,86,0.08);
+  overflow:auto;
+}
+.table-shell table{
+  min-width:720px;
+}
+.table-shell--compact{
+  margin-top:16px;
 }
 th,td{
   padding:14px;
@@ -511,11 +560,28 @@ tr:nth-child(even){background:#f6f8ff;}
   border:1px solid #cfd6ff;
 }
 .filters-row,
-.scope-controls{
+.scope-controls,
+.top-controls{
   display:flex;
-  align-items:flex-end;
+  align-items:center;
   gap:12px;
   flex-wrap:wrap;
+}
+.top-controls{
+  justify-content:space-between;
+  align-items:center;
+  margin-top:15px;
+  width:100%;
+  gap:15px;
+}
+.table-controls{
+  display:flex;
+  align-items:center;
+  gap:15px;
+}
+.scope-controls{
+  justify-content:space-between;
+  width:100%;
 }
 .filters-row{
   margin-bottom:18px;
@@ -549,6 +615,13 @@ tr:nth-child(even){background:#f6f8ff;}
   background:#eef2ff;
   border-radius:999px;
   padding:4px;
+}
+.toggle-buttons{
+  display:flex;
+  gap:10px;
+}
+.filter-box{
+  margin-left:auto;
 }
 .scope-btn{
   padding:10px 16px;
@@ -740,27 +813,46 @@ tr:nth-child(even){background:#f6f8ff;}
 }
 
 @media (max-width: 1024px){
-  body{
-    display:block;
-  }
   .sidebar{
-    width:100%;
-    padding:16px;
+    width:min(320px, calc(100vw - 44px));
+    padding:22px 18px;
+    transform:translateX(-100%);
+    box-shadow:none;
+    z-index:25;
+  }
+  .sidebar.open{
+    transform:translateX(0);
+    box-shadow:0 24px 48px rgba(15,23,42,0.3);
+  }
+  body.sidebar-open{
+    overflow:hidden;
+  }
+  body.sidebar-open .sidebar-overlay{
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
   }
   .sidebar h2{
     margin-bottom:14px;
   }
   .menu{
-    display:grid;
-    grid-template-columns:repeat(2,minmax(0,1fr));
+    display:flex;
+    flex-direction:column;
     gap:8px;
   }
   .menu li{
     margin-bottom:0;
-    text-align:center;
+    text-align:left;
   }
   .main{
+    margin-left:0;
     padding:18px;
+  }
+  .menu-toggle{
+    display:inline-flex;
+  }
+  .header h2{
+    font-size:30px;
   }
   .profile{
     grid-template-columns:repeat(2,1fr);
@@ -779,9 +871,6 @@ tr:nth-child(even){background:#f6f8ff;}
 }
 
 @media (max-width: 680px){
-  .menu{
-    grid-template-columns:1fr;
-  }
   .main{
     padding:12px;
   }
@@ -790,12 +879,48 @@ tr:nth-child(even){background:#f6f8ff;}
     align-items:flex-start;
     gap:10px;
   }
-  .logout{
+  .header-title-wrap{
     width:100%;
+  }
+  .header h2{
+    font-size:26px;
+    line-height:1.2;
+  }
+  .header-actions{
+    width:100%;
+    justify-content:space-between;
+  }
+  .logout{
+    flex:1;
   }
   .section{
     padding:14px;
-    overflow-x:auto;
+  }
+  .scope-controls,
+  .top-controls{
+    align-items:stretch;
+  }
+  .filter-box,
+  .scope-select,
+  .filter-group,
+  .filters-row .search{
+    margin-left:0;
+    width:100%;
+    min-width:0;
+  }
+  .toggle-buttons{
+    width:100%;
+  }
+  .scope-btn{
+    flex:1 1 0;
+    text-align:center;
+  }
+  .table-shell{
+    border-radius:14px;
+    margin-top:14px;
+  }
+  .table-shell table{
+    min-width:640px;
   }
   .profile{
     grid-template-columns:1fr;
@@ -825,7 +950,9 @@ tr:nth-child(even){background:#f6f8ff;}
 
 <body>
 
-<div class="sidebar">
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<div class="sidebar" id="staffSidebar">
   <h2>Staff Panel</h2>
   <div class="sidebar-profile">
     <div class="avatar">SF</div>
@@ -846,7 +973,10 @@ tr:nth-child(even){background:#f6f8ff;}
 <div class="main">
 
     <div class="header">
-    <h2>Staff Dashboard</h2>
+    <div class="header-title-wrap">
+      <button class="menu-toggle" type="button" onclick="toggleSidebar()" aria-label="Open staff menu">☰</button>
+      <h2>Staff Dashboard</h2>
+    </div>
     <div class="header-actions">
       <div class="notify-group">
         <button type="button" class="bell-button" id="bellButton" onclick="toggleBellMessage()" aria-label="View overdue notifications">
@@ -876,42 +1006,6 @@ tr:nth-child(even){background:#f6f8ff;}
       <div class="stat accent-green"><h4 id="totalReadsCount">0</h4><p><span class="stat-icon">👥</span>Total Students</p></div>
     </div>
 
-    <div class="insights-grid">
-      <div class="chart-card">
-        <div class="chart-card__header">
-          <div>
-            <p class="eyebrow">Circulation Activity</p>
-            <h4>Books issued per month</h4>
-          </div>
-          <span class="chart-tag">Last 6 months</span>
-        </div>
-        <div id="readingActivityChart" class="reading-chart"></div>
-      </div>
-      <div class="issue-return-card">
-        <div class="chart-card__header" style="margin-bottom:16px;">
-          <div>
-            <p class="eyebrow">Issue vs Return</p>
-            <h4>Circulation metrics</h4>
-          </div>
-        </div>
-        <div class="issue-return-stats">
-          <div>
-            <span>Issued</span>
-            <strong id="issueCountBadge">0</strong>
-          </div>
-          <div>
-            <span>Returned</span>
-            <strong id="returnCountBadge">0</strong>
-          </div>
-          <div>
-            <span>Return rate</span>
-            <strong id="returnRateBadge">0%</strong>
-          </div>
-        </div>
-        <p class="muted">Library circulation pulse.</p>
-      </div>
-    </div>
-
     <div class="recent-books-card">
       <div class="recent-books-header">
         <div>
@@ -920,20 +1014,22 @@ tr:nth-child(even){background:#f6f8ff;}
         </div>
         <span class="status-badge status-returned">Status</span>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Member</th>
-            <th>Book Title</th>
-            <th>Issue Date</th>
-            <th>Due Date</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="recentBooksBody">
-          <tr><td colspan="5">No recent activity yet.</td></tr>
-        </tbody>
-      </table>
+      <div class="table-shell table-shell--compact">
+        <table>
+          <thead>
+            <tr>
+              <th>Member</th>
+              <th>Book Title</th>
+              <th>Issue Date</th>
+              <th>Due Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="recentBooksBody">
+            <tr><td colspan="5">No recent activity yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -943,24 +1039,26 @@ tr:nth-child(even){background:#f6f8ff;}
         <h3>Issued Books</h3>
         <p class="muted">Switch between department students and your own staff account.</p>
       </div>
-      <div class="scope-controls">
-        <div class="scope-toggle">
+      <div class="scope-controls top-controls">
+        <div class="scope-toggle toggle-buttons">
           <button type="button" class="scope-btn active" data-circulation-view="student" onclick="setCirculationView('student')">Student</button>
           <button type="button" class="scope-btn" data-circulation-view="staff" onclick="setCirculationView('staff')">Staff</button>
         </div>
-        <select class="scope-select" data-circulation-year onchange="setCirculationYear(this.value)">
+        <select class="scope-select filter-box" data-circulation-year onchange="setCirculationYear(this.value)">
           <option value="ALL">All Years</option>
         </select>
       </div>
     </div>
-    <table>
-      <thead>
-        <tr><th id="issuedMemberHeader">Student</th><th id="issuedIdHeader">Roll No</th><th>Book</th><th>Author</th><th>Issue</th><th>Due</th><th>Status</th></tr>
-      </thead>
-      <tbody id="issuedBooksBody">
-        <tr><td colspan="7">No issued books found.</td></tr>
-      </tbody>
-    </table>
+    <div class="table-shell">
+      <table>
+        <thead>
+          <tr><th id="issuedMemberHeader">Student</th><th id="issuedIdHeader">Roll No</th><th>Book</th><th>Author</th><th>Issue</th><th>Due</th><th>Status</th></tr>
+        </thead>
+        <tbody id="issuedBooksBody">
+          <tr><td colspan="7">No issued books found.</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <div id="returned" class="section content">
@@ -968,24 +1066,26 @@ tr:nth-child(even){background:#f6f8ff;}
       <div>
         <h3>Returned Books</h3>
       </div>
-      <div class="scope-controls">
-        <div class="scope-toggle">
+      <div class="scope-controls top-controls">
+        <div class="scope-toggle toggle-buttons">
           <button type="button" class="scope-btn active" data-circulation-view="student" onclick="setCirculationView('student')">Student</button>
           <button type="button" class="scope-btn" data-circulation-view="staff" onclick="setCirculationView('staff')">Staff</button>
         </div>
-        <select class="scope-select" data-circulation-year onchange="setCirculationYear(this.value)">
+        <select class="scope-select filter-box" data-circulation-year onchange="setCirculationYear(this.value)">
           <option value="ALL">All Years</option>
         </select>
       </div>
     </div>
-    <table>
-      <thead>
-        <tr><th id="returnedMemberHeader">Student</th><th id="returnedIdHeader">Roll No</th><th>Book</th><th>Issue</th><th>Returned</th><th>Late Days</th><th>Status</th></tr>
-      </thead>
-      <tbody id="returnedBooksBody">
-        <tr><td colspan="7">No returned books found.</td></tr>
-      </tbody>
-    </table>
+    <div class="table-shell">
+      <table>
+        <thead>
+          <tr><th id="returnedMemberHeader">Student</th><th id="returnedIdHeader">Roll No</th><th>Book</th><th>Issue</th><th>Returned</th><th>Late Days</th><th>Status</th></tr>
+        </thead>
+        <tbody id="returnedBooksBody">
+          <tr><td colspan="7">No returned books found.</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <div id="fines" class="section content">
@@ -994,12 +1094,12 @@ tr:nth-child(even){background:#f6f8ff;}
         <h3>Pending Fines</h3>
         <p class="muted">Student fines can also be filtered by year.</p>
       </div>
-      <div class="scope-controls">
-        <div class="scope-toggle">
+      <div class="scope-controls top-controls">
+        <div class="scope-toggle toggle-buttons">
           <button type="button" class="scope-btn active" data-circulation-view="student" onclick="setCirculationView('student')">Student</button>
           <button type="button" class="scope-btn" data-circulation-view="staff" onclick="setCirculationView('staff')">Staff</button>
         </div>
-        <select class="scope-select" data-circulation-year onchange="setCirculationYear(this.value)">
+        <select class="scope-select filter-box" data-circulation-year onchange="setCirculationYear(this.value)">
           <option value="ALL">All Years</option>
         </select>
       </div>
@@ -1041,14 +1141,16 @@ tr:nth-child(even){background:#f6f8ff;}
       </div>
     </div>
 
-    <table id="bookTable">
-      <thead>
-        <tr><th>Name</th><th>Roll Number</th><th>Department</th><th>Year</th><th>Email</th><th>Phone</th></tr>
-      </thead>
-      <tbody id="bookTableBody">
-        <tr><td colspan="6">Loading students...</td></tr>
-      </tbody>
-    </table>
+    <div class="table-shell">
+      <table id="bookTable">
+        <thead>
+          <tr><th>Name</th><th>Roll Number</th><th>Department</th><th>Year</th><th>Email</th><th>Phone</th></tr>
+        </thead>
+        <tbody id="bookTableBody">
+          <tr><td colspan="6">Loading students...</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
 </div>
@@ -1064,8 +1166,8 @@ tr:nth-child(even){background:#f6f8ff;}
     </div>
     <div id="chatBody" class="chat-body">
         <div class="bot-msg">
-            I can help with book picks, study strategies, or quick catalog searches.
-            Try asking for a topic or author.
+            Ask me for a book title, topic, author, rack number, shelf number, or availability.
+            Example: java books, which rack, or is head first java available?
         </div>
     </div>
 
@@ -1110,7 +1212,35 @@ function showSection(id,el){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   document.querySelectorAll('.menu li').forEach(m=>m.classList.remove('active'));
-  el.classList.add('active');
+  if (el) el.classList.add('active');
+  if (id === "dashboard" || id === "issued" || id === "returned" || id === "fines") {
+    refreshStaffDashboardData();
+  }
+  if (window.innerWidth <= 1024) {
+    closeSidebar();
+  }
+}
+
+function toggleSidebar(forceOpen){
+  const sidebar = document.getElementById("staffSidebar");
+  const shouldOpen = typeof forceOpen === "boolean"
+    ? forceOpen
+    : !sidebar?.classList.contains("open");
+
+  if (!sidebar) return;
+
+  sidebar.classList.toggle("open", shouldOpen);
+  document.body.classList.toggle("sidebar-open", shouldOpen);
+}
+
+function closeSidebar(){
+  toggleSidebar(false);
+}
+
+function syncResponsiveSidebar(){
+  if (window.innerWidth > 1024) {
+    closeSidebar();
+  }
 }
 
 async function logout(){
@@ -1213,6 +1343,15 @@ const staffPageState = {
 
 function normalizeText(value) {
   return String(value ?? "").trim().toLowerCase();
+}
+
+function getIssuePaymentStatus(issue) {
+  return String(issue?.paymentStatus ?? issue?.fineStatus ?? issue?.status ?? "").trim().toUpperCase();
+}
+
+function isFineSettled(issue) {
+  const paymentStatus = getIssuePaymentStatus(issue);
+  return paymentStatus === "PAID" || paymentStatus === "FINE_PAID";
 }
 
 function escapeHtml(value) {
@@ -1379,7 +1518,8 @@ function renderIssuedBooks(issues) {
 function getLateDays(issue) {
   const dueDate = parseDateOnly(issue.dueDate);
   if (!dueDate) return 0;
-  return Math.max(0, dayDiff(dueDate, new Date()));
+  const referenceDate = parseDateOnly(issue.returnDate) || new Date();
+  return Math.max(0, dayDiff(dueDate, referenceDate));
 }
 
 function computeFineData(issue) {
@@ -1389,17 +1529,18 @@ function computeFineData(issue) {
   return { lateDays, fineAmount };
 }
 
+function hasPendingFine(issue) {
+  const { fineAmount } = computeFineData(issue);
+  const status = String(issue?.status ?? "").trim().toUpperCase();
+  const isReturned = status === "RETURNED" || Boolean(issue?.returnDate);
+  return isReturned && fineAmount > 0 && !isFineSettled(issue);
+}
+
 function renderFineRows(issues) {
   const tbody = document.getElementById("fineTableBody");
   if (!tbody) return;
 
-  const fineIssues = issues.filter(issue => {
-    const { lateDays, fineAmount } = computeFineData(issue);
-    const paymentStatus = String(issue.paymentStatus ?? "").trim().toUpperCase();
-    const notPaid = paymentStatus !== "PAID";
-    const hasUnpaidFine = fineAmount > 0 && notPaid;
-    return (lateDays > 0 && notPaid) || hasUnpaidFine;
-  });
+  const fineIssues = issues.filter(hasPendingFine);
 
   if (!fineIssues.length) {
     const emptyText = staffPageState.circulationView === "staff"
@@ -1440,9 +1581,10 @@ function renderReturnedBooks(issues) {
 
   tbody.innerHTML = issues.map(issue => {
     const book = getIssueBook(issue);
-    const isLateReturn = Number(issue.lateDays ?? 0) > 0 || String(issue.paymentStatus ?? "").trim().toUpperCase() === "PAID";
-    const statusLabel = isLateReturn ? "Fine Paid" : "Returned";
-    const statusClass = isLateReturn ? "status-fine-paid" : "status-returned";
+    const { fineAmount } = computeFineData(issue);
+    const isLateReturn = fineAmount > 0;
+    const statusLabel = !isLateReturn ? "Returned" : (isFineSettled(issue) ? "Fine Paid" : "Fine Pending");
+    const statusClass = !isLateReturn ? "status-returned" : (isFineSettled(issue) ? "status-fine-paid" : "status-overdue");
     const member = getIssueMemberDetails(issue);
     const dueDateObj = parseDateOnly(issue.dueDate);
     const returnDateObj = parseDateOnly(issue.returnDate);
@@ -1703,14 +1845,51 @@ function updateStudentScopeNote() {
 
 function renderStudentsSection() {
   populateStudentFilterOptions();
+  updateYearFilterOptions();
   renderLibraryStudents(getFilteredStudents());
 }
 
 function updateStudentFilters() {
   staffPageState.studentSearch = document.getElementById("searchInput")?.value || "";
-  staffPageState.studentYear = document.getElementById("studentYearFilter")?.value || "ALL";
   staffPageState.studentDepartment = document.getElementById("studentDepartmentFilter")?.value || "ALL";
+  
+  // Update year filter options based on selected department
+  updateYearFilterOptions();
+  
+  staffPageState.studentYear = document.getElementById("studentYearFilter")?.value || "ALL";
   renderLibraryStudents(getFilteredStudents());
+}
+
+function updateYearFilterOptions() {
+  const yearSelect = document.getElementById("studentYearFilter");
+  const selectedDepartment = document.getElementById("studentDepartmentFilter")?.value || "ALL";
+  
+  if (!yearSelect) return;
+  
+  let availableYears = [];
+  
+  if (selectedDepartment === "ALL") {
+    // Show all available years
+    availableYears = [...new Set(staffPageState.students.map(student => String(student.year || "").trim()).filter(Boolean))].sort();
+  } else if (selectedDepartment.toUpperCase() === "CSE") {
+    // For CSE department, show years 1, 2, 3
+    availableYears = ["1", "2", "3"];
+  } else {
+    // For other departments, show all available years for that department
+    availableYears = [...new Set(staffPageState.students
+      .filter(student => normalizeText(student.department) === normalizeText(selectedDepartment))
+      .map(student => String(student.year || "").trim())
+      .filter(Boolean))].sort();
+  }
+  
+  const yearOptions = [{ value: "ALL", label: "All Years" }, ...availableYears.map(year => ({ value: year, label: year }))];
+  syncSelectOptions([yearSelect], yearOptions, staffPageState.studentYear);
+  
+  // Reset to "All Years" if current selection is not available
+  if (!yearOptions.some(option => option.value === staffPageState.studentYear)) {
+    staffPageState.studentYear = "ALL";
+    yearSelect.value = "ALL";
+  }
 }
 
 function syncCirculationControls() {
@@ -1779,12 +1958,7 @@ function renderDashboard(staff) {
   const activeIssues = scopedIssues.filter(isActiveIssue);
   const returnedIssues = scopedIssues.filter(isReturnedIssue);
   const overdueIssues = activeIssues.filter(issue => getLateDays(issue) > 0);
-  const fineIssues = scopedIssues.filter(issue => {
-    const { lateDays, fineAmount } = computeFineData(issue);
-    const paymentStatus = String(issue.paymentStatus ?? "").trim().toUpperCase();
-    const notPaid = paymentStatus !== "PAID";
-    return (lateDays > 0 && notPaid) || (fineAmount > 0 && notPaid);
-  });
+  const fineIssues = scopedIssues.filter(hasPendingFine);
   const pendingFine = fineIssues.reduce((total, issue) => total + computeFineData(issue).fineAmount, 0);
 
   setText("booksIssuedCount", String(activeIssues.length));
@@ -1944,7 +2118,26 @@ async function initializeStaffDashboard() {
   }
 }
 
+window.addEventListener("resize", syncResponsiveSidebar);
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") {
+    closeSidebar();
+  }
+});
+
 initializeStaffDashboard();
+
+function refreshStaffDashboardData() {
+  if (!staffPageState.staff) return;
+  loadStaffDashboard(staffPageState.staff);
+}
+
+window.addEventListener("focus", refreshStaffDashboardData);
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") {
+    refreshStaffDashboardData();
+  }
+});
 
 if (false) {
 /*
@@ -2039,9 +2232,25 @@ if (chatbotMessages) {
 }
 */
 
+const chatbotContext = {
+    lastTopic: "",
+    lastBookTitle: ""
+};
+
+function updateChatbotContext(replyData) {
+    if (!replyData || typeof replyData !== "object") return;
+
+    if (typeof replyData.matchedTopic === "string") {
+        chatbotContext.lastTopic = replyData.matchedTopic.trim();
+    }
+
+    if (typeof replyData.matchedBookTitle === "string") {
+        chatbotContext.lastBookTitle = replyData.matchedBookTitle.trim();
+    }
+}
+
 async function sendMessage() {
     const input = document.getElementById("chatInput");
-    const chatBody = document.getElementById("chatBody");
     const message = input.value.trim();
 
     if (!message) return;
@@ -2055,7 +2264,11 @@ async function sendMessage() {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ message: message })
+            body: JSON.stringify({
+                message: message,
+                lastTopic: chatbotContext.lastTopic,
+                lastBookTitle: chatbotContext.lastBookTitle
+            })
         });
 
         if (!response.ok) {
@@ -2063,6 +2276,7 @@ async function sendMessage() {
         }
 
         const data = await response.json();
+        updateChatbotContext(data);
         addMessage(data.reply, "bot");
 
     } catch (error) {

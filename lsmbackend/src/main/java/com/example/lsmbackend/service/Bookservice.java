@@ -14,7 +14,24 @@ public class Bookservice {
     private Bookrepo bookrepo;
 
     public Book addBook(Book book) {
-        book.setAvailablecopies(book.getTotalcopies());
+        Integer totalCopies = book.getTotalcopies();
+        if (totalCopies == null || totalCopies < 0) {
+            throw new RuntimeException("Total copies must be 0 or more");
+        }
+
+        Integer availableCopies = book.getAvailablecopies();
+        if (availableCopies == null) {
+            availableCopies = totalCopies;
+        }
+        if (availableCopies < 0) {
+            throw new RuntimeException("Available copies must be 0 or more");
+        }
+        if (availableCopies > totalCopies) {
+            throw new RuntimeException("Available copies cannot exceed total copies");
+        }
+
+        book.setAvailablecopies(availableCopies);
+        book.setAvailable(availableCopies > 0);
         return bookrepo.save(book);
     }
 

@@ -36,7 +36,7 @@ public class Book {
     private Integer Totalcopies;
     private Integer Availablecopies;
 
-    private boolean available;
+    private Boolean available = false;
 
     public Long getId() {
         return id;
@@ -118,11 +118,11 @@ public class Book {
         Totalcopies = totalcopies;
     }
 
-    public boolean isAvailable() {
+    public Boolean getAvailable() {
         return available;
     }
 
-    public void setAvailable(boolean available) {
+    public void setAvailable(Boolean available) {
         this.available = available;
     }
 

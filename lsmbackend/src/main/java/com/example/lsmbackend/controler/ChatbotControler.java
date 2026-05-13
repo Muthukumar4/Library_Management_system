@@ -20,7 +20,6 @@ public class ChatbotControler {
 
     @PostMapping
     public ChatResponse chat(@RequestBody ChatRequest request) {
-        String reply = chatbotService.getReply(request.getMessage());
-        return new ChatResponse(reply);
+        return chatbotService.getReply(request);
     }
 }
