@@ -938,8 +938,8 @@ tr:nth-child(even){background:#f6f8ff;}
     </div>
     <div id="chatBody" class="chat-body">
         <div class="bot-msg">
-            I can help with book picks, study strategies, or quick catalog searches.
-            Try asking for a topic or author.
+            Ask me for a book title, topic, author, rack number, shelf number, or availability.
+            Example: java books, which rack, or is head first java available?
         </div>
     </div>
 
@@ -985,6 +985,9 @@ function showSection(id,el){
   document.getElementById(id).classList.add('active');
   document.querySelectorAll('.menu li').forEach(m=>m.classList.remove('active'));
   el.classList.add('active');
+  if (id === "dashboard" || id === "issued" || id === "returned" || id === "fines") {
+    refreshStudentDashboardData();
+  }
 }
 
 async function logout(){
@@ -1049,6 +1052,10 @@ function setText(id, value) {
   const el = document.getElementById(id);
   if (el) el.textContent = value;
 }
+
+const studentPageState = {
+  student: null
+};
 
 function renderStudentProfile(student) {
   const displayName = student.name || "-";
@@ -1115,10 +1122,20 @@ function renderIssuedBooks(issues, booksById) {
   }).join("");
 }
 
+function getIssuePaymentStatus(issue) {
+  return String(issue?.paymentStatus ?? issue?.fineStatus ?? issue?.status ?? "").trim().toUpperCase();
+}
+
+function isFineSettled(issue) {
+  const paymentStatus = getIssuePaymentStatus(issue);
+  return paymentStatus === "PAID" || paymentStatus === "FINE_PAID";
+}
+
 function getLateDays(issue) {
   const dueDate = parseDateOnly(issue.dueDate);
   if (!dueDate) return 0;
-  return Math.max(0, dayDiff(dueDate, new Date()));
+  const referenceDate = parseDateOnly(issue.returnDate) || new Date();
+  return Math.max(0, dayDiff(dueDate, referenceDate));
 }
 
 function computeFineData(issue) {
@@ -1126,6 +1143,13 @@ function computeFineData(issue) {
   const explicitFine = Number(issue.fineAmount ?? 0) || 0;
   const fineAmount = explicitFine > 0 ? explicitFine : lateDays * 2;
   return { lateDays, fineAmount };
+}
+
+function hasPendingFine(issue) {
+  const { fineAmount } = computeFineData(issue);
+  const status = String(issue?.status ?? "").trim().toUpperCase();
+  const isReturned = status === "RETURNED" || Boolean(issue?.returnDate);
+  return isReturned && fineAmount > 0 && !isFineSettled(issue);
 }
 
 function renderFineRows(issues, booksById) {
@@ -1164,9 +1188,10 @@ function renderReturnedBooks(issues, booksById) {
   tbody.innerHTML = issues.map(issue => {
     const bookId = String(issue.bookId ?? issue.id ?? "").trim();
     const book = booksById.get(bookId) || {};
-    const isLateReturn = Number(issue.lateDays ?? 0) > 0 || String(issue.paymentStatus ?? "").trim().toUpperCase() === "PAID";
-    const statusLabel = isLateReturn ? "Fine Paid" : "Returned";
-    const statusClass = isLateReturn ? "status-fine-paid" : "status-returned";
+    const { fineAmount } = computeFineData(issue);
+    const isLateReturn = fineAmount > 0;
+    const statusLabel = !isLateReturn ? "Returned" : (isFineSettled(issue) ? "Fine Paid" : "Fine Pending");
+    const statusClass = !isLateReturn ? "status-returned" : (isFineSettled(issue) ? "status-fine-paid" : "status-overdue");
 
     return `
       <tr>
@@ -1414,13 +1439,7 @@ async function loadStudentDashboard(student) {
       return lateDays > 0;
     });
 
-    const fineIssues = allStudentIssues.filter(issue => {
-      const { lateDays, fineAmount } = computeFineData(issue);
-      const paymentStatus = String(issue.paymentStatus ?? "").trim().toUpperCase();
-      const notPaid = paymentStatus !== "PAID";
-      const hasUnpaidFine = fineAmount > 0 && notPaid;
-      return (lateDays > 0 && notPaid) || hasUnpaidFine;
-    });
+    const fineIssues = allStudentIssues.filter(hasPendingFine);
 
     const pendingFine = fineIssues.reduce((total, issue) => {
       return total + computeFineData(issue).fineAmount;
@@ -1469,6 +1488,7 @@ async function initializeStudentDashboard() {
   try {
     const student = await fetchStudentProfile(rollNumber);
     if (!student) throw new Error("Student profile not found.");
+    studentPageState.student = student;
     renderStudentProfile(student);
     await loadStudentDashboard(student);
   } catch (error) {
@@ -1481,6 +1501,18 @@ async function initializeStudentDashboard() {
 }
 
 initializeStudentDashboard();
+
+function refreshStudentDashboardData() {
+  if (!studentPageState.student) return;
+  loadStudentDashboard(studentPageState.student);
+}
+
+window.addEventListener("focus", refreshStudentDashboardData);
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") {
+    refreshStudentDashboardData();
+  }
+});
 
 if (false) {
 /*
@@ -1575,9 +1607,25 @@ if (chatbotMessages) {
 }
 */
 
+const chatbotContext = {
+    lastTopic: "",
+    lastBookTitle: ""
+};
+
+function updateChatbotContext(replyData) {
+    if (!replyData || typeof replyData !== "object") return;
+
+    if (typeof replyData.matchedTopic === "string") {
+        chatbotContext.lastTopic = replyData.matchedTopic.trim();
+    }
+
+    if (typeof replyData.matchedBookTitle === "string") {
+        chatbotContext.lastBookTitle = replyData.matchedBookTitle.trim();
+    }
+}
+
 async function sendMessage() {
     const input = document.getElementById("chatInput");
-    const chatBody = document.getElementById("chatBody");
     const message = input.value.trim();
 
     if (!message) return;
@@ -1591,7 +1639,11 @@ async function sendMessage() {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ message: message })
+            body: JSON.stringify({
+                message: message,
+                lastTopic: chatbotContext.lastTopic,
+                lastBookTitle: chatbotContext.lastBookTitle
+            })
         });
 
         if (!response.ok) {
@@ -1599,6 +1651,7 @@ async function sendMessage() {
         }
 
         const data = await response.json();
+        updateChatbotContext(data);
         addMessage(data.reply, "bot");
 
     } catch (error) {

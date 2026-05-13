@@ -1,10 +1,13 @@
 package com.example.lsmbackend.service;
 
+import com.example.lsmbackend.dto.AdminPaymentSummaryDto;
 import com.example.lsmbackend.dto.PendingFineRowDto;
 import com.example.lsmbackend.dto.ReturnedBookRowDto;
+import com.example.lsmbackend.dto.StudentFinePaymentSummaryRowDto;
 import com.example.lsmbackend.model.ActiveIssueRow;
 import com.example.lsmbackend.model.Book;
 import com.example.lsmbackend.model.Issuebook;
+import com.example.lsmbackend.model.Student;
 import com.example.lsmbackend.repository.Bookrepo;
 import com.example.lsmbackend.repository.Issuerepo;
 import com.example.lsmbackend.repository.Staffrepo;
@@ -14,8 +17,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -182,7 +187,7 @@ public class Issueservice {
     public List<PendingFineRowDto> getPendingFines() {
         return issuerepo.findByStatus("RETURNED").stream()
                 .filter(i -> i.getFineAmount() != null && i.getFineAmount() > 0)
-                .filter(i -> !"PAID".equalsIgnoreCase(i.getPaymentStatus()))
+                .filter(i -> !isFinePaid(i))
                 .map(i -> {
                     MemberView member = resolveMember(i.getMemberId(), i.getMemberType());
                     Book b = bookrepo.findByBookId(i.getBookId()).orElse(null);
@@ -212,7 +217,7 @@ public class Issueservice {
         return issuerepo.findByStatus("RETURNED").stream()
                 .filter(i -> {
                     boolean onTime = i.getFineAmount() == null || i.getFineAmount() <= 0;
-                    boolean paidLate = "PAID".equalsIgnoreCase(i.getPaymentStatus());
+                    boolean paidLate = isFinePaid(i);
                     return onTime || paidLate;
                 })
                 .map(i -> {
@@ -244,6 +249,85 @@ public class Issueservice {
                     );
                 })
                 .toList();
+    }
+
+    public AdminPaymentSummaryDto getStudentPaymentSummary() {
+        List<Issuebook> paidStudentIssues = issuerepo.findAll().stream()
+                .filter(issue -> !"EMPLOYEE".equals(normalizeMemberType(issue.getMemberType())))
+                .filter(issue -> issue.getFineAmount() != null && issue.getFineAmount() > 0)
+                .filter(this::isFinePaid)
+                .toList();
+
+        double totalPaidByStudents = paidStudentIssues.stream()
+                .map(Issuebook::getFineAmount)
+                .filter(amount -> amount != null && amount > 0)
+                .mapToDouble(Double::doubleValue)
+                .sum();
+
+        double totalPaidByGpay = paidStudentIssues.stream()
+                .filter(issue -> "GPAY".equalsIgnoreCase(issue.getPaymentMethod()))
+                .map(Issuebook::getFineAmount)
+                .filter(amount -> amount != null && amount > 0)
+                .mapToDouble(Double::doubleValue)
+                .sum();
+
+        double totalPaidByCash = paidStudentIssues.stream()
+                .filter(issue -> "CASH".equalsIgnoreCase(issue.getPaymentMethod()))
+                .map(Issuebook::getFineAmount)
+                .filter(amount -> amount != null && amount > 0)
+                .mapToDouble(Double::doubleValue)
+                .sum();
+
+        Map<String, List<Issuebook>> issuesByStudent = paidStudentIssues.stream()
+                .collect(Collectors.groupingBy(issue -> String.valueOf(issue.getMemberId()).trim()));
+
+        List<StudentFinePaymentSummaryRowDto> studentPayments = issuesByStudent.entrySet().stream()
+                .map(entry -> {
+                    String rollNumber = entry.getKey();
+                    List<Issuebook> issues = entry.getValue();
+                    Student student = studentrepo.findByRollNumber(rollNumber).orElse(null);
+
+                    double totalPaid = issues.stream()
+                            .map(Issuebook::getFineAmount)
+                            .filter(amount -> amount != null && amount > 0)
+                            .mapToDouble(Double::doubleValue)
+                            .sum();
+
+                    double gpayPaid = issues.stream()
+                            .filter(issue -> "GPAY".equalsIgnoreCase(issue.getPaymentMethod()))
+                            .map(Issuebook::getFineAmount)
+                            .filter(amount -> amount != null && amount > 0)
+                            .mapToDouble(Double::doubleValue)
+                            .sum();
+
+                    double cashPaid = issues.stream()
+                            .filter(issue -> "CASH".equalsIgnoreCase(issue.getPaymentMethod()))
+                            .map(Issuebook::getFineAmount)
+                            .filter(amount -> amount != null && amount > 0)
+                            .mapToDouble(Double::doubleValue)
+                            .sum();
+
+                    return new StudentFinePaymentSummaryRowDto(
+                            rollNumber,
+                            student != null && student.getName() != null ? student.getName() : "-",
+                            student != null && student.getDepartment() != null ? student.getDepartment() : "-",
+                            student != null && student.getYear() != null ? student.getYear() : "-",
+                            totalPaid,
+                            gpayPaid,
+                            cashPaid
+                    );
+                })
+                .sorted(Comparator.comparingDouble(StudentFinePaymentSummaryRowDto::totalPaid).reversed()
+                        .thenComparing(StudentFinePaymentSummaryRowDto::rollNumber))
+                .toList();
+
+        return new AdminPaymentSummaryDto(
+                totalPaidByStudents,
+                totalPaidByGpay,
+                totalPaidByCash,
+                studentPayments.size(),
+                studentPayments
+        );
     }
 
     private void validateMemberExists(String memberId, String memberType) {
@@ -280,6 +364,13 @@ public class Issueservice {
         String t = memberType == null ? "" : memberType.trim().toUpperCase(Locale.ROOT);
         if ("EMPLOYEE".equals(t) || "EMPLOYEES".equals(t) || "STAFF".equals(t)) return "EMPLOYEE";
         return "STUDENT";
+    }
+
+    private boolean isFinePaid(Issuebook issue) {
+        String paymentStatus = issue == null || issue.getPaymentStatus() == null
+                ? ""
+                : issue.getPaymentStatus().trim().toUpperCase(Locale.ROOT);
+        return "PAID".equals(paymentStatus) || "FINE_PAID".equals(paymentStatus);
     }
 
     private boolean departmentMatches(String first, String second) {

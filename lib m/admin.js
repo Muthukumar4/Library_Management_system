@@ -132,17 +132,32 @@ function renderNotifications() {
 
   }
 
-  listEl.innerHTML = list.map(item => `
+  listEl.innerHTML = list.map(item => {
+
+    const messageText =
+      [
+        item?.message,
+        item?.text,
+        item?.title,
+        item?.content,
+        item?.details
+      ].find(value => String(value ?? "").trim()) || "Notification details unavailable.";
+
+    const isFallbackMessage = !String(item?.message ?? "").trim();
+
+    return `
 
     <li>
 
-      ${escapeHtml(item.message)}
+      <span class="notification-message${isFallbackMessage ? " is-fallback" : ""}">${escapeHtml(messageText)}</span>
 
       <span class="notification-time">${escapeHtml(item.time || "-")}</span>
 
     </li>
 
-  `).join("");
+  `;
+
+  }).join("");
 
 }
 
@@ -240,6 +255,10 @@ function getSessionRole() {
 
 function getAdminUsername() {
   return String(sessionStorage.getItem("lmsUsername") || "").trim();
+}
+
+function getSessionAuthHeader() {
+  return String(sessionStorage.getItem("lmsAuthHeader") || "").trim();
 }
 
 function isAdminSessionActive() {
@@ -777,6 +796,8 @@ async function addBook(){
 
 let allBooks = [];
 
+let activeBookActionMode = null;
+
 
 
 function loadBooks() {
@@ -833,6 +854,8 @@ function renderBooks(books) {
 
   table.innerHTML = "";
 
+  const selectionCellClass = activeBookActionMode ? "select-col" : "select-col hidden";
+
 
 
   books.forEach(b => {
@@ -841,7 +864,7 @@ function renderBooks(books) {
 
       <tr>
 
-        <td><input type="checkbox" name="selectedBookRow" value="${b.bookId ?? b.id ?? 0}" onclick="updateSelectedBookActions()"></td>
+        <td class="${selectionCellClass}"><input type="checkbox" name="selectedBookRow" value="${b.bookId ?? b.id ?? 0}" onclick="updateSelectedBookActions()"></td>
 
         <td>${b.bookId || b.id || ""}</td>
 
@@ -867,9 +890,30 @@ function renderBooks(books) {
 
   });
 
+  syncBookSelectionVisibility();
+  updateSelectedBookActions();
+
 }
 
 
+
+function getSelectedBookIds() {
+  return Array.from(document.querySelectorAll('input[name="selectedBookRow"]:checked')).map(cb => cb.value);
+}
+
+function clearSelectedBooks() {
+  const selectAll = document.getElementById("selectAllBooks");
+  if (selectAll) selectAll.checked = false;
+  document.querySelectorAll('input[name="selectedBookRow"]').forEach(input => {
+    input.checked = false;
+  });
+}
+
+function syncBookSelectionVisibility() {
+  document.querySelectorAll("#bookTable .select-col").forEach(col => {
+    col.classList.toggle("hidden", !activeBookActionMode);
+  });
+}
 
 function toggleAllBooks(checkbox) {
   document.querySelectorAll('input[name="selectedBookRow"]').forEach(input => {
@@ -879,17 +923,28 @@ function toggleAllBooks(checkbox) {
 }
 
 function updateSelectedBookActions() {
-  const selected = document.querySelectorAll('input[name="selectedBookRow"]:checked').length;
   const updateBtn = document.getElementById("updateSelectedBookBtn");
   const deleteBtn = document.getElementById("deleteSelectedBookBtn");
-  if (updateBtn) updateBtn.disabled = selected === 0;
-  if (deleteBtn) deleteBtn.disabled = selected === 0;
+  const selectAll = document.getElementById("selectAllBooks");
+  const allRows = Array.from(document.querySelectorAll('input[name="selectedBookRow"]'));
+  if (updateBtn) updateBtn.classList.toggle("active", activeBookActionMode === "update");
+  if (deleteBtn) deleteBtn.classList.toggle("active", activeBookActionMode === "delete");
+  if (selectAll) {
+    selectAll.checked = allRows.length > 0 && allRows.every(input => input.checked);
+  }
 }
 
 function setBookActionMode(action) {
-  const selected = Array.from(document.querySelectorAll('input[name="selectedBookRow"]:checked')).map(cb => cb.value);
+  if (activeBookActionMode !== action) {
+    activeBookActionMode = action;
+    clearSelectedBooks();
+    syncBookSelectionVisibility();
+    updateSelectedBookActions();
+    return;
+  }
+  const selected = getSelectedBookIds();
   if (selected.length === 0) {
-    alert("Please select at least one book.");
+    alert(`Please select at least one book to ${action}.`);
     return;
   }
   if (action === "update") {
@@ -907,6 +962,8 @@ function setBookActionMode(action) {
 
 function openBooks() {
 
+  activeBookActionMode = null;
+  clearSelectedBooks();
   loadBooks();
 
 }
@@ -3410,6 +3467,7 @@ async function openBookEditDialog(bookId) {
 
     async () => {
 
+      activeBookActionMode = null;
       loadBooks();
 
     }
@@ -3499,6 +3557,7 @@ async function confirmDeleteBook(bookId) {
 
     async () => {
 
+      activeBookActionMode = null;
       loadBooks();
 
     }
@@ -3558,6 +3617,14 @@ function escapeHtml(value) {
 
 
 
+
+function formatCurrencyAmount(value) {
+
+  const amount = Number(value);
+
+  return `Rs ${Number.isFinite(amount) ? amount.toFixed(2) : "0.00"}`;
+
+}
 
 async function fetchAllIssues() {
 
@@ -4455,13 +4522,13 @@ function openFineDetail(issueId) {
 
 
 
-  const methodEl = document.getElementById("detailFineMethod");
+  const methodEl = document.getElementById("paymentMethod");
 
   const payBtn = document.getElementById("detailPayFineBtn");
 
   const statusText = row.paymentStatus === "PAID" || row.paymentStatus === "FINE_PAID" ? "PAID" : "PENDING";
 
-  const method = row.paymentMethod && row.paymentMethod !== "-" ? row.paymentMethod : "CASH";
+  const method = row.paymentMethod && row.paymentMethod !== "-" ? row.paymentMethod : "";
 
 
 
@@ -4481,7 +4548,7 @@ function openFineDetail(issueId) {
 
   if (methodEl) {
 
-    methodEl.value = method === "GPAY" ? "GPAY" : "CASH";
+    methodEl.value = method === "GPAY" ? "GPAY" : method === "CASH" ? "CASH" : "";
 
     methodEl.disabled = row.paymentStatus === "PAID" || row.paymentStatus === "FINE_PAID";
 
@@ -4525,7 +4592,7 @@ function payFineFromDetail() {
 
   }
 
-  const method = String(document.getElementById("detailFineMethod")?.value || "").trim().toUpperCase();
+  const method = String(document.getElementById("paymentMethod")?.value || "").trim().toUpperCase();
 
   payFine(selectedFineIssueId, method);
 
@@ -4705,6 +4772,10 @@ async function payFine(issueId, selectedMethod) {
 
     await loadReturnedBooks();
 
+    if (document.getElementById("paymentSummary")?.classList.contains("active")) {
+      await loadPaymentSummary();
+    }
+
     openFineDetail(issueId);
 
   } finally {
@@ -4716,6 +4787,89 @@ async function payFine(issueId, selectedMethod) {
 }
 
 
+
+function setPaymentSummaryStatus(message, isError = true) {
+
+  const el = document.getElementById("paymentSummaryStatus");
+
+  if (!el) return;
+
+  el.style.color = isError ? "#b91c1c" : "#166534";
+
+  el.textContent = message || "";
+
+}
+
+async function loadPaymentSummary() {
+
+  const tbody = document.getElementById("paymentSummaryTableBody");
+  const totalPaidEl = document.getElementById("summaryTotalPaid");
+  const gpayPaidEl = document.getElementById("summaryGpayPaid");
+  const cashPaidEl = document.getElementById("summaryCashPaid");
+  const studentCountEl = document.getElementById("summaryStudentCount");
+
+  if (!tbody) return;
+
+  const authHeader = getSessionAuthHeader();
+  if (!authHeader) {
+    tbody.innerHTML = `<tr><td colspan="7">Admin session expired.</td></tr>`;
+    setPaymentSummaryStatus("Admin login is required to view payment totals.");
+    return;
+  }
+
+  tbody.innerHTML = `<tr><td colspan="7"><span class="loader-spinner" style="display:inline-block;vertical-align:middle;margin-right:8px;"></span>Loading payment summary...</td></tr>`;
+  if (totalPaidEl) totalPaidEl.textContent = "Rs 0.00";
+  if (gpayPaidEl) gpayPaidEl.textContent = "Rs 0.00";
+  if (cashPaidEl) cashPaidEl.textContent = "Rs 0.00";
+  if (studentCountEl) studentCountEl.textContent = "0";
+  setPaymentSummaryStatus("");
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/admin/payment-summary`, {
+      headers: {
+        "Authorization": authHeader
+      }
+    });
+
+    if (!res.ok) {
+      throw new Error(await readErrorMessage(res, "Failed to load payment summary"));
+    }
+
+    const data = await res.json();
+    const rows = Array.isArray(data?.studentPayments) ? data.studentPayments : [];
+
+    if (totalPaidEl) totalPaidEl.textContent = formatCurrencyAmount(data?.totalPaidByStudents);
+    if (gpayPaidEl) gpayPaidEl.textContent = formatCurrencyAmount(data?.totalPaidByGpay);
+    if (cashPaidEl) cashPaidEl.textContent = formatCurrencyAmount(data?.totalPaidByCash);
+    if (studentCountEl) studentCountEl.textContent = String(Number(data?.studentsWithPayments ?? rows.length) || 0);
+
+    if (!rows.length) {
+      tbody.innerHTML = makeEmptyStateRow(7, "No paid student fines found", "Student fine collections will appear here after payment.", "💰");
+      setPaymentSummaryStatus("No student payment records found yet.", false);
+      return;
+    }
+
+    tbody.innerHTML = rows.map(row => `
+      <tr>
+        <td>${escapeHtml(row.rollNumber ?? "-")}</td>
+        <td>${escapeHtml(row.studentName ?? "-")}</td>
+        <td>${escapeHtml(row.department ?? "-")}</td>
+        <td>${escapeHtml(row.year ?? "-")}</td>
+        <td>${escapeHtml(formatCurrencyAmount(row.totalPaid))}</td>
+        <td>${escapeHtml(formatCurrencyAmount(row.gpayPaid))}</td>
+        <td>${escapeHtml(formatCurrencyAmount(row.cashPaid))}</td>
+      </tr>
+    `).join("");
+
+    setPaymentSummaryStatus("Payment summary loaded successfully.", false);
+  } catch (err) {
+    console.error(err);
+    setTableLoadError(tbody, 7, "Failed to load payment summary", "Verify admin access and backend payment summary API.");
+    setPaymentSummaryStatus(err?.message || "Unable to load payment summary.");
+    addNotification("Payment summary load failed. Check admin access and backend API.", "error");
+  }
+
+}
 
 function filterRowsBySearchAndStatus(tbodyId, searchId, statusId) {
 
@@ -4894,6 +5048,14 @@ function showSection(id, el) {
   if (id === 'pendingFines') {
 
     loadPendingFines();
+
+  }
+
+
+
+  if (id === 'paymentSummary') {
+
+    loadPaymentSummary();
 
   }
 

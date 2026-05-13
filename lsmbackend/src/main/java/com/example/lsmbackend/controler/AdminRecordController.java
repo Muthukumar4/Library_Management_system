@@ -1,5 +1,6 @@
 package com.example.lsmbackend.controler;
 
+import com.example.lsmbackend.dto.AdminPaymentSummaryDto;
 import com.example.lsmbackend.dto.AdminBookUpdateRequest;
 import com.example.lsmbackend.dto.AdminDeleteRequest;
 import com.example.lsmbackend.dto.AdminLoginRequest;
@@ -9,6 +10,7 @@ import com.example.lsmbackend.model.Book;
 import com.example.lsmbackend.model.Staff;
 import com.example.lsmbackend.model.Student;
 import com.example.lsmbackend.service.AdminActionService;
+import com.example.lsmbackend.service.Issueservice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +25,9 @@ public class AdminRecordController {
     @Autowired
     private AdminActionService adminActionService;
 
+    @Autowired
+    private Issueservice issueservice;
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AdminLoginRequest request) {
         boolean ok = adminActionService.loginAdmin(request.getUsername(), request.getPassword());
@@ -30,6 +35,14 @@ public class AdminRecordController {
             throw new RuntimeException("Invalid admin username or password");
         }
         return ResponseEntity.ok(Map.of("success", true, "role", "ADMIN"));
+    }
+
+    @GetMapping("/payment-summary")
+    public AdminPaymentSummaryDto paymentSummary(
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader
+    ) {
+        adminActionService.validateAdminAuthorizationHeader(authorizationHeader);
+        return issueservice.getStudentPaymentSummary();
     }
 
     @PutMapping("/students/{rollNumber}")
