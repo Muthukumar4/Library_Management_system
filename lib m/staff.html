@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Staff Dashboard | Library</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -97,9 +100,26 @@ body{
   padding:12px 15px;
   margin-bottom:8px;
   border-radius:8px;
-  cursor:pointer;
   font-size:16px;
   transition:background 0.25s ease;
+}
+
+.menu-button{
+  width:100%;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:none;
+  border:none;
+  color:inherit;
+  font:inherit;
+  text-align:left;
+  cursor:pointer;
+}
+
+.menu-button:focus-visible{
+  outline:2px solid #bfdbfe;
+  outline-offset:4px;
 }
 
 .menu li:hover,.menu li.active{
@@ -121,7 +141,7 @@ body{
   content:'';
   position:absolute;
   inset:0;
-  background:url('college.png') center/600px no-repeat;
+  background:url('dait_college.png') center/600px no-repeat;
   opacity:0.05;
   z-index:0;
 }
@@ -945,6 +965,102 @@ tr:nth-child(even){background:#f6f8ff;}
     max-height: calc(92vh - 130px);
   }
 }
+
+.visit-shell{
+  display:grid;
+  gap:18px;
+}
+
+.visit-scan-card,
+.visit-table-card{
+  background:#ffffff;
+  border:1px solid #dbe4ff;
+  border-radius:16px;
+  box-shadow:0 12px 28px rgba(15,23,42,0.08);
+  padding:18px;
+}
+
+.visit-scan-card h4,
+.visit-table-card h4{
+  color:#1e3c72;
+  font-size:22px;
+  margin-bottom:8px;
+}
+
+.visit-note{
+  color:#64748b;
+  font-size:14px;
+  margin-bottom:14px;
+}
+
+.visit-feedback{
+  min-height:22px;
+  margin-top:10px;
+  font-size:14px;
+  color:#475569;
+}
+
+.visit-feedback.success{color:#047857;}
+.visit-feedback.error{color:#b91c1c;}
+
+.visit-scan-input,
+.visit-filter-input{
+  width:100%;
+  padding:12px 14px;
+  border:1px solid #cbd5e1;
+  border-radius:10px;
+  background:#f8fbff;
+  color:#1f2937;
+  font-size:14px;
+}
+
+.visit-scan-input{
+  padding:14px 16px;
+  font-size:15px;
+}
+
+.visit-filter-row{
+  display:grid;
+  grid-template-columns:minmax(220px,1.4fr) repeat(2,minmax(150px,1fr));
+  gap:12px;
+  margin:16px 0 14px;
+}
+
+.visit-filter-field{
+  display:grid;
+  gap:6px;
+}
+
+.visit-filter-field label{
+  color:#475569;
+  font-size:13px;
+  font-weight:600;
+}
+
+.visit-table-card table{
+  width:100%;
+}
+
+.visit-table-card th,
+.visit-table-card td{
+  white-space:nowrap;
+}
+
+.status-badge.visit-inside{
+  background:#dcfce7;
+  color:#166534;
+}
+
+.status-badge.visit-exited{
+  background:#e5e7eb;
+  color:#374151;
+}
+
+@media (max-width: 900px){
+  .visit-filter-row{
+    grid-template-columns:1fr;
+  }
+}
 </style>
 </head>
 
@@ -962,11 +1078,12 @@ tr:nth-child(even){background:#f6f8ff;}
     </div>
   </div>
   <ul class="menu">
-    <li class="active" onclick="showSection('dashboard',this)"><span class="menu-icon">&#127968;</span>Dashboard</li>
-    <li onclick="showSection('issued',this)"><span class="menu-icon">&#128218;</span>Issued Books</li>
-    <li onclick="showSection('returned',this)"><span class="menu-icon">&#128216;</span>Returned Books</li>
-    <li onclick="showSection('fines',this)"><span class="menu-icon">&#128176;</span>Pending Fines</li>
-    <li onclick="showSection('students',this)"><span class="menu-icon">👥</span>Student Data</li>
+    <li class="active"><button type="button" class="menu-button" onclick="showSection('dashboard',this)"><span class="menu-icon">&#127968;</span><span>Dashboard</span></button></li>
+    <li><button type="button" class="menu-button" onclick="showSection('issued',this)"><span class="menu-icon">&#128218;</span><span>Issued Books</span></button></li>
+    <li><button type="button" class="menu-button" onclick="showSection('returned',this)"><span class="menu-icon">&#128216;</span><span>Returned Books</span></button></li>
+    <li><button type="button" class="menu-button" onclick="showSection('fines',this)"><span class="menu-icon">&#128176;</span><span>Pending Fines</span></button></li>
+    <li><button type="button" class="menu-button" onclick="showSection('students',this)"><span class="menu-icon">👥</span><span>Student Data</span></button></li>
+    <li><button type="button" class="menu-button" onclick="showSection('visitTracking',this)"><span class="menu-icon">📍</span><span>Library Visit Tracking</span></button></li>
   </ul>
 </div>
 
@@ -1153,6 +1270,57 @@ tr:nth-child(even){background:#f6f8ff;}
     </div>
   </div>
 
+<div id="visitTracking" class="section content">
+  <div class="section-header">
+    <div>
+      <h3>Library Visit Tracking</h3>
+      <p class="muted">View student entry and exit records only. Staff can scan cards, but records stay read-only here.</p>
+    </div>
+  </div>
+
+  <div class="visit-shell">
+    <div class="visit-scan-card">
+      <h4>Scan Barcode</h4>
+      <p class="visit-note">Scan a student or staff card to mark entry when outside, or exit when already inside.</p>
+      <input id="staffVisitScanInput" class="visit-scan-input" type="text" inputmode="text" autocomplete="off" placeholder="Scan Student/Staff ID Card">
+      <div id="staffVisitFeedback" class="visit-feedback"></div>
+    </div>
+
+    <div class="visit-table-card">
+      <h4>Student Visit Records</h4>
+      <div class="visit-filter-row">
+        <div class="visit-filter-field">
+          <label for="staffVisitSearch">Search</label>
+          <input id="staffVisitSearch" class="visit-filter-input" type="text" placeholder="Search by roll number, name, or department">
+        </div>
+        <div class="visit-filter-field">
+          <label for="staffVisitStatusFilter">Status</label>
+          <select id="staffVisitStatusFilter" class="visit-filter-input">
+            <option value="ALL">All</option>
+            <option value="INSIDE">Inside</option>
+            <option value="EXITED">Exited</option>
+          </select>
+        </div>
+        <div class="visit-filter-field">
+          <label for="staffVisitDateFilter">Date</label>
+          <input id="staffVisitDateFilter" class="visit-filter-input" type="date">
+        </div>
+      </div>
+
+      <div class="table-shell">
+        <table>
+          <thead>
+            <tr><th>Student Roll Number</th><th>Name</th><th>Department</th><th>Entry Time</th><th>Exit Time</th><th>Status</th></tr>
+          </thead>
+          <tbody id="staffVisitTableBody">
+            <tr><td colspan="6">Loading visit records...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
 </div>
 
 <button id="chatbotLauncher" class="chatbot-launcher" type="button" onclick="openChatbot()" aria-label="Open chatbot">🤖</button>
@@ -1206,15 +1374,43 @@ tr:nth-child(even){background:#f6f8ff;}
 -->
 
 <script>
-const BASE_URL = "http://localhost:8080";
+const BASE_URL =
+  window.LMS_API_BASE_URL ||
+  localStorage.getItem("lmsApiBaseUrl") ||
+  document.querySelector('meta[name="api-base-url"]')?.content ||
+  "http://localhost:8080";
+
+const originalFetch = window.fetch.bind(window);
+const staffAccessState = {
+  validated: false
+};
+
+window.fetch = function(input, init = {}) {
+  const requestUrl = typeof input === "string" ? input : input?.url || "";
+  const authHeader = String(sessionStorage.getItem("lmsAuthHeader") || "").trim();
+
+  if (!authHeader || !requestUrl.startsWith(BASE_URL)) {
+    return originalFetch(input, init);
+  }
+
+  const headers = new Headers(init?.headers || (input instanceof Request ? input.headers : undefined));
+  if (!headers.has("Authorization")) {
+    headers.set("Authorization", authHeader);
+  }
+
+  return originalFetch(input, { ...init, headers });
+};
 
 function showSection(id,el){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   document.querySelectorAll('.menu li').forEach(m=>m.classList.remove('active'));
-  if (el) el.classList.add('active');
+  el?.closest('li')?.classList.add('active');
   if (id === "dashboard" || id === "issued" || id === "returned" || id === "fines") {
     refreshStaffDashboardData();
+  }
+  if (id === "visitTracking") {
+    loadStaffVisitRecords();
   }
   if (window.innerWidth <= 1024) {
     closeSidebar();
@@ -1273,22 +1469,69 @@ async function logout(){
     });
   }
 
+  resetStaffSessionAndRedirect();
+}
+
+function hasStaffSessionCandidate() {
+  const role = sessionStorage.getItem("lmsRole");
+  const username = String(sessionStorage.getItem("lmsUsername") || "").trim();
+  const authHeader = String(sessionStorage.getItem("lmsAuthHeader") || "").trim();
+  return role === "staff" && !!username && !!authHeader;
+}
+
+function resetStaffSessionAndRedirect() {
   sessionStorage.removeItem("lmsStudent");
+  sessionStorage.removeItem("lmsStaff");
   sessionStorage.removeItem("lmsAuthHeader");
   sessionStorage.removeItem("lmsRole");
   sessionStorage.removeItem("lmsUsername");
-  window.location.href="index.html";
+  staffAccessState.validated = false;
+  window.location.replace("index.html");
 }
 
-function guardStaffSession() {
-  const role = sessionStorage.getItem("lmsRole");
-  const username = String(sessionStorage.getItem("lmsUsername") || "").trim();
-  if (role !== "staff" || !username) {
-    window.location.href = "index.html";
+async function guardStaffSession() {
+  if (!hasStaffSessionCandidate()) {
+    resetStaffSessionAndRedirect();
     return null;
   }
-  return username;
+
+  const username = String(sessionStorage.getItem("lmsUsername") || "").trim();
+  const authHeader = String(sessionStorage.getItem("lmsAuthHeader") || "").trim();
+
+  try {
+    const res = await originalFetch(`${BASE_URL}/api/auth/session`, {
+      headers: {
+        Authorization: authHeader
+      }
+    });
+
+    if (!res.ok) {
+      resetStaffSessionAndRedirect();
+      return null;
+    }
+
+    const session = await res.json();
+    const role = String(session?.role || "").trim().toUpperCase();
+    const sessionUsername = String(session?.username || "").trim();
+    const isValid = role === "STAFF" && sessionUsername.toLowerCase() === username.toLowerCase();
+
+    if (!isValid) {
+      resetStaffSessionAndRedirect();
+      return null;
+    }
+
+    staffAccessState.validated = true;
+    return username;
+  } catch (error) {
+    resetStaffSessionAndRedirect();
+    return null;
+  }
 }
+
+window.addEventListener("pageshow", (event) => {
+  if (!event.persisted) return;
+  guardStaffSession();
+});
 
 function getStoredStaffSession() {
   try {
@@ -2103,18 +2346,177 @@ if (searchInput) {
   });
 }
 
+const staffVisitState = {
+  records: [],
+  scanInFlight: false,
+  scanTimer: null
+};
+
+function formatVisitDateTime(value) {
+  if (!value) return "-";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString();
+}
+
+function getVisitStatusBadge(status) {
+  const normalizedStatus = String(status || "").trim().toUpperCase();
+  return normalizedStatus === "INSIDE"
+    ? '<span class="status-badge visit-inside">INSIDE</span>'
+    : '<span class="status-badge visit-exited">EXITED</span>';
+}
+
+function setStaffVisitFeedback(message, type = "") {
+  const el = document.getElementById("staffVisitFeedback");
+  if (!el) return;
+  el.textContent = message || "";
+  el.className = `visit-feedback${type ? ` ${type}` : ""}`;
+}
+
+function getFilteredStaffVisitRecords() {
+  const search = normalizeText(document.getElementById("staffVisitSearch")?.value || "");
+  const status = normalizeText(document.getElementById("staffVisitStatusFilter")?.value || "ALL");
+  const date = String(document.getElementById("staffVisitDateFilter")?.value || "").trim();
+
+  return staffVisitState.records.filter(record => {
+    const recordStatus = normalizeText(record?.status || "");
+    const recordDate = String(record?.date || "").trim();
+    const haystack = [
+      record?.memberId,
+      record?.name,
+      record?.department,
+      recordDate
+    ].join(" ").toLowerCase();
+
+    if (search && !haystack.includes(search)) return false;
+    if (status !== "all" && recordStatus !== status) return false;
+    if (date && recordDate !== date) return false;
+    return true;
+  });
+}
+
+function renderStaffVisitRecords() {
+  const tbody = document.getElementById("staffVisitTableBody");
+  if (!tbody) return;
+
+  const rows = getFilteredStaffVisitRecords();
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="6">No student visit records match the selected filters.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = rows.map(record => `
+    <tr>
+      <td>${escapeHtml(record?.memberId || "-")}</td>
+      <td>${escapeHtml(record?.name || "-")}</td>
+      <td>${escapeHtml(record?.department || "-")}</td>
+      <td>${escapeHtml(formatVisitDateTime(record?.entryTime))}</td>
+      <td>${escapeHtml(formatVisitDateTime(record?.exitTime))}</td>
+      <td>${getVisitStatusBadge(record?.status)}</td>
+    </tr>
+  `).join("");
+}
+
+async function loadStaffVisitRecords() {
+  const tbody = document.getElementById("staffVisitTableBody");
+  if (tbody) {
+    tbody.innerHTML = '<tr><td colspan="6">Loading visit records...</td></tr>';
+  }
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/visits/staff-view`);
+    const data = res.ok ? await res.json() : [];
+    staffVisitState.records = Array.isArray(data) ? data : [];
+    renderStaffVisitRecords();
+  } catch (error) {
+    if (tbody) {
+      tbody.innerHTML = '<tr><td colspan="6">Failed to load student visit records.</td></tr>';
+    }
+  }
+}
+
+async function submitStaffVisitScan(scannedId) {
+  const input = document.getElementById("staffVisitScanInput");
+  const normalizedId = String(scannedId || "").trim();
+  if (!normalizedId || staffVisitState.scanInFlight) return;
+
+  staffVisitState.scanInFlight = true;
+  setStaffVisitFeedback("Processing scan...");
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/visits/scan`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ scannedId: normalizedId })
+    });
+
+    const payload = await res.json().catch(() => null);
+    if (!res.ok) {
+      throw new Error(payload?.message || "Unable to record library visit.");
+    }
+
+    const message = String(payload?.message || "Visit recorded successfully").trim();
+    setStaffVisitFeedback(message, "success");
+    if (input) input.value = "";
+    await loadStaffVisitRecords();
+  } catch (error) {
+    setStaffVisitFeedback(error?.message || "Unable to record library visit.", "error");
+  } finally {
+    staffVisitState.scanInFlight = false;
+  }
+}
+
+function queueStaffVisitAutoScan() {
+  if (staffVisitState.scanTimer) {
+    clearTimeout(staffVisitState.scanTimer);
+  }
+  staffVisitState.scanTimer = window.setTimeout(() => {
+    const value = String(document.getElementById("staffVisitScanInput")?.value || "").trim();
+    if (value.length >= 3) {
+      submitStaffVisitScan(value);
+    }
+  }, 220);
+}
+
+function bindStaffVisitTrackingEvents() {
+  const scanInput = document.getElementById("staffVisitScanInput");
+  if (scanInput && !scanInput.dataset.bound) {
+    scanInput.dataset.bound = "true";
+    scanInput.addEventListener("input", () => {
+      setStaffVisitFeedback("");
+      queueStaffVisitAutoScan();
+    });
+    scanInput.addEventListener("keydown", event => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        submitStaffVisitScan(event.currentTarget?.value || "");
+      }
+    });
+  }
+
+  ["staffVisitSearch", "staffVisitStatusFilter", "staffVisitDateFilter"].forEach(id => {
+    const field = document.getElementById(id);
+    if (!field || field.dataset.bound) return;
+    field.dataset.bound = "true";
+    field.addEventListener("input", renderStaffVisitRecords);
+    field.addEventListener("change", renderStaffVisitRecords);
+  });
+}
+
 async function initializeStaffDashboard() {
-  const staffId = guardStaffSession();
+  const staffId = await guardStaffSession();
   if (!staffId) return;
 
   try {
     const staff = await fetchStaffProfile(staffId);
     if (!staff) throw new Error("Staff profile not found.");
     renderStaffProfile(staff);
+    bindStaffVisitTrackingEvents();
     await loadStaffDashboard(staff);
   } catch (error) {
     console.error("Staff dashboard init error:", error);
-    window.location.href = "index.html";
+    resetStaffSessionAndRedirect();
   }
 }
 
@@ -2130,6 +2532,9 @@ initializeStaffDashboard();
 function refreshStaffDashboardData() {
   if (!staffPageState.staff) return;
   loadStaffDashboard(staffPageState.staff);
+  if (document.getElementById("visitTracking")?.classList.contains("active")) {
+    loadStaffVisitRecords();
+  }
 }
 
 window.addEventListener("focus", refreshStaffDashboardData);
@@ -2259,7 +2664,7 @@ async function sendMessage() {
     input.value = "";
 
     try {
-        const response = await fetch("http://localhost:8080/api/chat", {
+        const response = await fetch(`${BASE_URL}/api/chat`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

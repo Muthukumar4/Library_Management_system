@@ -72,6 +72,10 @@ public class Studeservice {
         Student student = strepo.findByRollNumber(rollNumber)
                 .orElseThrow(() -> new RuntimeException("Student not found"));
 
+        if (!Boolean.TRUE.equals(student.getActive())) {
+            throw new RuntimeException("Student account is inactive");
+        }
+
         if(passwordEncoder.matches(password, student.getPassword())) {
             return "Login Successful";
         } else {

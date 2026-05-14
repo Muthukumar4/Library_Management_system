@@ -1,46 +1,35 @@
-package com.example.lsmbackend.model;
+package com.example.lsmbackend.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
-import lombok.*;
+import com.example.lsmbackend.model.Student;
 
-import lombok.AllArgsConstructor;
-
-@NoArgsConstructor
-@AllArgsConstructor
-
-@Getter
-@Setter
-
-@Entity
-public class Student {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class StudentResponseDto {
     private Long studentId;
-
-    @Column(unique = true,nullable = false)
     private String rollNumber;
-
-    @Column(nullable = false)
     private String name;
-
-
     private String department;
     private String email;
     private String year;
-
     private String phone;
-
-    @Column(unique=true)
     private String barcode;
+    private Boolean active;
 
+    public static StudentResponseDto from(Student student) {
+        if (student == null) {
+            return null;
+        }
 
-
-    @JsonIgnore
-    @Column(nullable = false)
-    private String password;
-
-    private Boolean active=true;
+        StudentResponseDto dto = new StudentResponseDto();
+        dto.setStudentId(student.getStudentId());
+        dto.setRollNumber(student.getRollNumber());
+        dto.setName(student.getName());
+        dto.setDepartment(student.getDepartment());
+        dto.setEmail(student.getEmail());
+        dto.setYear(student.getYear());
+        dto.setPhone(student.getPhone());
+        dto.setBarcode(student.getBarcode());
+        dto.setActive(student.getActive());
+        return dto;
+    }
 
     public Long getStudentId() {
         return studentId;
@@ -82,20 +71,20 @@ public class Student {
         this.email = email;
     }
 
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
     public String getYear() {
         return year;
     }
 
     public void setYear(String year) {
         this.year = year;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getBarcode() {
@@ -112,13 +101,5 @@ public class Student {
 
     public void setActive(Boolean active) {
         this.active = active;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 }
