@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>Smart Library Automation System - Login</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -62,7 +65,7 @@
               <span>Remember this device</span>
             </label>
 
-            <a class="forgot-link" href="#">Forgot password?</a>
+            <button class="forgot-link" type="button" onclick="showForgotPasswordHelp()">Forgot password?</button>
           </div>
 
           <p class="error-message" id="loginError" aria-live="polite"></p>
@@ -82,7 +85,11 @@
   </div>
 
 <script>
-const BASE_URL = "http://localhost:8080";
+const BASE_URL =
+  window.LMS_API_BASE_URL ||
+  localStorage.getItem("lmsApiBaseUrl") ||
+  document.querySelector('meta[name="api-base-url"]')?.content ||
+  "http://localhost:8080";
 const loginError = document.getElementById("loginError");
 const passwordInput = document.getElementById("password");
 const roleButtons = document.querySelectorAll(".role-tab");
@@ -91,7 +98,13 @@ const rememberMeCheckbox = document.getElementById("rememberMe");
 const usernameInput = document.getElementById("username");
 const capsWarning = document.getElementById("capsWarning");
 const passwordToggle = document.getElementById("passwordToggle");
+const destinationByRole = {
+  student: "student.html",
+  staff: "staff.html",
+  admin: "admin.html"
+};
 let passwordHideTimer = null;
+let sessionRestoreInFlight = false;
 
 function hidePassword() {
   if (!passwordInput || !passwordToggle) return;
@@ -158,6 +171,20 @@ function clearError(){
   if (!loginError) return;
   loginError.textContent = "";
   loginError.classList.remove("visible");
+}
+
+function showForgotPasswordHelp() {
+  const message = "Please contact the library desk or email library@dait.edu to reset your password.";
+  if (window.Swal) {
+    Swal.fire({
+      icon: "info",
+      title: "Password Reset Help",
+      text: message,
+      confirmButtonColor: "#2962f0"
+    });
+    return;
+  }
+  alert(message);
 }
 
 function setLoading(active){
@@ -318,6 +345,71 @@ function normalizeRole(role) {
   return role === "admin" || role === "staff" || role === "student" ? role : "admin";
 }
 
+function isSupportedRole(role) {
+  return role === "admin" || role === "staff" || role === "student";
+}
+
+function clearStoredSession() {
+  sessionStorage.removeItem("lmsRole");
+  sessionStorage.removeItem("lmsUsername");
+  sessionStorage.removeItem("lmsAuthHeader");
+  sessionStorage.removeItem("lmsStudent");
+  sessionStorage.removeItem("lmsStaff");
+}
+
+function redirectToRoleDashboard(role) {
+  const destination = destinationByRole[role];
+  if (destination) {
+    window.location.replace(destination);
+  }
+}
+
+async function redirectIfSessionIsActive() {
+  if (sessionRestoreInFlight) return false;
+
+  const role = String(sessionStorage.getItem("lmsRole") || "").trim().toLowerCase();
+  const username = String(sessionStorage.getItem("lmsUsername") || "").trim();
+  const authHeader = String(sessionStorage.getItem("lmsAuthHeader") || "").trim();
+
+  if (!isSupportedRole(role) || !username || !authHeader) {
+    return false;
+  }
+
+  sessionRestoreInFlight = true;
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/auth/session`, {
+      headers: {
+        Authorization: authHeader,
+        "Cache-Control": "no-store"
+      }
+    });
+
+    if (!res.ok) {
+      clearStoredSession();
+      return false;
+    }
+
+    const session = await res.json();
+    const activeRole = String(session?.role || "").trim().toLowerCase();
+    const activeUsername = String(session?.username || "").trim();
+    const sessionMatches = activeRole === role && activeUsername.toLowerCase() === username.toLowerCase();
+
+    if (!sessionMatches) {
+      clearStoredSession();
+      return false;
+    }
+
+    redirectToRoleDashboard(role);
+    return true;
+  } catch (error) {
+    clearStoredSession();
+    return false;
+  } finally {
+    sessionRestoreInFlight = false;
+  }
+}
+
 async function login() {
   const role = normalizeRole(document.getElementById("role")?.value);
   const username = (document.getElementById("username")?.value || "").trim();
@@ -376,12 +468,11 @@ async function login() {
       ? String(staffResult?.staff?.staffCode || username).trim()
       : username;
     sessionStorage.setItem("lmsUsername", sessionUsername);
+    sessionStorage.setItem("lmsAuthHeader", getAuthHeader(sessionUsername, password));
     if (role === "student") {
-      sessionStorage.removeItem("lmsAuthHeader");
       sessionStorage.setItem("lmsStudent", JSON.stringify({ rollNumber: username }));
       sessionStorage.removeItem("lmsStaff");
     } else {
-      sessionStorage.setItem("lmsAuthHeader", getAuthHeader(username, password));
       sessionStorage.removeItem("lmsStudent");
       if (role === "staff") {
         sessionStorage.setItem("lmsStaff", JSON.stringify(staffResult?.staff || {}));
@@ -390,12 +481,7 @@ async function login() {
       }
     }
 
-    const destinationByRole = {
-      student: "student.html",
-      staff: "staff.html",
-      admin: "admin.html"
-    };
-    window.location.href = destinationByRole[role];
+    window.location.replace(destinationByRole[role]);
   } catch (error) {
     showError("Unable to connect to the server. Please try again.");
   } finally {
@@ -437,7 +523,15 @@ roleButtons.forEach(button => {
   button.addEventListener("click", () => setRole(button.dataset.role, true));
 });
 
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("pageshow", (event) => {
+  if (!event.persisted) return;
+  redirectIfSessionIsActive();
+});
+
+window.addEventListener("DOMContentLoaded", async () => {
+  const redirected = await redirectIfSessionIsActive();
+  if (redirected) return;
+
   const remembered = localStorage.getItem("lmsRememberMe") === "true";
   const savedRole = normalizeRole(localStorage.getItem("lmsSavedRole") || "admin");
   const savedUsername = localStorage.getItem("lmsSavedUsername") || "";

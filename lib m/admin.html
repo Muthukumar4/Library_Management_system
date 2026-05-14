@@ -15,6 +15,9 @@
 
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 
 
 
@@ -255,9 +258,26 @@ body{
   padding:12px 15px;
   margin-bottom:8px;
   border-radius:8px;
-  cursor:pointer;
   font-size:16px;
   transition:background 0.25s ease, color 0.25s ease;
+}
+
+.menu-button{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  background:none;
+  border:none;
+  color:inherit;
+  font:inherit;
+  text-align:left;
+  cursor:pointer;
+}
+
+.menu-button:focus-visible{
+  outline:2px solid #bfdbfe;
+  outline-offset:4px;
 }
 
 
@@ -340,7 +360,7 @@ body{
 
 
 
- background:url('dait_logo.png') center/420px no-repeat;
+background:url('logo.png') center/420px no-repeat;
 
 
 
@@ -5677,6 +5697,200 @@ body.dark-mode textarea {
   border-color: #334155 !important;
 }
 
+.visit-shell {
+  display: grid;
+  gap: 18px;
+}
+
+.visit-topbar {
+  display: grid;
+  grid-template-columns: minmax(240px, 380px) minmax(180px, 220px);
+  gap: 16px;
+  align-items: stretch;
+}
+
+.visit-scan-card,
+.visit-inside-card,
+.visit-table-card {
+  background: #ffffff;
+  border: 1px solid #d7dff6;
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+.visit-scan-card,
+.visit-inside-card,
+.visit-table-card {
+  padding: 18px;
+}
+
+.visit-scan-card h4,
+.visit-inside-card h4,
+.visit-table-card h4 {
+  color: #1e3a8a;
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+
+.visit-note {
+  color: #64748b;
+  font-size: 14px;
+  margin-bottom: 14px;
+}
+
+.visit-scan-input,
+.visit-filter-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #f8fbff;
+  color: #1f2937;
+  font-size: 14px;
+}
+
+.visit-scan-input {
+  padding: 14px 16px;
+  font-size: 15px;
+}
+
+.visit-scan-input::placeholder,
+.visit-filter-input::placeholder {
+  color: #94a3b8;
+}
+
+.visit-feedback {
+  min-height: 22px;
+  margin-top: 10px;
+  font-size: 14px;
+  color: #475569;
+}
+
+.visit-feedback.success {
+  color: #047857;
+}
+
+.visit-feedback.error {
+  color: #b91c1c;
+}
+
+.visit-inside-value {
+  font-size: 38px;
+  line-height: 1;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 6px;
+}
+
+.visit-inside-caption {
+  color: #64748b;
+  font-size: 14px;
+}
+
+.visit-filter-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 220px) minmax(220px, 1.4fr) repeat(2, minmax(140px, 1fr));
+  gap: 12px;
+  margin: 16px 0 14px;
+}
+
+.visit-filter-field {
+  display: grid;
+  gap: 6px;
+}
+
+.visit-type-buttons {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  padding: 4px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #dbe3f1 0%, #d2dbea 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+.visit-type-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 11px 16px;
+  border: none;
+  border-radius: 11px;
+  background: transparent;
+  color: #36529a;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.visit-type-btn.active {
+  background: linear-gradient(180deg, #3f7cff 0%, #2c63ea 100%);
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(44, 99, 234, 0.35);
+}
+
+.visit-type-btn:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.45);
+  color: #274487;
+}
+
+.visit-filter-field label {
+  color: #475569;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.visit-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.visit-summary-row p {
+  color: #64748b;
+  font-size: 14px;
+}
+
+.visit-table-card table {
+  width: 100%;
+}
+
+.visit-table-card th,
+.visit-table-card td {
+  white-space: nowrap;
+}
+
+.status-badge.visit-inside {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-badge.visit-exited {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+@media (max-width: 1100px) {
+  .visit-topbar,
+  .visit-filter-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .visit-topbar,
+  .visit-filter-row {
+    grid-template-columns: 1fr;
+  }
+
+  .visit-summary-row {
+    align-items: flex-start;
+  }
+}
+
 </style>
 
 </head>
@@ -5723,7 +5937,6 @@ body.dark-mode textarea {
 
 
 
-  <script src="https://unpkg.com/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 
 
 
@@ -5751,51 +5964,55 @@ body.dark-mode textarea {
 
 
 
-    <li class="active" onclick="showSection('dashboard',this)">Dashboard</li>
+    <li class="active"><button type="button" class="menu-button" onclick="showSection('dashboard',this)">Dashboard</button></li>
 
 
 
-    <li onclick="showSection('addUser',this)">Add User</li>
+    <li><button type="button" class="menu-button" onclick="showSection('addUser',this)">Add User</button></li>
 
 
 
-    <li onclick="showSection('users',this)">View Users</li>
+    <li><button type="button" class="menu-button" onclick="showSection('users',this)">View Users</button></li>
 
 
 
-    <li onclick="showSection('books',this)">Add Books</li>
+    <li><button type="button" class="menu-button" onclick="showSection('books',this)">Add Books</button></li>
 
 
 
-    <li onclick="showSection('allBooks',this)">All Books</li>
+    <li><button type="button" class="menu-button" onclick="showSection('allBooks',this)">All Books</button></li>
 
 
 
-    <li onclick="showSection('issueBook',this)">Issue Book</li>
+    <li><button type="button" class="menu-button" onclick="showSection('issueBook',this)">Issue Book</button></li>
 
 
 
-    <li onclick="showSection('returnBook',this)">Return Book</li>
+    <li><button type="button" class="menu-button" onclick="showSection('returnBook',this)">Return Book</button></li>
 
 
 
-    <li onclick="showSection('pendingBooks',this)">Issued Books</li>
+    <li><button type="button" class="menu-button" onclick="showSection('pendingBooks',this)">Issued Books</button></li>
 
 
 
-    <li onclick="showSection('returnedBooks',this)">Returned Books</li>
+    <li><button type="button" class="menu-button" onclick="showSection('returnedBooks',this)">Returned Books</button></li>
 
 
 
-    <li onclick="showSection('pendingFines',this)">Pending Fines</li>
+    <li><button type="button" class="menu-button" onclick="showSection('pendingFines',this)">Pending Fines</button></li>
 
 
 
-    <li onclick="showSection('paymentSummary',this)">Total Amount</li>
+    <li><button type="button" class="menu-button" onclick="showSection('paymentSummary',this)">Total Amount</button></li>
 
 
 
-    <li class="logout-item" onclick="logout()">Logout</li>
+    <li><button type="button" class="menu-button" onclick="showSection('libraryVisits',this)">Library Visit Tracking</button></li>
+
+
+
+    <li class="logout-item"><button type="button" class="menu-button" onclick="logout()">Logout</button></li>
 
 
 
@@ -6279,6 +6496,10 @@ body.dark-mode textarea {
 
 
 
+        <button class="quick-action-btn green" type="button" onclick="openSectionById('libraryVisits')">Library Visit Tracking<span>Scan cards and monitor entry or exit</span></button>
+
+
+
       </div>
 
 
@@ -6292,6 +6513,85 @@ body.dark-mode textarea {
 
 
 
+
+
+
+  <div id="libraryVisits" class="section">
+
+    <div class="section-head"><h3>Library Visit Tracking</h3><span class="section-kicker">Entry / Exit</span></div>
+
+    <p class="section-subtitle">Scan member ID cards, monitor current occupancy, and review visit history for students and staff.</p>
+
+    <div class="visit-shell">
+      <div class="visit-topbar">
+        <div class="visit-scan-card">
+          <h4>Scan Barcode</h4>
+          <p class="visit-note">Use the scanner below to record entry or exit automatically.</p>
+          <input id="adminVisitScanInput" class="visit-scan-input" type="text" inputmode="text" autocomplete="off" placeholder="Scan Student/Staff ID Card">
+          <div id="adminVisitFeedback" class="visit-feedback"></div>
+        </div>
+
+        <div class="visit-inside-card">
+          <h4>Currently Inside</h4>
+          <div id="adminInsideCount" class="visit-inside-value">0</div>
+          <p class="visit-inside-caption">Students and staff currently inside the library.</p>
+        </div>
+      </div>
+
+      <div class="visit-table-card">
+        <div class="visit-summary-row">
+          <div>
+            <h4>All Entry and Exit Records</h4>
+            <p>Filter by member type, status, or date to review movement across the library.</p>
+          </div>
+        </div>
+
+        <div class="visit-filter-row">
+          <div class="visit-filter-field">
+            <label>Member</label>
+            <div class="visit-type-buttons">
+              <button id="adminVisitStudentBtn" class="visit-type-btn active" type="button" data-visit-member-type="Student">Students</button>
+              <button id="adminVisitStaffBtn" class="visit-type-btn" type="button" data-visit-member-type="Staff">Employees</button>
+            </div>
+          </div>
+          <div class="visit-filter-field">
+            <label for="adminVisitSearch">Search</label>
+            <input id="adminVisitSearch" class="visit-filter-input" type="text" placeholder="Search by ID or name">
+          </div>
+          <div class="visit-filter-field">
+            <label for="adminVisitStatusFilter">Status</label>
+            <select id="adminVisitStatusFilter" class="visit-filter-input">
+              <option value="ALL">All</option>
+              <option value="INSIDE">Inside</option>
+              <option value="EXITED">Exited</option>
+            </select>
+          </div>
+          <div class="visit-filter-field">
+            <label for="adminVisitDateFilter">Date</label>
+            <input id="adminVisitDateFilter" class="visit-filter-input" type="date">
+          </div>
+        </div>
+
+        <div class="table-container table-shell">
+          <table>
+            <thead>
+              <tr>
+                <th>Member ID</th>
+                <th>Name</th>
+                <th>Member Type</th>
+                <th>Entry Time</th>
+                <th>Exit Time</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="adminVisitTableBody">
+              <tr><td colspan="6">Loading visit records...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 
 
 

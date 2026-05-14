@@ -5,7 +5,10 @@ import com.example.lsmbackend.dto.ReturnedBookRowDto;
 import com.example.lsmbackend.model.Issuebook;
 import com.example.lsmbackend.service.Issueservice;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -57,11 +60,13 @@ public class IssueConroler {
     }
 
     @GetMapping("/member/{memberId}")
-    public List<Issuebook> getIssuesByStudent(@PathVariable String memberId) {
+    public List<Issuebook> getIssuesByStudent(@PathVariable String memberId, Authentication authentication) {
+        ensureMemberAccess(authentication, "STUDENT", memberId);
         return issuesrv.getIssuesByMember(memberId);
     }
     @GetMapping("/member/{memberType}/{memberId}")
-    public List<Issuebook> getByMemberAndType(@PathVariable String memberType, @PathVariable String memberId) {
+    public List<Issuebook> getByMemberAndType(@PathVariable String memberType, @PathVariable String memberId, Authentication authentication) {
+        ensureMemberAccess(authentication, memberType, memberId);
         return issuesrv.getIssuesByMemberAndType(memberId, memberType);
     }
 
@@ -84,5 +89,43 @@ public class IssueConroler {
     }
 
 
+
+    private void ensureMemberAccess(Authentication authentication, String memberType, String memberId) {
+        if (authentication == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication is required");
+        }
+
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_ADMIN".equals(authority.getAuthority()));
+        if (isAdmin) {
+            return;
+        }
+
+        boolean isStudent = authentication.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_STUDENT".equals(authority.getAuthority()));
+        boolean isStaff = authentication.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_STAFF".equals(authority.getAuthority()));
+        String normalizedType = memberType == null ? "" : memberType.trim().toUpperCase();
+        String normalizedMemberId = memberId == null ? "" : memberId.trim();
+
+        if (isStudent) {
+            if (!normalizedType.isEmpty() && !"STUDENT".equals(normalizedType)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Students can only access their own issue records");
+            }
+            if (!authentication.getName().equalsIgnoreCase(normalizedMemberId)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Students can only access their own issue records");
+            }
+            return;
+        }
+
+        if (isStaff) {
+            if (!normalizedType.isEmpty() && !"STAFF".equals(normalizedType)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Staff can only access their own issue records from this endpoint");
+            }
+            if (!authentication.getName().equalsIgnoreCase(normalizedMemberId)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Staff can only access their own issue records from this endpoint");
+            }
+        }
+    }
 
 }

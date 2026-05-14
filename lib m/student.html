@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Student Dashboard | Library</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -85,9 +88,26 @@ body{
   padding:12px 15px;
   margin-bottom:8px;
   border-radius:8px;
-  cursor:pointer;
   font-size:16px;
   transition:background 0.25s ease;
+}
+
+.menu-button{
+  width:100%;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:none;
+  border:none;
+  color:inherit;
+  font:inherit;
+  text-align:left;
+  cursor:pointer;
+}
+
+.menu-button:focus-visible{
+  outline:2px solid #bfdbfe;
+  outline-offset:4px;
 }
 
 .menu li:hover,.menu li.active{
@@ -109,7 +129,7 @@ body{
   content:'';
   position:absolute;
   inset:0;
-  background:url('college.png') center/600px no-repeat;
+  background:url('dait_college.png') center/600px no-repeat;
   opacity:0.05;
   z-index:0;
 }
@@ -675,7 +695,15 @@ tr:nth-child(even){background:#f6f8ff;}
   body{
     display:block;
   }
+  .app-layout{
+    display:flex;
+    flex-direction:column;
+  }
   .sidebar{
+    position:relative;
+    top:auto;
+    left:auto;
+    bottom:auto;
     width:100%;
     padding:16px;
   }
@@ -692,6 +720,8 @@ tr:nth-child(even){background:#f6f8ff;}
     text-align:center;
   }
   .main{
+    margin-left:0;
+    height:auto;
     padding:18px;
   }
   .profile{
@@ -752,6 +782,78 @@ tr:nth-child(even){background:#f6f8ff;}
     max-height: calc(92vh - 130px);
   }
 }
+
+.visit-shell{
+  display:grid;
+  gap:18px;
+}
+
+.visit-history-card{
+  background:#ffffff;
+  border:1px solid #dbe4ff;
+  border-radius:16px;
+  box-shadow:0 12px 28px rgba(15,23,42,0.08);
+  padding:18px;
+}
+
+.visit-history-card h4{
+  color:#1e3c72;
+  font-size:22px;
+  margin-bottom:8px;
+}
+
+.visit-filter-row{
+  display:grid;
+  grid-template-columns:minmax(220px,1.4fr) repeat(2,minmax(150px,1fr));
+  gap:12px;
+  margin:16px 0 14px;
+}
+
+.visit-filter-field{
+  display:grid;
+  gap:6px;
+}
+
+.visit-filter-field label{
+  color:#475569;
+  font-size:13px;
+  font-weight:600;
+}
+
+.visit-filter-input{
+  width:100%;
+  padding:12px 14px;
+  border:1px solid #cbd5e1;
+  border-radius:10px;
+  background:#f8fbff;
+  color:#1f2937;
+  font-size:14px;
+}
+
+.visit-history-card table{
+  width:100%;
+}
+
+.visit-history-card th,
+.visit-history-card td{
+  white-space:nowrap;
+}
+
+.status-badge.visit-inside{
+  background:#dcfce7;
+  color:#166534;
+}
+
+.status-badge.visit-exited{
+  background:#e5e7eb;
+  color:#374151;
+}
+
+@media (max-width: 900px){
+  .visit-filter-row{
+    grid-template-columns:1fr;
+  }
+}
 </style>
 </head>
 
@@ -767,11 +869,12 @@ tr:nth-child(even){background:#f6f8ff;}
     </div>
   </div>
   <ul class="menu">
-    <li class="active" onclick="showSection('dashboard',this)"><span class="menu-icon">&#127968;</span>Dashboard</li>
-    <li onclick="showSection('issued',this)"><span class="menu-icon">&#128218;</span>Issued Books</li>
-    <li onclick="showSection('returned',this)"><span class="menu-icon">&#128216;</span>Returned Books</li>
-    <li onclick="showSection('fines',this)"><span class="menu-icon">&#128176;</span>Pending Fines</li>
-    <li onclick="showSection('search',this)"><span class="menu-icon">&#128270;</span>Search Books</li>
+    <li class="active"><button type="button" class="menu-button" onclick="showSection('dashboard',this)"><span class="menu-icon">&#127968;</span><span>Dashboard</span></button></li>
+    <li><button type="button" class="menu-button" onclick="showSection('issued',this)"><span class="menu-icon">&#128218;</span><span>Issued Books</span></button></li>
+    <li><button type="button" class="menu-button" onclick="showSection('returned',this)"><span class="menu-icon">&#128216;</span><span>Returned Books</span></button></li>
+    <li><button type="button" class="menu-button" onclick="showSection('fines',this)"><span class="menu-icon">&#128176;</span><span>Pending Fines</span></button></li>
+    <li><button type="button" class="menu-button" onclick="showSection('visitHistory',this)"><span class="menu-icon">📍</span><span>Visit History</span></button></li>
+    <li><button type="button" class="menu-button" onclick="showSection('search',this)"><span class="menu-icon">&#128270;</span><span>Search Books</span></button></li>
   </ul>
 </div>
 
@@ -908,6 +1011,48 @@ tr:nth-child(even){background:#f6f8ff;}
     </div>
   </div>
 
+<div id="visitHistory" class="section content">
+  <div class="section-header">
+    <div>
+      <h3>Library Visit Tracking</h3>
+      <p class="muted">Review only your own library entry and exit history.</p>
+    </div>
+  </div>
+
+  <div class="visit-shell">
+    <div class="visit-history-card">
+      <h4>Your Visit History</h4>
+      <div class="visit-filter-row">
+        <div class="visit-filter-field">
+          <label for="studentVisitSearch">Search</label>
+          <input id="studentVisitSearch" class="visit-filter-input" type="text" placeholder="Search by status or date">
+        </div>
+        <div class="visit-filter-field">
+          <label for="studentVisitStatusFilter">Status</label>
+          <select id="studentVisitStatusFilter" class="visit-filter-input">
+            <option value="ALL">All</option>
+            <option value="INSIDE">Inside</option>
+            <option value="EXITED">Exited</option>
+          </select>
+        </div>
+        <div class="visit-filter-field">
+          <label for="studentVisitDateFilter">Date</label>
+          <input id="studentVisitDateFilter" class="visit-filter-input" type="date">
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>Date</th><th>Entry Time</th><th>Exit Time</th><th>Status</th></tr>
+        </thead>
+        <tbody id="studentVisitTableBody">
+          <tr><td colspan="4">Loading visit history...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 <div id="search" class="section content">
   <h3>Search Books</h3>
 
@@ -978,15 +1123,43 @@ tr:nth-child(even){background:#f6f8ff;}
 -->
 
 <script>
-const BASE_URL = "http://localhost:8080";
+const BASE_URL =
+  window.LMS_API_BASE_URL ||
+  localStorage.getItem("lmsApiBaseUrl") ||
+  document.querySelector('meta[name="api-base-url"]')?.content ||
+  "http://localhost:8080";
+
+const originalFetch = window.fetch.bind(window);
+const studentAccessState = {
+  validated: false
+};
+
+window.fetch = function(input, init = {}) {
+  const requestUrl = typeof input === "string" ? input : input?.url || "";
+  const authHeader = String(sessionStorage.getItem("lmsAuthHeader") || "").trim();
+
+  if (!authHeader || !requestUrl.startsWith(BASE_URL)) {
+    return originalFetch(input, init);
+  }
+
+  const headers = new Headers(init?.headers || (input instanceof Request ? input.headers : undefined));
+  if (!headers.has("Authorization")) {
+    headers.set("Authorization", authHeader);
+  }
+
+  return originalFetch(input, { ...init, headers });
+};
 
 function showSection(id,el){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   document.querySelectorAll('.menu li').forEach(m=>m.classList.remove('active'));
-  el.classList.add('active');
+  el?.closest('li')?.classList.add('active');
   if (id === "dashboard" || id === "issued" || id === "returned" || id === "fines") {
     refreshStudentDashboardData();
+  }
+  if (id === "visitHistory") {
+    loadStudentVisitHistory();
   }
 }
 
@@ -1020,22 +1193,69 @@ async function logout(){
     });
   }
 
+  resetStudentSessionAndRedirect();
+}
+
+function hasStudentSessionCandidate() {
+  const role = sessionStorage.getItem("lmsRole");
+  const username = String(sessionStorage.getItem("lmsUsername") || "").trim();
+  const authHeader = String(sessionStorage.getItem("lmsAuthHeader") || "").trim();
+  return role === "student" && !!username && !!authHeader;
+}
+
+function resetStudentSessionAndRedirect() {
   sessionStorage.removeItem("lmsStudent");
+  sessionStorage.removeItem("lmsStaff");
   sessionStorage.removeItem("lmsAuthHeader");
   sessionStorage.removeItem("lmsRole");
   sessionStorage.removeItem("lmsUsername");
-  window.location.href="index.html";
+  studentAccessState.validated = false;
+  window.location.replace("index.html");
 }
 
-function guardStudentSession() {
-  const role = sessionStorage.getItem("lmsRole");
-  const username = String(sessionStorage.getItem("lmsUsername") || "").trim();
-  if (role !== "student" || !username) {
-    window.location.href = "index.html";
+async function guardStudentSession() {
+  if (!hasStudentSessionCandidate()) {
+    resetStudentSessionAndRedirect();
     return null;
   }
-  return username;
+
+  const username = String(sessionStorage.getItem("lmsUsername") || "").trim();
+  const authHeader = String(sessionStorage.getItem("lmsAuthHeader") || "").trim();
+
+  try {
+    const res = await originalFetch(`${BASE_URL}/api/auth/session`, {
+      headers: {
+        Authorization: authHeader
+      }
+    });
+
+    if (!res.ok) {
+      resetStudentSessionAndRedirect();
+      return null;
+    }
+
+    const session = await res.json();
+    const role = String(session?.role || "").trim().toUpperCase();
+    const sessionUsername = String(session?.username || "").trim();
+    const isValid = role === "STUDENT" && sessionUsername.toLowerCase() === username.toLowerCase();
+
+    if (!isValid) {
+      resetStudentSessionAndRedirect();
+      return null;
+    }
+
+    studentAccessState.validated = true;
+    return username;
+  } catch (error) {
+    resetStudentSessionAndRedirect();
+    return null;
+  }
 }
+
+window.addEventListener("pageshow", (event) => {
+  if (!event.persisted) return;
+  guardStudentSession();
+});
 
 function parseDateOnly(value) {
   if (!value) return null;
@@ -1051,6 +1271,15 @@ function dayDiff(startDate, endDate) {
 function setText(id, value) {
   const el = document.getElementById(id);
   if (el) el.textContent = value;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 const studentPageState = {
@@ -1071,15 +1300,11 @@ function renderStudentProfile(student) {
 }
 
 async function fetchStudentProfile(rollNumber) {
-  const res = await fetch(`${BASE_URL}/api/students/getall`);
+  const res = await fetch(`${BASE_URL}/api/students/rollNumber/${encodeURIComponent(rollNumber)}`);
   if (!res.ok) throw new Error("Failed to load student profile.");
 
-  const students = await res.json();
-  if (!Array.isArray(students)) throw new Error("Invalid student profile response.");
-
-  return students.find(student =>
-    String(student.rollNumber ?? student.studrollNumber ?? "").trim().toLowerCase() === rollNumber.toLowerCase()
-  ) || null;
+  const student = await res.json();
+  return student || null;
 }
 
 function getIssueDueStatus(issue) {
@@ -1112,11 +1337,11 @@ function renderIssuedBooks(issues, booksById) {
     const status = getIssueDueStatus(issue);
     return `
       <tr>
-        <td>${book.title || issue.bookName || "-"}</td>
-        <td>${book.author || issue.author || "-"}</td>
-        <td>${issue.issueDate || "-"}</td>
-        <td>${issue.dueDate || "-"}</td>
-        <td><span class="status-badge ${status.className}">${status.label}</span></td>
+        <td>${escapeHtml(book.title || issue.bookName || "-")}</td>
+        <td>${escapeHtml(book.author || issue.author || "-")}</td>
+        <td>${escapeHtml(issue.issueDate || "-")}</td>
+        <td>${escapeHtml(issue.dueDate || "-")}</td>
+        <td><span class="status-badge ${status.className}">${escapeHtml(status.label)}</span></td>
       </tr>
     `;
   }).join("");
@@ -1168,9 +1393,9 @@ function renderFineRows(issues, booksById) {
 
     return `
       <tr>
-        <td>${book.title || issue.bookName || "-"}</td>
-        <td>${lateDays}</td>
-        <td>Rs ${fineAmount}</td>
+        <td>${escapeHtml(book.title || issue.bookName || "-")}</td>
+        <td>${escapeHtml(lateDays)}</td>
+        <td>Rs ${escapeHtml(fineAmount)}</td>
       </tr>
     `;
   }).join("");
@@ -1195,11 +1420,11 @@ function renderReturnedBooks(issues, booksById) {
 
     return `
       <tr>
-        <td>${book.title || issue.bookName || "-"}</td>
-        <td>${book.author || issue.author || "-"}</td>
-        <td>${issue.issueDate || "-"}</td>
-        <td>${issue.returnDate || "-"}</td>
-        <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+        <td>${escapeHtml(book.title || issue.bookName || "-")}</td>
+        <td>${escapeHtml(book.author || issue.author || "-")}</td>
+        <td>${escapeHtml(issue.issueDate || "-")}</td>
+        <td>${escapeHtml(issue.returnDate || "-")}</td>
+        <td><span class="status-badge ${statusClass}">${escapeHtml(statusLabel)}</span></td>
       </tr>
     `;
   }).join("");
@@ -1244,10 +1469,10 @@ function renderRecentBooks(issues, booksById) {
     const status = getIssueStatus(issue);
     return `
       <tr>
-        <td>${book.title || issue.bookName || "-"}</td>
-        <td>${issue.issueDate || "-"}</td>
-        <td>${issue.dueDate || "-"}</td>
-        <td><span class="status-badge ${status.className}">${status.label}</span></td>
+        <td>${escapeHtml(book.title || issue.bookName || "-")}</td>
+        <td>${escapeHtml(issue.issueDate || "-")}</td>
+        <td>${escapeHtml(issue.dueDate || "-")}</td>
+        <td><span class="status-badge ${status.className}">${escapeHtml(status.label)}</span></td>
       </tr>
     `;
   }).join("");
@@ -1274,15 +1499,15 @@ function renderLibraryBooks(books) {
 
   tbody.innerHTML = books.map(book => `
     <tr>
-      <td>${book.bookId ?? book.id ?? "-"}</td>
-      <td>${book.title || "-"}</td>
-      <td>${book.author || "-"}</td>
-      <td>${book.publisher || "-"}</td>
-      <td>${book.category || "-"}</td>
-      <td>${book.rackNumber || "-"}</td>
-      <td>${book.shelfNumber || "-"}</td>
-      <td>${book.Totalcopies ?? "-"}</td>
-      <td>${getAvailableCopies(book)}</td>
+      <td>${escapeHtml(book.bookId ?? book.id ?? "-")}</td>
+      <td>${escapeHtml(book.title || "-")}</td>
+      <td>${escapeHtml(book.author || "-")}</td>
+      <td>${escapeHtml(book.publisher || "-")}</td>
+      <td>${escapeHtml(book.category || "-")}</td>
+      <td>${escapeHtml(book.rackNumber || "-")}</td>
+      <td>${escapeHtml(book.shelfNumber || "-")}</td>
+      <td>${escapeHtml(book.Totalcopies ?? "-")}</td>
+      <td>${escapeHtml(getAvailableCopies(book))}</td>
     </tr>
   `).join("");
 }
@@ -1409,7 +1634,7 @@ async function loadStudentDashboard(student) {
 
   try {
     const [issuesRes, booksRes] = await Promise.all([
-      fetch(`${BASE_URL}/api/issue/all`),
+      fetch(`${BASE_URL}/api/issue/member/STUDENT/${encodeURIComponent(rollNumber)}`),
       fetch(`${BASE_URL}/api/books/all`)
     ]);
 
@@ -1481,8 +1706,103 @@ if (searchInput) {
   });
 }
 
+const studentVisitState = {
+  records: []
+};
+
+function formatVisitDateTime(value) {
+  if (!value) return "-";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString();
+}
+
+function formatVisitDate(value) {
+  if (!value) return "-";
+  const date = new Date(`${value}T00:00:00`);
+  return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleDateString();
+}
+
+function getVisitStatusBadge(status) {
+  const normalizedStatus = String(status || "").trim().toUpperCase();
+  return normalizedStatus === "INSIDE"
+    ? '<span class="status-badge visit-inside">INSIDE</span>'
+    : '<span class="status-badge visit-exited">EXITED</span>';
+}
+
+function getFilteredStudentVisitRecords() {
+  const search = String(document.getElementById("studentVisitSearch")?.value || "").trim().toLowerCase();
+  const status = String(document.getElementById("studentVisitStatusFilter")?.value || "ALL").trim().toUpperCase();
+  const date = String(document.getElementById("studentVisitDateFilter")?.value || "").trim();
+
+  return studentVisitState.records.filter(record => {
+    const recordStatus = String(record?.status || "").trim().toUpperCase();
+    const recordDate = String(record?.date || "").trim();
+    const haystack = [
+      recordStatus,
+      recordDate,
+      formatVisitDate(recordDate)
+    ].join(" ").toLowerCase();
+
+    if (search && !haystack.includes(search)) return false;
+    if (status !== "ALL" && recordStatus !== status) return false;
+    if (date && recordDate !== date) return false;
+    return true;
+  });
+}
+
+function renderStudentVisitHistory() {
+  const tbody = document.getElementById("studentVisitTableBody");
+  if (!tbody) return;
+
+  const rows = getFilteredStudentVisitRecords();
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="4">No visit history matches the selected filters.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = rows.map(record => `
+    <tr>
+      <td>${escapeHtml(formatVisitDate(record?.date))}</td>
+      <td>${escapeHtml(formatVisitDateTime(record?.entryTime))}</td>
+      <td>${escapeHtml(formatVisitDateTime(record?.exitTime))}</td>
+      <td>${getVisitStatusBadge(record?.status)}</td>
+    </tr>
+  `).join("");
+}
+
+async function loadStudentVisitHistory() {
+  const tbody = document.getElementById("studentVisitTableBody");
+  if (tbody) {
+    tbody.innerHTML = '<tr><td colspan="4">Loading visit history...</td></tr>';
+  }
+
+  const rollNumber = String(studentPageState.student?.rollNumber ?? studentPageState.student?.studrollNumber ?? "").trim();
+  if (!rollNumber) return;
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/visits/student/${encodeURIComponent(rollNumber)}`);
+    const data = res.ok ? await res.json() : [];
+    studentVisitState.records = Array.isArray(data) ? data : [];
+    renderStudentVisitHistory();
+  } catch (error) {
+    if (tbody) {
+      tbody.innerHTML = '<tr><td colspan="4">Failed to load visit history.</td></tr>';
+    }
+  }
+}
+
+function bindStudentVisitHistoryEvents() {
+  ["studentVisitSearch", "studentVisitStatusFilter", "studentVisitDateFilter"].forEach(id => {
+    const field = document.getElementById(id);
+    if (!field || field.dataset.bound) return;
+    field.dataset.bound = "true";
+    field.addEventListener("input", renderStudentVisitHistory);
+    field.addEventListener("change", renderStudentVisitHistory);
+  });
+}
+
 async function initializeStudentDashboard() {
-  const rollNumber = guardStudentSession();
+  const rollNumber = await guardStudentSession();
   if (!rollNumber) return;
 
   try {
@@ -1490,10 +1810,11 @@ async function initializeStudentDashboard() {
     if (!student) throw new Error("Student profile not found.");
     studentPageState.student = student;
     renderStudentProfile(student);
+    bindStudentVisitHistoryEvents();
     await loadStudentDashboard(student);
   } catch (error) {
     console.error("Student dashboard init error:", error);
-    window.location.href = "index.html";
+    resetStudentSessionAndRedirect();
     return;
   }
 
@@ -1505,6 +1826,9 @@ initializeStudentDashboard();
 function refreshStudentDashboardData() {
   if (!studentPageState.student) return;
   loadStudentDashboard(studentPageState.student);
+  if (document.getElementById("visitHistory")?.classList.contains("active")) {
+    loadStudentVisitHistory();
+  }
 }
 
 window.addEventListener("focus", refreshStudentDashboardData);
@@ -1634,7 +1958,7 @@ async function sendMessage() {
     input.value = "";
 
     try {
-        const response = await fetch("http://localhost:8080/api/chat", {
+        const response = await fetch(`${BASE_URL}/api/chat`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

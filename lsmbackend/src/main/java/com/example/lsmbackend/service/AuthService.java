@@ -33,6 +33,10 @@ public class AuthService {
         Staff staff = staffrepo.findByStaffCodeOrEmail(loginId, loginId)
                 .orElseThrow(() -> new RuntimeException("Staff not found"));
 
+        if (!Boolean.TRUE.equals(staff.getActive())) {
+            throw new RuntimeException("Staff account is inactive");
+        }
+
         boolean passwordMatched = passwordEncoder.matches(password, staff.getPassword());
 
         if (!passwordMatched) {

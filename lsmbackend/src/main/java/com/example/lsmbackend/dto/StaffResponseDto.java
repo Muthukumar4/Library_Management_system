@@ -1,48 +1,35 @@
-package com.example.lsmbackend.model;
+package com.example.lsmbackend.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.example.lsmbackend.model.Staff;
+import com.example.lsmbackend.model.StaffType;
 
-@AllArgsConstructor
-@NoArgsConstructor
-
-
-@Entity
-public class Staff {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class StaffResponseDto {
     private Long staffId;
-
-    @Column(unique = true, nullable = false)
     private String staffCode;
-
-    @Column(nullable = false)
     private String name;
     private String department;
     private String email;
     private String phone;
-
-    @Enumerated(EnumType.STRING)
     private StaffType staffType;
-    @Column(unique = true)
     private String barcode;
+    private Boolean active;
 
-    private Boolean active=true;
-    @JsonIgnore
-    @Column(nullable = false)
-    private String password;
+    public static StaffResponseDto from(Staff staff) {
+        if (staff == null) {
+            return null;
+        }
 
-
-    public StaffType getStaffType() {
-        return staffType;
-    }
-
-    public void setStaffType(StaffType staffType) {
-        this.staffType = staffType;
+        StaffResponseDto dto = new StaffResponseDto();
+        dto.setStaffId(staff.getStaffId());
+        dto.setStaffCode(staff.getStaffCode());
+        dto.setName(staff.getName());
+        dto.setDepartment(staff.getDepartment());
+        dto.setEmail(staff.getEmail());
+        dto.setPhone(staff.getPhone());
+        dto.setStaffType(staff.getStaffType());
+        dto.setBarcode(staff.getBarcode());
+        dto.setActive(staff.getActive());
+        return dto;
     }
 
     public Long getStaffId() {
@@ -93,6 +80,14 @@ public class Staff {
         this.phone = phone;
     }
 
+    public StaffType getStaffType() {
+        return staffType;
+    }
+
+    public void setStaffType(StaffType staffType) {
+        this.staffType = staffType;
+    }
+
     public String getBarcode() {
         return barcode;
     }
@@ -107,13 +102,5 @@ public class Staff {
 
     public void setActive(Boolean active) {
         this.active = active;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 }

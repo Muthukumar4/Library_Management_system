@@ -6,9 +6,9 @@ import com.example.lsmbackend.dto.AdminDeleteRequest;
 import com.example.lsmbackend.dto.AdminLoginRequest;
 import com.example.lsmbackend.dto.AdminStaffUpdateRequest;
 import com.example.lsmbackend.dto.AdminStudentUpdateRequest;
+import com.example.lsmbackend.dto.StaffResponseDto;
+import com.example.lsmbackend.dto.StudentResponseDto;
 import com.example.lsmbackend.model.Book;
-import com.example.lsmbackend.model.Staff;
-import com.example.lsmbackend.model.Student;
 import com.example.lsmbackend.service.AdminActionService;
 import com.example.lsmbackend.service.Issueservice;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,8 +46,8 @@ public class AdminRecordController {
     }
 
     @PutMapping("/students/{rollNumber}")
-    public Student updateStudent(@PathVariable String rollNumber, @RequestBody AdminStudentUpdateRequest request) {
-        return adminActionService.updateStudent(rollNumber, request);
+    public StudentResponseDto updateStudent(@PathVariable String rollNumber, @RequestBody AdminStudentUpdateRequest request) {
+        return StudentResponseDto.from(adminActionService.updateStudent(rollNumber, request));
     }
 
     @DeleteMapping("/students/{rollNumber}")
@@ -57,8 +57,8 @@ public class AdminRecordController {
     }
 
     @PutMapping("/staff/{staffCode}")
-    public Staff updateStaff(@PathVariable String staffCode, @RequestBody AdminStaffUpdateRequest request) {
-        return adminActionService.updateStaff(staffCode, request);
+    public StaffResponseDto updateStaff(@PathVariable String staffCode, @RequestBody AdminStaffUpdateRequest request) {
+        return StaffResponseDto.from(adminActionService.updateStaff(staffCode, request));
     }
 
     @DeleteMapping("/staff/{staffCode}")

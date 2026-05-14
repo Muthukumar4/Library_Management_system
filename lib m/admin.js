@@ -1,4 +1,29 @@
-const BASE_URL = "http://localhost:8080";
+const BASE_URL =
+  window.LMS_API_BASE_URL ||
+  localStorage.getItem("lmsApiBaseUrl") ||
+  document.querySelector('meta[name="api-base-url"]')?.content ||
+  "http://localhost:8080";
+
+const originalFetch = window.fetch.bind(window);
+const adminAccessState = {
+  validated: false
+};
+
+window.fetch = function(input, init = {}) {
+  const requestUrl = typeof input === "string" ? input : input?.url || "";
+  const authHeader = String(sessionStorage.getItem("lmsAuthHeader") || "").trim();
+
+  if (!authHeader || !requestUrl.startsWith(BASE_URL)) {
+    return originalFetch(input, init);
+  }
+
+  const headers = new Headers(init?.headers || (input instanceof Request ? input.headers : undefined));
+  if (!headers.has("Authorization")) {
+    headers.set("Authorization", authHeader);
+  }
+
+  return originalFetch(input, { ...init, headers });
+};
 
 const NOTIFY_KEY = "lmsAdminNotifications";
 
@@ -261,13 +286,64 @@ function getSessionAuthHeader() {
   return String(sessionStorage.getItem("lmsAuthHeader") || "").trim();
 }
 
+function hasAdminSessionCandidate() {
+  return getSessionRole() === "admin" && !!getAdminUsername() && !!getSessionAuthHeader();
+}
+
+function resetAdminSessionAndRedirect() {
+  sessionStorage.removeItem("lmsAuthHeader");
+  sessionStorage.removeItem("lmsRole");
+  sessionStorage.removeItem("lmsUsername");
+  sessionStorage.removeItem("lmsStudent");
+  sessionStorage.removeItem("lmsStaff");
+  adminAccessState.validated = false;
+  window.location.replace("index.html");
+}
+
+async function validateAdminAccess() {
+  if (!hasAdminSessionCandidate()) {
+    resetAdminSessionAndRedirect();
+    return false;
+  }
+
+  try {
+    const res = await originalFetch(`${BASE_URL}/api/auth/session`, {
+      headers: {
+        Authorization: getSessionAuthHeader()
+      }
+    });
+
+    if (!res.ok) {
+      resetAdminSessionAndRedirect();
+      return false;
+    }
+
+    const session = await res.json();
+    const role = String(session?.role || "").trim().toUpperCase();
+    const username = String(session?.username || "").trim();
+    const expectedUsername = getAdminUsername();
+    const isValid = role === "ADMIN" && username.toLowerCase() === expectedUsername.toLowerCase();
+
+    if (!isValid) {
+      resetAdminSessionAndRedirect();
+      return false;
+    }
+
+    adminAccessState.validated = true;
+    return true;
+  } catch (error) {
+    resetAdminSessionAndRedirect();
+    return false;
+  }
+}
+
 function isAdminSessionActive() {
-  return getSessionRole() === "admin" && !!getAdminUsername();
+  return hasAdminSessionCandidate() && adminAccessState.validated;
 }
 
 function requireAdminAccess() {
   if (isAdminSessionActive()) return true;
-  window.location.href = "index.html";
+  window.location.replace("index.html");
   return false;
 }
 
@@ -802,8 +878,6 @@ let activeBookActionMode = null;
 
 function loadBooks() {
 
-  console.log("loadBooks called");
-
 
 
   fetch(`${BASE_URL}/api/books/all`)
@@ -860,29 +934,39 @@ function renderBooks(books) {
 
   books.forEach(b => {
 
+    const bookId = escapeHtml(String(b.bookId ?? b.id ?? 0));
+    const title = escapeHtml(b.title || "");
+    const author = escapeHtml(b.author || "");
+    const publisher = escapeHtml(b.publisher || "");
+    const category = escapeHtml(b.category || "");
+    const rackNumber = escapeHtml(b.rackNumber || "");
+    const shelfNumber = escapeHtml(b.shelfNumber || "");
+    const totalCopies = escapeHtml(b.Totalcopies != null ? b.Totalcopies : "");
+    const availableCopies = escapeHtml(getAvailableCopies(b));
+
     table.innerHTML += `
 
       <tr>
 
-        <td class="${selectionCellClass}"><input type="checkbox" name="selectedBookRow" value="${b.bookId ?? b.id ?? 0}" onclick="updateSelectedBookActions()"></td>
+        <td class="${selectionCellClass}"><input type="checkbox" name="selectedBookRow" value="${bookId}" onclick="updateSelectedBookActions()"></td>
 
-        <td>${b.bookId || b.id || ""}</td>
+        <td>${bookId}</td>
 
-        <td>${b.title || ""}</td>
+        <td>${title}</td>
 
-        <td>${b.author || ""}</td>
+        <td>${author}</td>
 
-        <td>${b.publisher || ""}</td>
+        <td>${publisher}</td>
 
-        <td>${b.category || ""}</td>
+        <td>${category}</td>
 
-        <td>${b.rackNumber || ""}</td>
+        <td>${rackNumber}</td>
 
-        <td>${b.shelfNumber || ""}</td>
+        <td>${shelfNumber}</td>
 
-        <td>${b.Totalcopies != null ? b.Totalcopies : ""}</td>
+        <td>${totalCopies}</td>
 
-        <td>${getAvailableCopies(b)}</td>
+        <td>${availableCopies}</td>
 
       </tr>
 
@@ -3688,14 +3772,238 @@ async function fetchAllIssues() {
 
 function openSectionById(sectionId) {
 
-  const menuItem = Array.from(document.querySelectorAll(".menu li"))
+  const menuButton = Array.from(document.querySelectorAll(".menu button"))
 
-    .find(li => String(li.getAttribute("onclick") || "").includes(`'${sectionId}'`));
+    .find(button => String(button.getAttribute("onclick") || "").includes(`showSection('${sectionId}'`));
 
-  if (!menuItem) return;
+  showSection(sectionId, menuButton || null);
 
-  showSection(sectionId, menuItem);
+}
 
+const adminVisitState = {
+  records: [],
+  selectedMemberType: "Student",
+  scanInFlight: false,
+  scanTimer: null
+};
+
+function getVisitStatusBadge(status) {
+  const normalizedStatus = String(status || "").trim().toUpperCase();
+  if (normalizedStatus === "INSIDE") {
+    return `<span class="status-badge visit-inside">INSIDE</span>`;
+  }
+  return `<span class="status-badge visit-exited">EXITED</span>`;
+}
+
+function formatVisitDate(value) {
+  if (!value) return "-";
+  const date = new Date(`${value}T00:00:00`);
+  return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleDateString();
+}
+
+function formatVisitDateTime(value) {
+  if (!value) return "-";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString();
+}
+
+function setAdminVisitFeedback(message, type = "") {
+  const el = document.getElementById("adminVisitFeedback");
+  if (!el) return;
+  el.textContent = message || "";
+  el.className = `visit-feedback${type ? ` ${type}` : ""}`;
+}
+
+function normalizeAdminVisitMemberType(value) {
+  const raw = String(value || "").trim().toLowerCase();
+  if (raw === "staff") return "Staff";
+  return "Student";
+}
+
+function setAdminVisitMemberType(memberType) {
+  adminVisitState.selectedMemberType = memberType === "Staff" ? "Staff" : "Student";
+  document.querySelectorAll("[data-visit-member-type]").forEach(button => {
+    button.classList.toggle("active", button.dataset.visitMemberType === adminVisitState.selectedMemberType);
+  });
+  renderAdminVisitTable();
+}
+
+function getFilteredAdminVisits() {
+  const search = String(document.getElementById("adminVisitSearch")?.value || "").trim().toLowerCase();
+  const status = String(document.getElementById("adminVisitStatusFilter")?.value || "ALL").trim().toUpperCase();
+  const date = String(document.getElementById("adminVisitDateFilter")?.value || "").trim();
+
+  return adminVisitState.records.filter(record => {
+    const normalizedType = normalizeAdminVisitMemberType(record?.memberType);
+    const normalizedStatus = String(record?.status || "").trim().toUpperCase();
+    const recordDate = String(record?.date || "").trim();
+    const searchSource = [
+      record?.memberId,
+      record?.name,
+      normalizedType,
+      normalizedStatus,
+      formatVisitDate(recordDate)
+    ].join(" ").toLowerCase();
+
+    if (search && !searchSource.includes(search)) return false;
+    if (normalizedType !== adminVisitState.selectedMemberType) return false;
+    if (status !== "ALL" && normalizedStatus !== status) return false;
+    if (date && recordDate !== date) return false;
+
+    return true;
+  });
+}
+
+function renderAdminVisitTable() {
+  const tbody = document.getElementById("adminVisitTableBody");
+  if (!tbody) return;
+
+  const rows = getFilteredAdminVisits();
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="6">No visit records match the selected filters.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map(record => `
+    <tr>
+      <td>${escapeHtml(record?.memberId || "-")}</td>
+      <td>${escapeHtml(record?.name || "-")}</td>
+      <td>${escapeHtml(normalizeAdminVisitMemberType(record?.memberType))}</td>
+      <td>${escapeHtml(formatVisitDateTime(record?.entryTime))}</td>
+      <td>${escapeHtml(formatVisitDateTime(record?.exitTime))}</td>
+      <td>${getVisitStatusBadge(record?.status)}</td>
+    </tr>
+  `).join("");
+}
+
+async function loadAdminInsideCount() {
+  const countEl = document.getElementById("adminInsideCount");
+  if (!countEl) return;
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/visits/inside-count`);
+    if (!res.ok) {
+      countEl.textContent = "0";
+      return;
+    }
+
+    const data = await res.json();
+    countEl.textContent = String(Number(data?.count) || 0);
+  } catch (error) {
+    countEl.textContent = "0";
+  }
+}
+
+async function loadLibraryVisits() {
+  const tbody = document.getElementById("adminVisitTableBody");
+  if (tbody) {
+    tbody.innerHTML = `<tr><td colspan="6">Loading visit records...</td></tr>`;
+  }
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/visits/all`);
+    if (!res.ok) {
+      const message = await readErrorMessage(res, "Failed to load visit records.");
+      throw new Error(message);
+    }
+
+    const data = await res.json();
+    adminVisitState.records = Array.isArray(data) ? data : [];
+    renderAdminVisitTable();
+    await loadAdminInsideCount();
+  } catch (error) {
+    if (tbody) {
+      tbody.innerHTML = `<tr><td colspan="6">${escapeHtml(error?.message || "Failed to load visit records.")}</td></tr>`;
+    }
+  }
+}
+
+async function submitAdminVisitScan(scannedId) {
+  const input = document.getElementById("adminVisitScanInput");
+  const normalizedId = String(scannedId || "").trim();
+  if (!normalizedId || adminVisitState.scanInFlight) return;
+
+  adminVisitState.scanInFlight = true;
+  setAdminVisitFeedback("Processing scan...");
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/visits/scan`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ scannedId: normalizedId })
+    });
+
+    if (!res.ok) {
+      const message = await readErrorMessage(res, "Unable to record library visit.");
+      throw new Error(message);
+    }
+
+    const data = await res.json();
+    const message = String(data?.message || "Visit recorded successfully").trim();
+    setAdminVisitFeedback(message, "success");
+    addNotification(message, "success");
+    if (input) input.value = "";
+    await loadLibraryVisits();
+  } catch (error) {
+    const message = error?.message || "Unable to record library visit.";
+    setAdminVisitFeedback(message, "error");
+    showErrorPopup(message);
+  } finally {
+    adminVisitState.scanInFlight = false;
+  }
+}
+
+function queueAdminVisitAutoScan() {
+  if (adminVisitState.scanTimer) {
+    clearTimeout(adminVisitState.scanTimer);
+  }
+
+  adminVisitState.scanTimer = window.setTimeout(() => {
+    const input = document.getElementById("adminVisitScanInput");
+    const value = String(input?.value || "").trim();
+    if (value.length >= 3) {
+      submitAdminVisitScan(value);
+    }
+  }, 220);
+}
+
+function bindAdminVisitTrackingEvents() {
+  const scanInput = document.getElementById("adminVisitScanInput");
+  if (scanInput && !scanInput.dataset.bound) {
+    scanInput.dataset.bound = "true";
+    scanInput.addEventListener("input", () => {
+      setAdminVisitFeedback("");
+      queueAdminVisitAutoScan();
+    });
+    scanInput.addEventListener("keydown", event => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        submitAdminVisitScan(event.currentTarget?.value || "");
+      }
+    });
+  }
+
+  [
+    "adminVisitSearch",
+    "adminVisitStatusFilter",
+    "adminVisitDateFilter"
+  ].forEach(id => {
+    const field = document.getElementById(id);
+    if (!field || field.dataset.bound) return;
+    field.dataset.bound = "true";
+    field.addEventListener("input", renderAdminVisitTable);
+    field.addEventListener("change", renderAdminVisitTable);
+  });
+
+  document.querySelectorAll("[data-visit-member-type]").forEach(button => {
+    if (button.dataset.bound) return;
+    button.dataset.bound = "true";
+    button.addEventListener("click", () => {
+      setAdminVisitMemberType(button.dataset.visitMemberType || "Student");
+    });
+  });
 }
 
 
@@ -4963,7 +5271,8 @@ function showSection(id, el) {
 
   );
 
-  if (el) el.classList.add('active');
+  const menuItem = el?.closest ? el.closest('li') : el;
+  if (menuItem) menuItem.classList.add('active');
 
   hideNotifications();
 
@@ -5059,6 +5368,12 @@ function showSection(id, el) {
 
   }
 
+  if (id === 'libraryVisits') {
+
+    loadLibraryVisits();
+
+  }
+
 
 
   if (id === 'dashboard') {
@@ -5151,17 +5466,33 @@ async function logout() {
 
   }
 
-  window.location.href = "index.html";
+  resetAdminSessionAndRedirect();
 
 }
 
+window.addEventListener("pageshow", (event) => {
+
+  if (!event.persisted) return;
+
+  validateAdminAccess();
+
+});
 
 
-window.addEventListener("DOMContentLoaded", () => {  if (!requireAdminAccess()) return;
+
+window.addEventListener("DOMContentLoaded", async () => {  if (!hasAdminSessionCandidate()) {
+    resetAdminSessionAndRedirect();
+    return;
+  }
+
+  const accessGranted = await validateAdminAccess();
+  if (!accessGranted) return;
 
   renderNotifications();
 
   setMemberInputPlaceholders();
+
+  bindAdminVisitTrackingEvents();
 
   loadDashboardOverview();
 
@@ -5171,9 +5502,17 @@ window.addEventListener("DOMContentLoaded", () => {  if (!requireAdminAccess()) 
 
     const dashboardActive = document.getElementById("dashboard")?.classList.contains("active");
 
+    const visitsActive = document.getElementById("libraryVisits")?.classList.contains("active");
+
     if (dashboardActive) {
 
       loadDashboardOverview();
+
+    }
+
+    if (visitsActive) {
+
+      loadLibraryVisits();
 
     }
 
